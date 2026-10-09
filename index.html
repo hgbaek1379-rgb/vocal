@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>발성 훈련 기록</title>
+<meta name="theme-color" content="#2f5bd3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="발성 훈련">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#15181e; --sub:#5b6270; --line:#e3e6eb;
+    --accent:#2f5bd3; --accent-ink:#ffffff; --tint:#e8eefc; --tint2:#c9d6f6;
+    --ok:#1f8a5b; --warn:#b5651d; --shadow:0 1px 2px rgba(20,24,30,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1115; --card:#181b21; --ink:#eef0f4; --sub:#a1a8b5; --line:#2a2f38;
+      --accent:#7b9cff; --accent-ink:#0f1115; --tint:#1e2740; --tint2:#33467a;
+      --ok:#5cc596; --warn:#e3a066; --shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --card:#181b21; --ink:#eef0f4; --sub:#a1a8b5; --line:#2a2f38;
+    --accent:#7b9cff; --accent-ink:#0f1115; --tint:#1e2740; --tint2:#33467a;
+    --ok:#5cc596; --warn:#e3a066; --shadow:none;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink)}
+  body{font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;
+    -webkit-tap-highlight-color:transparent;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  button{font:inherit;color:inherit}
+  .wrap{max-width:520px;margin:0 auto;padding:16px 16px 24px}
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 0 16px}
+  .dday{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .dsub{font-size:13px;color:var(--sub);margin-top:6px}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--accent);
+    font-weight:600;font-size:13px;padding:6px 10px;border-radius:999px;white-space:nowrap}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+  .card h3{margin:0;font-size:15px;font-weight:600}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .muted{color:var(--sub);font-size:13px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;margin-bottom:12px}
+  .seg button{border:0;background:transparent;padding:12px 8px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;min-height:44px}
+  .seg button.on{background:var(--accent);color:var(--accent-ink)}
+  .seg small{display:block;font-weight:500;font-size:12px;opacity:.8;margin-top:2px}
+  .toggle{border:0;background:none;padding:0;cursor:pointer;width:100%;text-align:left;min-height:28px}
+  .chev{transition:transform .2s;color:var(--sub)}
+  .open .chev{transform:rotate(180deg)}
+  ol.steps{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+  ol.steps li label{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;cursor:pointer}
+  ol.steps input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent);flex:none}
+  .once{margin-top:12px;background:var(--tint);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;font-weight:500}
+  .guide-t{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);min-height:36px}
+  dl.guide{display:grid;grid-template-columns:76px 1fr;gap:10px 10px;margin:10px 0 0;font-size:13px;line-height:1.55}
+  dl.guide dt{font-weight:600;color:var(--ink)}
+  dl.guide dd{margin:0;color:var(--sub)}
+  .counter{display:flex;flex-direction:column;align-items:center;padding:20px 16px}
+  .ring{position:relative;width:240px;height:240px;border:0;background:none;padding:0;cursor:pointer;border-radius:50%;
+    touch-action:manipulation;-webkit-user-select:none;user-select:none}
+  .ring svg{position:absolute;inset:0}
+  .ring .inner{position:absolute;inset:18px;border-radius:50%;background:var(--tint);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .08s}
+  .ring:active .inner{transform:scale(.96)}
+  .ring .num{font-size:72px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--accent)}
+  .ring .of{font-size:15px;color:var(--sub);margin-top:6px}
+  .ring.done .inner{background:var(--ok);}
+  .ring.done .num,.ring.done .of{color:#fff}
+  .dots{display:flex;gap:10px;margin-top:18px}
+  .dot{width:44px;height:8px;border-radius:4px;background:var(--line)}
+  .dot.half{background:var(--tint2)}
+  .dot.full{background:var(--accent)}
+  .setlabel{margin-top:10px;font-size:14px;color:var(--sub)}
+  .actions{display:flex;gap:8px;margin-top:16px;width:100%}
+  .btn{flex:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px;font-weight:600;font-size:14px;cursor:pointer;min-height:44px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.danger{color:#c0392b}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;min-height:40px;min-width:44px;font-size:14px;cursor:pointer}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  .field{display:grid;gap:8px;margin-top:14px}
+  .field > span{font-size:13px;color:var(--sub);font-weight:500}
+  input[type=text],input[type=date],input[type=number],textarea{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);
+    border-radius:10px;padding:11px 12px;font:inherit;font-size:15px;min-height:44px}
+  textarea{resize:vertical;min-height:64px}
+  /* record */
+  .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:10px}
+  .bar > i{display:block;height:100%;background:var(--accent);border-radius:5px}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .stat b{font-size:20px !important}
+  .timer .tdisp{font-size:56px;font-weight:700;letter-spacing:-.03em;text-align:center;margin:12px 0 10px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .timer .tdisp small{font-size:18px;font-weight:500;color:var(--sub);margin-left:4px}
+  .btn.big{width:100%;min-height:60px;font-size:17px}
+  .btn.stop{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+  .auto{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--sub);cursor:pointer}
+  .auto input{width:18px;height:18px;accent-color:var(--accent)}
+  .blist{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-size:13px}
+  .bchip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-variant-numeric:tabular-nums}
+  .bchip.best{background:var(--tint);border-color:var(--tint2);color:var(--accent);font-weight:600}
+  .lead{background:var(--tint);border-color:var(--tint2)}
+  .lead b{font-size:16px;line-height:1.5;display:block}
+  .lead p{margin:8px 0 0;font-size:14px;color:var(--sub);line-height:1.6}
+  .exh{display:flex;align-items:center;gap:10px}
+  .exn{width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;font-size:12px}
+  .flow span{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+  .flow span.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+  .flow i{font-style:normal;color:var(--sub)}
+  .elist{margin:12px 0 0;padding-left:18px;font-size:14px;line-height:1.7}
+  .rule{margin-top:12px;background:var(--bg);border-radius:10px;padding:12px}
+  .rule b{font-size:15px}
+  .rule p{margin:6px 0 0;font-size:13px;color:var(--sub);line-height:1.6}
+  .setup h1{font-size:26px;margin:8px 0 4px;letter-spacing:-.02em}
+  .plan{display:grid;gap:6px;margin-top:12px;font-size:13px}
+  .plan div{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--bg);border-radius:8px}
+  .plan b{font-weight:600}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:22px;font-weight:700}
+  .stat span{font-size:12px;color:var(--sub)}
+  .grid{display:grid;grid-template-columns:44px repeat(7,minmax(0,1fr));gap:4px;margin-top:12px;align-items:center}
+  .grid .h{font-size:11px;color:var(--sub);text-align:center}
+  .grid .wk{font-size:11px;color:var(--sub);line-height:1.2}
+  .grid .wk b{display:block;color:var(--ink);font-size:12px}
+  .cell{border:0;padding:3px;border-radius:8px;background:transparent;cursor:pointer;display:grid;grid-template-rows:auto 1fr 1fr;gap:2px;aspect-ratio:1/1.15;min-height:44px}
+  .cell .d{font-size:10px;color:var(--sub);text-align:center;line-height:1.2}
+  .cell .h2{border-radius:4px;background:var(--line)}
+  .cell .h2.p{background:var(--tint2)}
+  .cell .h2.f{background:var(--accent)}
+  .cell.future .h2{background:transparent;border:1px dashed var(--line)}
+  .cell.today{outline:2px solid var(--accent);outline-offset:-1px}
+  .stageline{grid-column:1/-1;font-size:11px;font-weight:600;color:var(--accent);margin-top:8px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--sub)}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+  .wtable{display:grid;grid-template-columns:44px repeat(7,minmax(0,1fr));gap:4px;margin-top:12px;font-size:12px;text-align:center}
+  .wtable .c{height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--line)}
+  .wtable .c.f{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .wtable .c.p{background:var(--tint2);border-color:var(--tint2)}
+  .wtable .lbl{display:flex;align-items:center;color:var(--sub)}
+  /* nav */
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+    display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+  nav.tabs button{border:0;background:none;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--sub);cursor:pointer;min-height:52px}
+  nav.tabs button.on{color:var(--accent);font-weight:600}
+  nav.tabs svg{width:22px;height:22px}
+  /* sheet */
+  .scrim{position:fixed;inset:0;background:rgba(10,12,16,.45);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+  .sheet{background:var(--card);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));max-height:85vh;overflow:auto}
+  .sess{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+    padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hidden{display:none !important}
+  .finish{text-align:center;padding:28px 16px}
+  .finish b{font-size:22px;display:block;margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<nav class="tabs" aria-label="화면 전환">
+  <button data-tab="today" class="on" aria-label="오늘">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>오늘
+  </button>
+  <button data-tab="record" aria-label="기록">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg>기록
+  </button>
+  <button data-tab="effect" aria-label="효과">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>효과
+  </button>
+  <button data-tab="settings" aria-label="설정">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>설정
+  </button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="importFile" accept="application/json,.json" class="hidden">
+
+<script>
+/* =========================================================
+   SOVT 발성 훈련 기록 — 단일 파일 앱 (localStorage 저장)
+   ========================================================= */
+const KEY = 'sovt-log-v1';
+
+// ---- 플랜 데이터 ----
+// steps: 체크리스트 / once: 1회의 기준 / guide: [항목, 설명] 단계별 디테일
+const STAGES = {
+  1:{name:'감각 적응 · 기초 호흡', weeks:'1~2주', holes:'구멍 2~3개',
+     goal:'입술·턱·목 힘 빼고, 바람을 끊김 없이 길고 일정하게 내보내기',
+     once:'1회 = 코로 들이쉬고 → 소리 없이 바람 10~15초. 세트 사이 30초 쉬기',
+     timer:'날숨 10~15초로 시작 → 20초 이상으로',
+     steps:['숙여서 호흡 확인 5회 (손은 무릎, 코로 들이쉬고 "스—"로 내쉬기)',
+            '상체 세우고 기구를 입술로 가볍게 물기 (구멍 2~3개)',
+            '코로 조용히 들이쉬고, 소리 없이 바람만 길고 일정하게'],
+     guide:[
+       ['목표','세게가 아니라 "일정하게". 바람 소리가 처음부터 끝까지 같은 크기면 성공'],
+       ['자세','발은 어깨너비, 무릎 살짝 풀기. 정수리는 위로, 어깨와 턱은 툭 떨어뜨리기'],
+       ['숙여 호흡','손을 무릎에 짚고 코로 4초 → 허리 뒤·옆구리가 부푸는지 확인 → "스—" 천천히'],
+       ['들이쉬기','기구를 문 채 코로 조용히 3~4초. 어깨는 그대로, 배·옆구리·등이 둥글게 퍼지게'],
+       ['내쉬기 세기','촛불이 꺼지지 않고 기울기만 하는 정도. 기구 앞 손바닥에 바람이 살짝 닿는 느낌'],
+       ['길이','10~15초로 시작해 조금씩 늘려 20초 이상. 끝에서 쥐어짜지 말고 편할 때 멈추기'],
+       ['볼','부풀리지 않기. 평소 노래할 때 얼굴 그대로. 빵빵해지면 바람이 센 것 → 줄이기. 헷갈리면 엄지·검지로 양 볼을 살짝 받쳐 확인'],
+       ['입술·이','입술로만 가볍게 감싸기. 이로 깨물지 않기. 바람이 새면 입술만 살짝 오므리기'],
+       ['이러면 쉬기','어지럽거나 손끝이 저리면 숨을 너무 많이 쉰 것. 1분간 평소 호흡'],
+     ]},
+  2:{name:'가벼운 발성 얹기', weeks:'3~5주', holes:'구멍 2~3개',
+     goal:'성대 접지 감각 형성 · 가벼운 두성(야금 소리) 적응',
+     once:'1회 = 코로 들이쉬고 → 바람 먼저, 그 위에 "우~" 8~12초',
+     timer:'한 음을 일정하게 8~12초 이상',
+     steps:['숙여서 호흡 확인 5회 후 상체 세우기',
+            '바람 80% + 소리 20%로 "우~" 또는 "음~" 편안한 중저음 길게',
+            '소리가 커지거나 호흡이 짧아지면 → 소리 줄이고 바람 더 내보내기'],
+     guide:[
+       ['시작 순서','바람을 1초 먼저 흘린 뒤 그 위에 소리 얹기 (바람 → 소리). 소리부터 내면 목에 힘이 들어감'],
+       ['소리 크기','말하는 목소리보다 작게. 옆사람에게 겨우 들릴 정도'],
+       ['음높이','평소 말소리 근처의 편한 중저음 한 음으로 길게'],
+       ['느낌','입술·코 주변이 간질간질 떨리면 성공. 목에서 울리면 소리를 더 줄이기'],
+       ['볼','부풀리지 않기는 그대로. 소리를 얹으면 볼이 미세하게 떨리는 건 정상, 부풀면 바람을 줄이기'],
+       ['들이쉬기','1단계와 같이 코로 조용히. 어깨가 올라가지 않게'],
+     ]},
+  3:{name:'파사지오 스케일링', weeks:'6~8주', holes:'구멍 2~3개',
+     goal:'{range} 구간까지 성대를 부드럽게 늘려 연결',
+     once:'1회 = 저음 → 고음 → 저음 사이렌 한 번 (4~6초)',
+     timer:'사이렌 한 번 4~6초, 서두르지 않기',
+     steps:['숙여서 호흡 확인 5회 후 상체 세우기',
+            '기구 물고 저음 → 고음 → 저음 사이렌 슬라이딩',
+            '음이 올라가도 호흡 압력은 갑자기 늘리지 말고 일정하게'],
+     guide:[
+       ['사이렌','미끄럼틀처럼 끊김 없이. 계단식으로 음을 끊지 않기'],
+       ['압력','올라갈수록 바람을 더 밀지 말고 처음 세기 그대로'],
+       ['범위','첫 주는 편한 범위만. 매주 반음~한 음씩 넓혀 {range}까지'],
+       ['꺾이는 곳','소리가 뒤집혀도 괜찮음. 그 구간을 더 작고 가볍게 여러 번 지나가기'],
+       ['볼·턱','고음에서 볼에 힘이 들어가거나 턱이 들리면 범위를 낮추기'],
+     ]},
+  4:{name:'감각 전이 · 실전 곡', weeks:'9~11주', holes:'기구 ↔ 맨소리',
+     goal:'기구 없이도 같은 발성 유지 · {song} 완곡',
+     once:'1회 = 기구로 1소절 + 맨소리로 같은 1소절',
+     steps:['[기구 물고 1소절 → 기구 빼고 바로 1소절] 번갈아',
+            '혀뿌리에 힘 들어가면 기구 물었을 때의 목구멍 공간 떠올리기',
+            '{song} MR에 맞춰 리듬·가사 전달 위주로 연습'],
+     guide:[
+       ['들이쉬기','이제 기구를 빼고 부르므로 입(또는 입+코)으로 "앗!" 놀라듯 빠르게 → 목구멍이 열리는 느낌'],
+       ['감각 옮기기','기구로 부를 때의 편안한 목과 입 안 공간을 맨소리에도 그대로 가져오기'],
+       ['혀뿌리','맨소리에서 혀뿌리에 힘이 들어가면 바로 기구로 1소절 더'],
+       ['배','일부러 집어넣거나 힘주지 않기. 소리가 나가면 배는 자연히 들어감'],
+       ['실전','MR 연습 때는 발성 생각은 내려놓고 리듬·가사·감정에만 집중'],
+     ]}
+};
+
+// ---- 저장소 (실패해도 앱은 동작) ----
+// 새 사용자 기본값: 내일 시작, 11주 뒤 목표 (첫 화면에서 바꿀 수 있음)
+const _t0 = new Date(); _t0.setDate(_t0.getDate()+1);
+const _start0 = `${_t0.getFullYear()}-${String(_t0.getMonth()+1).padStart(2,'0')}-${String(_t0.getDate()).padStart(2,'0')}`;
+const _t1 = new Date(_t0); _t1.setDate(_t1.getDate()+76);
+const _target0 = `${_t1.getFullYear()}-${String(_t1.getMonth()+1).padStart(2,'0')}-${String(_t1.getDate()).padStart(2,'0')}`;
+const DEFAULTS = { startDate:_start0, targetDate:_target0, sets:3, reps:10, song:'', range:'', autoAdd:true, setupDone:false, logs:{} };
+let S;
+function load(){
+  try{ const raw = localStorage.getItem(KEY); S = raw ? {...DEFAULTS, ...JSON.parse(raw)} : {...DEFAULTS}; }
+  catch(e){ S = {...DEFAULTS}; }
+  if(!S.logs || typeof S.logs!=='object') S.logs = {};
+}
+// 문구 속 {song} {range} 를 사용자 설정으로 바꿈
+const songTxt = () => S.song ? `〈${S.song}〉` : '목표 곡';
+const fill = txt => String(txt).replace(/\{song\}/g, songTxt()).replace(/\{range\}/g, S.range || '목표 음역');
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ toast('저장 실패: 브라우저 저장 공간을 확인해 주세요'); }
+}
+
+// ---- 날짜 유틸 (로컬 시간 기준) ----
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (s,n) => { const d=parse(s); d.setDate(d.getDate()+n); return ymd(d); };
+const diff = (a,b) => Math.round((parse(b)-parse(a))/864e5); // b - a (일)
+const WD = ['일','월','화','수','목','금','토'];
+const md = s => { const d=parse(s); return `${d.getMonth()+1}/${d.getDate()}`; };
+const wd = s => WD[parse(s).getDay()];
+const today = () => ymd(new Date());
+
+function totalWeeks(){ return Math.ceil((diff(S.startDate,S.targetDate)+1)/7); }
+function weekOf(date){ const n=diff(S.startDate,date); return n<0 ? 0 : Math.floor(n/7)+1; }
+// 전체 기간을 11주 플랜 비율(2:3:3:3)로 나눔 → 11주면 1~2 / 3~5 / 6~8 / 9~11주
+function stageBounds(tw){ tw = tw || totalWeeks(); return [Math.max(1,Math.round(tw*2/11)), Math.round(tw*5/11), Math.round(tw*8/11)]; }
+function stageOf(week, tw){ const [a,b,c]=stageBounds(tw); if(week<=a) return 1; if(week<=b) return 2; if(week<=c) return 3; return 4; }
+
+// ---- 세션 데이터 ----
+function sess(date, slot, create){
+  if(!S.logs[date]){ if(!create) return null; S.logs[date]={}; }
+  if(!S.logs[date][slot]){ if(!create) return null; S.logs[date][slot]={sets:[],done:false,checks:[],mood:0,holes:0,memo:''}; }
+  return S.logs[date][slot];
+}
+function status(s){ if(!s) return ''; if(s.done) return 'f'; if((s.sets||[]).some(x=>x>0)) return 'p'; return ''; }
+function setsDone(s){ return s ? (s.sets||[]).filter(x=>x>=S.reps).length : 0; }
+
+// ---- UI 상태 ----
+let tab = 'today';
+let slot = new Date().getHours() < 15 ? 'am' : 'pm';
+let routineOpen = true;
+let guideOpen = true;
+let sheetDate = null;
+
+const $app = document.getElementById('app');
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),1600);
+}
+function buzz(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
+// =================== 날숨 스톱워치 ===================
+let timerStart = null;   // 측정 시작 시각(ms), 멈춰 있으면 null
+let timerIv = null;
+const fmt = sec => sec.toFixed(1);
+function allBreaths(){ const out=[]; Object.values(S.logs).forEach(d=>['am','pm'].forEach(k=>(d[k]?.breaths||[]).forEach(v=>out.push(v)))); return out; }
+function timerCard(P, s){
+  const list = s?.breaths || [];
+  const best = list.length ? Math.max(...list) : 0;
+  const ever = Math.max(0, ...allBreaths());
+  const running = timerStart !== null;
+  return `
+    <section class="card timer">
+      <div class="row"><h3>날숨 스톱워치</h3><span class="muted">최고 기록 ${fmt(ever)}초</span></div>
+      <p class="muted" style="margin:4px 0 0">${esc(P.timer)}</p>
+      <div class="tdisp" id="tdisp" aria-live="off">${running ? fmt((Date.now()-timerStart)/1000) : list.length ? fmt(list[list.length-1]) : '0.0'}<small>초</small></div>
+      <button class="btn ${running?'stop':'primary'} big" data-act="timer">${running ? '정지 (내쉬기 끝)' : '시작 (내쉬기 시작)'}</button>
+      <label class="auto"><input type="checkbox" data-act="autoadd" ${S.autoAdd?'checked':''}> 정지하면 카운터 1회 자동 추가</label>
+      ${list.length ? `<div class="blist"><span class="muted">이번 세션</span>${list.slice(-10).map(v=>`<span class="bchip ${v===best?'best':''}">${fmt(v)}</span>`).join('')}</div>` : ''}
+    </section>`;
+}
+function startTicker(){
+  clearInterval(timerIv);
+  timerIv = setInterval(()=>{
+    const el=document.getElementById('tdisp');
+    if(el && timerStart!==null) el.firstChild.nodeValue = fmt((Date.now()-timerStart)/1000);
+  }, 100);
+}
+function toggleTimer(){
+  if(timerStart === null){ timerStart = Date.now(); buzz(15); startTicker(); return; }
+  const sec = Math.round((Date.now()-timerStart)/100)/10;
+  timerStart = null; clearInterval(timerIv);
+  if(sec < 1){ toast('1초 미만은 기록하지 않아요'); return; }
+  const s = sess(today(), slot, true);
+  const prevBest = Math.max(0, ...allBreaths());
+  (s.breaths = s.breaths || []).push(sec);
+  if(S.autoAdd && !s.done) addRep(s); else save();
+  if(prevBest > 0 && sec > prevBest) toast(`최고 기록 ${fmt(sec)}초!`);
+}
+// 카운터 +1 (탭과 스톱워치 공용)
+function addRep(s){
+  if(s.done){ toast('이미 완료한 세션이에요'); return; }
+  if(!s.sets.length || s.sets[s.sets.length-1]>=S.reps) s.sets.push(0);
+  s.sets[s.sets.length-1]++;
+  if(s.sets[s.sets.length-1]>=S.reps){
+    if(setsDone(s)>=S.sets){ s.done=true; buzz([40,60,40]); toast('세션 완료!'); }
+    else { buzz(80); toast(`${setsDone(s)}세트 완료`); }
+  } else buzz(12);
+  save();
+}
+
+// =================== 오늘 ===================
+function renderToday(){
+  const t = today();
+  const dLeft = diff(t, S.targetDate);
+  const wk = weekOf(t), tw = totalWeeks();
+  const before = diff(S.startDate,t) < 0;
+  const after = dLeft < 0;
+  const st = stageOf(Math.max(wk,1));
+  const P = STAGES[st];
+
+  const head = `
+    <header class="top">
+      <div>
+        <div class="dday">${after ? '완주' : dLeft===0 ? 'D-DAY' : 'D-'+dLeft}</div>
+        <div class="dsub">${md(t)} (${wd(t)}) · 목표 ${md(S.targetDate)} ${esc(S.song ? songTxt() : '')}</div>
+      </div>
+      <span class="badge">${before ? '시작 '+md(S.startDate) : `${Math.min(wk,tw)}주차 · ${st}단계`}</span>
+    </header>`;
+
+  if(after){
+    return head + `<div class="card finish"><b>${tw}주 완주를 축하해요</b><span class="muted">기록 탭에서 전체 여정을 확인할 수 있어요.</span></div>`;
+  }
+
+  const s = sess(t, slot, false);
+  const done = s?.done;
+  const arr = s?.sets || [];
+  const last = arr.length ? arr[arr.length-1] : 0;
+  const cur = (last < S.reps) ? last : 0;
+  const nDone = setsDone(s);
+  const pct = done ? 1 : (nDone*S.reps + cur) / (S.sets*S.reps);
+  const C = 2*Math.PI*111;
+
+  const dots = Array.from({length:S.sets},(_,i)=>{
+    const v = arr[i]||0; return `<i class="dot ${v>=S.reps?'full':v>0?'half':''}"></i>`;
+  }).join('');
+
+  const amS = status(sess(t,'am')), pmS = status(sess(t,'pm'));
+  const lab = x => x==='f' ? '완료' : x==='p' ? '진행 중' : '대기';
+
+  const checks = s?.checks || [];
+  const steps = P.steps.map((txt,i)=>`
+    <li><label><input type="checkbox" data-act="check" data-i="${i}" ${checks[i]?'checked':''}><span>${esc(fill(txt))}</span></label></li>`).join('');
+
+  return head + `
+    ${before ? `<div class="card"><h3>준비 기간</h3><p class="muted" style="margin:6px 0 0">${md(S.startDate)}부터 1단계가 시작돼요. 오늘 미리 연습한 기록도 저장됩니다.</p></div>`:''}
+
+    <div class="seg" role="tablist">
+      <button data-act="slot" data-v="am" class="${slot==='am'?'on':''}">아침<small>${lab(amS)}</small></button>
+      <button data-act="slot" data-v="pm" class="${slot==='pm'?'on':''}">저녁<small>${lab(pmS)}</small></button>
+    </div>
+
+    <section class="card ${routineOpen?'open':''}">
+      <button class="toggle row" data-act="routine" aria-expanded="${routineOpen}">
+        <span><h3>${st}단계 · ${esc(P.name)}</h3><span class="muted">${esc(fill(P.goal))}</span></span>
+        <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="${routineOpen?'':'hidden'}">
+        <div class="once">${esc(P.once)}</div>
+        <ol class="steps">${steps}</ol>
+        <button class="toggle row guide-t" data-act="guide" aria-expanded="${guideOpen}">
+          <span class="muted" style="font-weight:600">${st}단계 자세·호흡 디테일</span>
+          <span class="muted">${guideOpen?'접기':'펼치기'}</span>
+        </button>
+        <dl class="guide ${guideOpen?'':'hidden'}">${P.guide.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(fill(b))}</dd>`).join('')}</dl>
+      </div>
+    </section>
+
+    ${P.timer ? timerCard(P, s) : ''}
+
+    <section class="card counter">
+      <button class="ring ${done?'done':''}" data-act="tap" aria-label="1회 추가">
+        <svg viewBox="0 0 240 240" aria-hidden="true">
+          <circle cx="120" cy="120" r="111" fill="none" stroke="var(--line)" stroke-width="10"/>
+          <circle cx="120" cy="120" r="111" fill="none" stroke="${done?'var(--ok)':'var(--accent)'}" stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}" transform="rotate(-90 120 120)" style="transition:stroke-dashoffset .25s"/>
+        </svg>
+        <span class="inner">
+          ${done ? `<span class="num" style="font-size:44px">완료</span><span class="of">${S.sets}세트 × ${S.reps}회</span>`
+                 : `<span class="num">${cur}</span><span class="of">/ ${S.reps}회 · 탭해서 +1</span>`}
+        </span>
+      </button>
+      <div class="dots">${dots}</div>
+      <div class="setlabel">${done ? '오늘 '+(slot==='am'?'아침':'저녁')+' 세션 완료' : `${Math.min(nDone+1,S.sets)}세트째 진행 중 · ${nDone}/${S.sets} 세트 완료`}</div>
+      <div class="actions">
+        <button class="btn" data-act="undo">− 1회 취소</button>
+        ${done ? `<button class="btn" data-act="reopen">다시 하기</button>`
+               : `<button class="btn primary" data-act="finish">세션 완료</button>`}
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>세션 메모</h3>
+      <div class="field"><span>컨디션</span>
+        <div class="chips">${[1,2,3,4,5].map(n=>`<button class="chip ${s?.mood===n?'on':''}" data-act="mood" data-v="${n}">${n}</button>`).join('')}</div>
+      </div>
+      ${st<4?`<div class="field"><span>구멍 수</span>
+        <div class="chips">${[2,3].map(n=>`<button class="chip ${s?.holes===n?'on':''}" data-act="holes" data-v="${n}">${n}개</button>`).join('')}</div>
+      </div>`:''}
+      <label class="field"><span>한 줄 메모</span>
+        <input type="text" data-act="memo" value="${esc(s?.memo||'')}" placeholder="예: 혀뿌리 힘 들어감, 바람 더 은은하게">
+      </label>
+    </section>`;
+}
+
+// =================== 기록 ===================
+function renderRecord(){
+  const t = today(), tw = totalWeeks();
+  const curW = Math.min(Math.max(weekOf(t),1), tw);
+  const wStart = addDays(S.startDate,(curW-1)*7);
+
+  // 이번 주 집계
+  let wDone=0;
+  for(let i=0;i<7;i++){ const d=addDays(wStart,i); ['am','pm'].forEach(k=>{ if(sess(d,k)?.done) wDone++; }); }
+
+  // 누적 / 연속
+  let totalSets=0, totalSess=0;
+  Object.values(S.logs).forEach(day=>['am','pm'].forEach(k=>{ const s=day[k]; if(s){ totalSets+=setsDone(s); if(s.done) totalSess++; } }));
+  let streak=0, d=t;
+  const dayDone = x => sess(x,'am')?.done || sess(x,'pm')?.done;
+  if(!dayDone(d)) d=addDays(d,-1);           // 오늘 아직 안 했으면 어제부터
+  while(dayDone(d)){ streak++; d=addDays(d,-1); }
+
+  // 이번 주 표
+  let head = '<div></div>', amRow='<div class="lbl">아침</div>', pmRow='<div class="lbl">저녁</div>';
+  for(let i=0;i<7;i++){
+    const x=addDays(wStart,i);
+    head += `<div class="muted" style="font-size:11px">${wd(x)}<br>${md(x)}</div>`;
+    const a=status(sess(x,'am')), p=status(sess(x,'pm'));
+    amRow += `<div class="c ${a}">${a==='f'?'✓':''}</div>`;
+    pmRow += `<div class="c ${p}">${p==='f'?'✓':''}</div>`;
+  }
+
+  // 전체 격자
+  let grid = '<div></div>' + Array.from({length:7},(_,i)=>`<div class="h">${wd(addDays(S.startDate,i))}</div>`).join('');
+  let lastStage = 0;
+  for(let w=1; w<=tw; w++){
+    const st = stageOf(w);
+    if(st!==lastStage){ grid += `<div class="stageline">${st}단계 · ${STAGES[st].name}</div>`; lastStage=st; }
+    grid += `<div class="wk"><b>${w}주</b>${md(addDays(S.startDate,(w-1)*7))}</div>`;
+    for(let i=0;i<7;i++){
+      const x = addDays(S.startDate,(w-1)*7+i);
+      if(diff(x,S.targetDate)<0){ grid += '<div></div>'; continue; }
+      const fut = diff(t,x)>0;
+      grid += `<button class="cell ${fut?'future':''} ${x===t?'today':''}" data-act="day" data-d="${x}" aria-label="${md(x)} 기록">
+        <span class="d">${parse(x).getDate()}</span>
+        <span class="h2 ${status(sess(x,'am'))}"></span>
+        <span class="h2 ${status(sess(x,'pm'))}"></span>
+      </button>`;
+    }
+  }
+
+  return `
+    <header class="top"><div><div class="dday" style="font-size:24px">기록</div>
+      <div class="dsub">${md(S.startDate)} ~ ${md(S.targetDate)} · ${tw}주</div></div>
+      <span class="badge">${curW}주차</span></header>
+
+    <div class="stats" style="margin-bottom:12px">
+      <div class="stat"><b>${streak}</b><span>연속 일수</span></div>
+      <div class="stat"><b>${totalSess}</b><span>완료 세션</span></div>
+      <div class="stat"><b>${totalSets}</b><span>누적 세트</span></div>
+      <div class="stat"><b>${fmt(Math.max(0,...allBreaths()))}<small style="font-size:13px">초</small></b><span>최장 날숨</span></div>
+    </div>
+
+    <section class="card">
+      <div class="row"><h3>이번 주 (${curW}주차)</h3><span class="muted">${wDone} / 14 세션</span></div>
+      <div class="bar"><i style="width:${wDone/14*100}%"></i></div>
+      <div class="wtable">${head}${amRow}${pmRow}</div>
+    </section>
+
+    <section class="card">
+      <div class="row"><h3>전체 ${tw}주</h3><span class="muted">칸을 누르면 상세</span></div>
+      <div class="grid">${grid}</div>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>완료</span>
+        <span><i style="background:var(--tint2)"></i>진행 중</span>
+        <span><i style="background:var(--line)"></i>미기록</span>
+        <span class="muted">위칸 아침 · 아래칸 저녁</span>
+      </div>
+    </section>`;
+}
+
+// 날짜 상세 시트
+function renderSheet(){
+  const old = document.getElementById('sheet'); if(old) old.remove();
+  if(!sheetDate) return;
+  const x = sheetDate, st = stageOf(Math.max(weekOf(x),1));
+  const block = (k,label) => {
+    const s = sess(x,k);
+    return `<div class="sess">
+      <div class="row"><b>${label}</b><span class="muted">${s?.done?'완료':setsDone(s)+'/'+S.sets+' 세트'}</span></div>
+      ${s?.mood?`<div class="muted" style="margin-top:6px">컨디션 ${s.mood}/5${s.holes?` · 구멍 ${s.holes}개`:''}</div>`:''}
+      ${s?.breaths?.length?`<div class="muted" style="margin-top:6px">날숨 ${s.breaths.length}회 · 최고 ${fmt(Math.max(...s.breaths))}초 · 평균 ${fmt(s.breaths.reduce((a,c)=>a+c,0)/s.breaths.length)}초</div>`:''}
+      ${s?.memo?`<div style="margin-top:6px;font-size:14px">${esc(s.memo)}</div>`:''}
+      <div class="actions" style="margin-top:10px">
+        ${s?.done ? `<button class="btn" data-act="mark" data-k="${k}" data-v="0">미완료로 변경</button>`
+                  : `<button class="btn primary" data-act="mark" data-k="${k}" data-v="1">완료로 표시</button>`}
+      </div></div>`;
+  };
+  const el = document.createElement('div');
+  el.className='scrim'; el.id='sheet';
+  el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${md(x)} 기록">
+    <div class="row"><div><b style="font-size:18px">${md(x)} (${wd(x)})</b>
+      <div class="muted">${weekOf(x)}주차 · ${st}단계 ${STAGES[st].name}</div></div>
+      <button class="btn" style="flex:none" data-act="close">닫기</button></div>
+    ${block('am','아침')}${block('pm','저녁')}
+  </div>`;
+  document.body.appendChild(el);
+}
+
+// =================== 효과 (원리 설명) ===================
+function renderEffect(){
+  const sec = (num, title, body) => `<section class="card ex"><div class="exh"><span class="exn">${num}</span><h3>${title}</h3></div>${body}</section>`;
+  return `
+    <header class="top"><div><div class="dday" style="font-size:24px">효과</div>
+      <div class="dsub">이 훈련이 왜, 어떻게 효과가 있는지</div></div></header>
+
+    <section class="card lead">
+      <b>입 앞쪽을 살짝 막아 바람이 되돌아오게 하면, 성대가 적은 힘으로 떨리는 환경이 만들어져요.</b>
+      <p>이 좋은 환경을 매일 반복해서 몸이 그 상태를 기본값으로 기억하게 만드는 훈련이에요.</p>
+    </section>
+
+    ${sec(1,'필요한 기구',`
+      <dl class="guide">
+        <dt>SOVT 기구</dt><dd>입에 무는 반폐쇄 기구. 구멍 수로 저항을 조절해요. 구멍이 적을수록 저항이 커져요</dd>
+        <dt>권장 세팅</dt><dd>구멍 2~3개. 4개 이상은 저항이 약해 효과가 줄어요</dd>
+        <dt>대체 방법</dt><dd>빨대(가늘수록 저항이 큼), 입술 떨기(립트릴), 허밍 "음~"도 같은 원리예요</dd>
+        <dt>보조 도구</dt><dd>이 앱의 스톱워치, 거울(어깨·턱·볼 확인용)</dd>
+      </dl>`)}
+
+    ${sec(2,'원리',`
+      <div class="flow" aria-hidden="true">
+        <span>바람</span><i>→</i><span>좁은 입구</span><i>→</i><span>되돌아오는 압력</span><i>→</i><span class="on">성대 부담 ↓</span>
+      </div>
+      <dl class="guide">
+        <dt>역압력</dt><dd>좁은 입구에 막힌 바람이 성대 쪽으로 되돌아와 성대 위아래 압력의 균형을 맞춰요. 그래서 성대가 세게 부딪히지 않고도 쉽게 떨려요</dd>
+        <dt>긴장 완화</dt><dd>혀뿌리를 누르거나 목구멍을 조이는 습관이 끼어들 틈이 줄어들고, 후두가 안정된 위치에 머물러요</dd>
+        <dt>공명 감각</dt><dd>입술·코 주변이 간질간질 떨리는 느낌. "소리가 앞으로 나간다"는 감각을 몸으로 알게 돼요</dd>
+      </dl>`)}
+
+    ${sec(3,'체화되는 이유',`
+      <dl class="guide">
+        <dt>조종 대신 환경</dt><dd>성대 근육은 하나하나 의식해서 움직일 수 없어요. 대신 기구가 올바른 환경을 만들어 주면 몸이 알아서 맞춰요</dd>
+        <dt>반복 노출</dt><dd>그 환경을 매일 반복하면 뇌와 신경이 "이게 편한 발성"으로 저장해요. 근육 기억이에요</dd>
+        <dt>짧게, 자주</dt><dd>한 번 길게보다 아침·저녁 짧게가 유리해요. 그래서 하루 2회 루틴이에요</dd>
+        <dt>감각 옮기기</dt><dd>4단계에서 기구 ↔ 맨소리를 번갈아 하는 이유. 기구로 만든 열린 목 상태를 기구 없이도 꺼내 쓰게 연결해요</dd>
+        <dt>걸리는 시간</dt><dd>보통 2~3개월 꾸준히 하면 차이가 느껴져요. 며칠 만에 바뀌지 않는 게 정상이에요</dd>
+      </dl>`)}
+
+    ${sec(4,'기대 효과',`
+      <ul class="elist">
+        <li>오래 말하거나 노래해도 목이 덜 피곤해요</li>
+        <li>소리가 가벼워지고 앞으로 잘 뻗어요</li>
+        <li>고음으로 넘어가는 구간(파사지오)에서 소리가 덜 꺾여요</li>
+        <li>한 숨으로 버티는 시간이 길어져요 (스톱워치로 확인)</li>
+      </ul>
+      <p class="muted" style="margin:10px 0 0">효과는 꾸준함과 개인 상태에 따라 달라요.</p>`)}
+
+    ${sec(5,'노래할 때는 그냥 부르기',`
+      <div class="rule"><b>발성은 연습 때만. 노래는 노래만.</b>
+        <p>연습에서 몸에 저장해 두면, 실전에서는 신경 쓰지 않아도 저절로 나와요. 노래 중에 발성을 생각하면 오히려 몸이 굳어요.</p></div>
+      <dl class="guide">
+        <dt>집중할 것</dt><dd>리듬, 가사 전달, 감정 표현</dd>
+        <dt>숨</dt><dd>입(또는 입+코)으로 "앗!" 놀라듯 빠르게</dd>
+        <dt>배</dt><dd>일부러 넣거나 힘주지 않기. 소리가 나가면 자연히 들어가요</dd>
+        <dt>막히면</dt><dd>그 소절만 기구로 1번 불고 다시 맨소리로</dd>
+      </dl>`)}
+
+    <section class="card">
+      <h3>이럴 땐 쉬기</h3>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">목이 아프거나 따끔하면 그날은 쉬어요. 쉰 목소리가 2주 넘게 이어지면 이비인후과 진료를 받아 보세요.</p>
+    </section>`;
+}
+
+// =================== 설정 ===================
+function renderSettings(){
+  return `
+    <header class="top"><div><div class="dday" style="font-size:24px">설정</div><div class="dsub">기록은 이 기기에만 저장돼요</div></div></header>
+    <section class="card">
+      <h3>훈련 일정</h3>
+      <label class="field"><span>목표 곡</span><input type="text" data-set="song" value="${esc(S.song)}" placeholder="예: 팝콘"></label>
+      <label class="field"><span>목표 음역 (선택)</span><input type="text" data-set="range" value="${esc(S.range)}" placeholder="예: 2옥타브 파~라"></label>
+      <label class="field"><span>시작일 (1주차 첫날)</span><input type="date" data-set="startDate" value="${S.startDate}"></label>
+      <label class="field"><span>목표일</span><input type="date" data-set="targetDate" value="${S.targetDate}"></label>
+      <div class="field"><span>세션당 세트 수</span>
+        <div class="chips">${[2,3,4,5].map(n=>`<button class="chip ${S.sets===n?'on':''}" data-act="setnum" data-k="sets" data-v="${n}">${n}세트</button>`).join('')}</div></div>
+      <div class="field"><span>세트당 횟수</span>
+        <div class="chips">${[5,8,10,12,15].map(n=>`<button class="chip ${S.reps===n?'on':''}" data-act="setnum" data-k="reps" data-v="${n}">${n}회</button>`).join('')}</div></div>
+    </section>
+    <section class="card">
+      <h3>백업</h3>
+      <p class="muted" style="margin:6px 0 0">폰을 바꾸거나 브라우저 데이터를 지우면 기록이 사라져요. 주 1회 내보내기를 권해요.</p>
+      <div class="actions">
+        <button class="btn primary" data-act="export">내보내기</button>
+        <button class="btn" data-act="import">불러오기</button>
+      </div>
+    </section>
+    <section class="card">
+      <h3>홈 화면에 추가</h3>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">
+        안드로이드 Chrome: 메뉴(⋮) → 홈 화면에 추가 / 앱 설치<br>
+        아이폰 Safari: 공유 버튼 → 홈 화면에 추가</p>
+    </section>
+    <section class="card">
+      <h3>초기화</h3>
+      <div class="actions">
+        <button class="btn" data-act="resetup">처음 설정 다시 하기</button>
+        <button class="btn danger" data-act="reset">모든 기록 지우기</button>
+      </div>
+    </section>`;
+}
+
+// =================== 렌더 & 이벤트 ===================
+// =================== 첫 화면 설정 ===================
+let D = null; // 설정 중인 임시값
+function stagePlan(start, target){
+  const tw = Math.ceil((diff(start,target)+1)/7);
+  const [a,b,c] = stageBounds(tw);
+  const ranges = [[1,a],[a+1,b],[b+1,c],[c+1,tw]];
+  return ranges.map(([w1,w2],i)=>{
+    const s = addDays(start,(w1-1)*7);
+    let e = addDays(start, w2*7-1); if(diff(e,target)<0) e = target;
+    return {n:i+1, w1, w2, s, e};
+  });
+}
+function renderSetup(){
+  if(!D) D = { song:S.song, range:S.range, startDate:S.startDate, targetDate:S.targetDate, sets:S.sets, reps:S.reps };
+  const days = diff(D.startDate, D.targetDate) + 1;
+  const ok = days >= 28;
+  const tw = Math.ceil(days/7);
+  const plan = ok ? stagePlan(D.startDate, D.targetDate) : [];
+  return `
+    <div class="setup">
+      <h1>발성 훈련 시작하기</h1>
+      <p class="muted" style="margin:0 0 16px">목표 곡과 기간을 정하면 4단계 일정이 자동으로 나뉘어요.</p>
+      <section class="card">
+        <label class="field" style="margin-top:0"><span>목표 곡</span><input type="text" data-draft="song" value="${esc(D.song)}" placeholder="예: 팝콘"></label>
+        <label class="field"><span>목표 음역 (선택)</span><input type="text" data-draft="range" value="${esc(D.range)}" placeholder="예: 2옥타브 파~라"></label>
+        <label class="field"><span>시작일</span><input type="date" data-draft="startDate" value="${D.startDate}"></label>
+        <label class="field"><span>목표일 (곡을 부를 날)</span><input type="date" data-draft="targetDate" value="${D.targetDate}"></label>
+        <div class="field"><span>세션당 세트 수 (아침·저녁 각각)</span>
+          <div class="chips">${[2,3,4].map(n=>`<button class="chip ${D.sets===n?'on':''}" data-act="draftnum" data-k="sets" data-v="${n}">${n}세트</button>`).join('')}</div>
+        </div>
+        <div class="field"><span>세트당 횟수</span>
+          <div class="chips">${[5,10,15].map(n=>`<button class="chip ${D.reps===n?'on':''}" data-act="draftnum" data-k="reps" data-v="${n}">${n}회</button>`).join('')}</div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="row"><h3>훈련 일정</h3><span class="muted">${ok ? `${days}일 · ${tw}주` : ''}</span></div>
+        ${ok ? `<div class="plan">${plan.map(p=>`<div><b>${p.n}단계 · ${esc(STAGES[p.n].name)}</b><span class="muted">${md(p.s)}~${md(p.e)}</span></div>`).join('')}</div>`
+             : `<p class="muted" style="margin:8px 0 0">목표일은 시작일로부터 최소 4주 뒤로 정해 주세요.</p>`}
+      </section>
+      <button class="btn primary big" data-act="setup-start" ${ok?'':'disabled'}>이 일정으로 시작</button>
+    </div>`;
+}
+function finishSetup(){
+  if(diff(D.startDate,D.targetDate)+1 < 28){ toast('기간을 4주 이상으로 정해 주세요'); return; }
+  S = {...S, ...D, song:(D.song||'').trim().slice(0,40), range:(D.range||'').trim().slice(0,40), setupDone:true};
+  D = null; save(); tab='today'; render(); window.scrollTo(0,0); toast('훈련 일정을 만들었어요');
+}
+
+function render(){
+  const setup = !S.setupDone;
+  document.querySelector('nav.tabs').classList.toggle('hidden', setup);
+  $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  renderSheet();
+  if(timerStart!==null) startTicker();
+}
+
+document.querySelector('nav.tabs').addEventListener('click', e=>{
+  const b=e.target.closest('button[data-tab]'); if(!b) return;
+  tab=b.dataset.tab; sheetDate=null; render(); window.scrollTo(0,0);
+});
+
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  if(b.closest('.scrim') && e.target.classList.contains('scrim')) return;
+  const act = b.dataset.act, t = today();
+  switch(act){
+    case 'slot': slot=b.dataset.v; break;
+    case 'routine': routineOpen=!routineOpen; break;
+    case 'guide': guideOpen=!guideOpen; break;
+    case 'tap': { const s=sess(t,slot,true); if(s.done){ toast('이미 완료한 세션이에요'); return; } addRep(s); break; }
+    case 'timer': toggleTimer(); break;
+    case 'autoadd': S.autoAdd=b.checked; save(); return;
+    case 'setup-start': finishSetup(); return;
+    case 'draftnum': if(D){ D[b.dataset.k]=+b.dataset.v; } break;
+    case 'resetup': S.setupDone=false; save(); break;
+    case 'undo': {
+      const s=sess(t,slot,false); if(!s||!s.sets.length) return;
+      s.done=false; s.sets[s.sets.length-1]--; if(s.sets[s.sets.length-1]<=0) s.sets.pop();
+      save(); break;
+    }
+    case 'finish': { const s=sess(t,slot,true); s.done=true; save(); buzz([40,60,40]); toast('세션 완료로 저장했어요'); break; }
+    case 'reopen': { const s=sess(t,slot,true); s.done=false; s.sets=[]; save(); break; }
+    case 'check': { const s=sess(t,slot,true); s.checks[+b.dataset.i]=b.checked; save(); return; }
+    case 'mood': { const s=sess(t,slot,true); const v=+b.dataset.v; s.mood = s.mood===v?0:v; save(); break; }
+    case 'holes':{ const s=sess(t,slot,true); const v=+b.dataset.v; s.holes = s.holes===v?0:v; save(); break; }
+    case 'day': sheetDate=b.dataset.d; renderSheet(); return;
+    case 'close': sheetDate=null; renderSheet(); return;
+    case 'mark': {
+      const s=sess(sheetDate,b.dataset.k,true); s.done = b.dataset.v==='1';
+      if(s.done && setsDone(s)<S.sets) s.sets = Array(S.sets).fill(S.reps);
+      save(); render(); return;
+    }
+    case 'setnum': S[b.dataset.k]=+b.dataset.v; save(); break;
+    case 'export': exportData(); return;
+    case 'import': document.getElementById('importFile').click(); return;
+    case 'reset':
+      if(confirm('모든 기록을 지울까요? 되돌릴 수 없어요.')){ S={...DEFAULTS, logs:{}}; save(); toast('초기화했어요'); }
+      break;
+    default: return;
+  }
+  render();
+});
+
+// 시트 바깥 탭하면 닫기
+document.addEventListener('click', e=>{
+  if(e.target.id==='sheet'){ sheetDate=null; renderSheet(); }
+});
+
+document.addEventListener('input', e=>{
+  if(e.target.dataset.draft && D && e.target.type==='text'){ D[e.target.dataset.draft]=e.target.value; return; }
+  if(e.target.dataset.act==='memo'){ const s=sess(today(),slot,true); s.memo=e.target.value.slice(0,200); save(); }
+});
+document.addEventListener('change', e=>{
+  // 첫 화면 설정: 임시값만 바꾸고 일정 미리보기 갱신
+  const dk = e.target.dataset.draft;
+  if(dk && D){ D[dk] = e.target.value; if(e.target.type==='date') render(); return; }
+  const k=e.target.dataset.set; if(!k) return;
+  if(k==='song' || k==='range'){ S[k]=e.target.value.trim().slice(0,40); save(); toast('저장했어요'); render(); return; }
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) return;
+  const next={...S,[k]:e.target.value};
+  if(diff(next.startDate,next.targetDate)<6){ toast('목표일은 시작일보다 최소 1주 뒤여야 해요'); render(); return; }
+  S=next; save(); toast('일정을 바꿨어요'); render();
+});
+
+// ---- 백업 ----
+function exportData(){
+  // 미리보기(iframe) 안에서는 파일 저장이 막혀 있으므로 복사용 텍스트로 보여줌
+  if(window.self !== window.top){ showCopySheet(); return; }
+  try{
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`발성훈련-기록-${today()}.json`; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+    toast('기록 파일을 저장했어요');
+  }catch(err){ toast('내보내기에 실패했어요'); }
+}
+function showCopySheet(){
+  const el=document.createElement('div'); el.className='scrim'; el.id='copysheet';
+  el.innerHTML=`<div class="sheet" role="dialog" aria-modal="true" aria-label="기록 백업">
+    <div class="row"><b style="font-size:18px">기록 백업</b><button class="btn" style="flex:none" id="cpClose">닫기</button></div>
+    <p class="muted">아래 내용을 복사해 메모 앱 등에 저장해 두세요. 불러오기는 홈화면 설치 버전에서 파일로 할 수 있어요.</p>
+    <textarea id="cpText" readonly style="min-height:200px;font-size:12px">${esc(JSON.stringify(S))}</textarea>
+    <div class="actions"><button class="btn primary" id="cpCopy">전체 복사</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click', async ev=>{
+    if(ev.target===el || ev.target.id==='cpClose'){ el.remove(); return; }
+    if(ev.target.id==='cpCopy'){
+      const ta=document.getElementById('cpText');
+      try{ await navigator.clipboard.writeText(ta.value); toast('복사했어요'); }
+      catch(err){ ta.select(); try{ document.execCommand('copy'); toast('복사했어요'); }catch(e2){ toast('길게 눌러 직접 복사해 주세요'); } }
+    }
+  });
+}
+document.getElementById('importFile').addEventListener('change', async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d || typeof d.logs!=='object') throw new Error('형식 오류');
+    S={...DEFAULTS,...d}; save(); render(); toast('기록을 불러왔어요');
+  }catch(err){ toast('불러오기 실패: 올바른 기록 파일이 아니에요'); }
+});
+
+// ---- 날짜가 바뀌면 자동 갱신 (자정 넘겨 켜둔 경우) ----
+let lastDay = today();
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && today()!==lastDay){ lastDay=today(); render(); } });
+
+// ---- 오프라인 지원 ----
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+load(); render();
+</script>
+</body>
+</html>
