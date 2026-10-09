@@ -1,5 +1,5 @@
 // 오프라인용 서비스워커: 앱 파일을 캐시해 두고 인터넷 없이도 열리게 함
-const CACHE = 'sovt-v4';
+const CACHE = 'sovt-v5';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {

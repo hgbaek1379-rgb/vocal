@@ -92,6 +92,9 @@
   .bar > i{display:block;height:100%;background:var(--accent);border-radius:5px}
   .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
   .stat b{font-size:20px !important}
+  .rest{border-color:var(--tint2);background:var(--tint)}
+  .rest .tdisp{font-size:64px;font-weight:700;letter-spacing:-.02em;text-align:center;margin:10px 0 12px;color:var(--accent);font-variant-numeric:tabular-nums}
+  .rest .bar{background:var(--card)}
   .timer .tdisp{font-size:56px;font-weight:700;letter-spacing:-.03em;text-align:center;margin:12px 0 10px;color:var(--accent);font-variant-numeric:tabular-nums}
   .timer .tdisp small{font-size:18px;font-weight:500;color:var(--sub);margin-left:4px}
   .btn.big{width:100%;min-height:60px;font-size:17px}
@@ -190,7 +193,7 @@ const KEY = 'sovt-log-v1';
 const STAGES = {
   1:{name:'감각 적응 · 기초 호흡', weeks:'1~2주', holes:'구멍 2~3개',
      goal:'입술·턱·목 힘 빼고, 바람을 끊김 없이 길고 일정하게 내보내기',
-     once:'1회 = 기구로 입 들이마시기 → 기구로 입 내쉬기 (소리 없이 10~15초). 세트 사이 30초 쉬기',
+     once:'1회 = 기구로 입 들이마시기 → 기구로 입 내쉬기 (소리 없이 10~15초). 세트가 끝나면 쉬는 시간 타이머가 자동 시작',
      timer:'날숨 10~15초로 시작 → 20초 이상으로',
      steps:['숙여서 호흡 확인 5회 (손은 무릎, 입으로 들이쉬고 "스—"로 내쉬기)',
             '상체 세우고 기구를 입술로 가볍게 물기 (구멍 2~3개)',
@@ -257,7 +260,7 @@ const _t0 = new Date(); _t0.setDate(_t0.getDate()+1);
 const _start0 = `${_t0.getFullYear()}-${String(_t0.getMonth()+1).padStart(2,'0')}-${String(_t0.getDate()).padStart(2,'0')}`;
 const _t1 = new Date(_t0); _t1.setDate(_t1.getDate()+76);
 const _target0 = `${_t1.getFullYear()}-${String(_t1.getMonth()+1).padStart(2,'0')}-${String(_t1.getDate()).padStart(2,'0')}`;
-const DEFAULTS = { startDate:_start0, targetDate:_target0, sets:3, reps:10, song:'', range:'', autoAdd:true, setupDone:false, logs:{} };
+const DEFAULTS = { startDate:_start0, targetDate:_target0, sets:3, reps:10, song:'', range:'', autoAdd:true, rest:60, beep:true, setupDone:false, logs:{} };
 let S;
 function load(){
   try{ const raw = localStorage.getItem(KEY); S = raw ? {...DEFAULTS, ...JSON.parse(raw)} : {...DEFAULTS}; }
@@ -342,26 +345,97 @@ function startTicker(){
   }, 100);
 }
 function toggleTimer(){
-  if(timerStart === null){ timerStart = Date.now(); buzz(15); startTicker(); return; }
+  if(timerStart === null){ if(restEnd) stopRest(false); timerStart = Date.now(); buzz(15); keepAwake(true); startTicker(); return; }
   const sec = Math.round((Date.now()-timerStart)/100)/10;
   timerStart = null; clearInterval(timerIv);
   if(sec < 1){ toast('1초 미만은 기록하지 않아요'); return; }
   const s = sess(today(), slot, true);
   const prevBest = Math.max(0, ...allBreaths());
   (s.breaths = s.breaths || []).push(sec);
-  if(S.autoAdd && !s.done) addRep(s); else save();
+  if(S.autoAdd && !s.done) addRep(s, 'b'); else save();
   if(prevBest > 0 && sec > prevBest) toast(`최고 기록 ${fmt(sec)}초!`);
 }
 // 카운터 +1 (탭과 스톱워치 공용)
-function addRep(s){
+// src: 't' = 탭으로 추가, 'b' = 스톱워치로 추가(날숨 기록 있음) → 취소할 때 함께 지우기 위해 기록
+function addRep(s, src){
   if(s.done){ toast('이미 완료한 세션이에요'); return; }
+  if(restEnd) stopRest(false);
   if(!s.sets.length || s.sets[s.sets.length-1]>=S.reps) s.sets.push(0);
   s.sets[s.sets.length-1]++;
+  (s.hist = s.hist || []).push(src || 't');
   if(s.sets[s.sets.length-1]>=S.reps){
-    if(setsDone(s)>=S.sets){ s.done=true; buzz([40,60,40]); toast('세션 완료!'); }
-    else { buzz(80); toast(`${setsDone(s)}세트 완료`); }
+    if(setsDone(s)>=S.sets){ s.done=true; buzz([40,60,40]); toast('세션 완료!'); keepAwake(false); }
+    else { buzz(80); toast(`${setsDone(s)}세트 완료 · 쉬는 시간`); startRest(); }
   } else buzz(12);
   save();
+}
+// 1회 취소: 카운트와 그 회차의 날숨 기록을 함께 되돌림
+function undoRep(s){
+  if(!s || !s.sets.length) return false;
+  if(restEnd) stopRest(false);
+  s.done=false;
+  s.sets[s.sets.length-1]--; if(s.sets[s.sets.length-1]<=0) s.sets.pop();
+  const src = (s.hist||[]).pop();
+  if(src==='b' && s.breaths?.length){ const v=s.breaths.pop(); toast(`1회 취소 · 날숨 ${fmt(v)}초 기록도 지웠어요`); }
+  else toast('1회 취소');
+  save(); return true;
+}
+
+// =================== 세트 사이 쉬는 시간 ===================
+let restEnd = null, restIv = null, lastBeep = -1;
+function startRest(){
+  restEnd = Date.now() + (S.rest||60)*1000; lastBeep = -1; keepAwake(true);
+  clearInterval(restIv); restIv = setInterval(tickRest, 200);
+}
+function tickRest(){
+  if(!restEnd) return;
+  const left = Math.ceil((restEnd - Date.now())/1000);
+  const el = document.getElementById('rdisp');
+  if(el) el.textContent = mmss(Math.max(0,left));
+  const bar = document.getElementById('rbar');
+  if(bar) bar.style.width = `${Math.max(0, (restEnd-Date.now())/((S.rest||60)*1000))*100}%`;
+  if(left<=3 && left>0 && left!==lastBeep){ lastBeep=left; beep(660,0.12); }
+  if(left<=0) stopRest(true);
+}
+function stopRest(finished){
+  restEnd = null; clearInterval(restIv);
+  if(finished){ beep(880,0.35); buzz([200,100,200]); toast('쉬는 시간 끝! 다음 세트 시작'); }
+  render();
+}
+const mmss = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+function restCard(s){
+  const nextSet = Math.min(setsDone(s)+1, S.sets);
+  return `
+    <section class="card rest">
+      <div class="row"><h3>쉬는 시간</h3><span class="muted">다음: ${nextSet}세트</span></div>
+      <div class="tdisp" id="rdisp">${mmss(Math.max(0,Math.ceil((restEnd-Date.now())/1000)))}</div>
+      <div class="bar"><i id="rbar" style="width:100%"></i></div>
+      <p class="muted" style="margin:10px 0 0;text-align:center">기구를 내려놓고 평소대로 편하게 숨 쉬기</p>
+      <div class="actions">
+        <button class="btn" data-act="rest-add">+15초</button>
+        <button class="btn primary" data-act="rest-skip">바로 시작</button>
+      </div>
+    </section>`;
+}
+// 짧은 알림음 (설정에서 끌 수 있음)
+let actx = null;
+function beep(freq, dur){
+  if(!S.beep) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.frequency.value=freq; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(0.2, actx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime+dur);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+// 연습 중 화면 꺼짐 방지 (지원하는 브라우저만)
+let wakeLock = null;
+async function keepAwake(on){
+  try{
+    if(on && !wakeLock && navigator.wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{wakeLock=null;}); }
+    if(!on && wakeLock){ await wakeLock.release(); wakeLock=null; }
+  }catch(e){ wakeLock=null; }
 }
 
 // =================== 오늘 ===================
@@ -431,7 +505,7 @@ function renderToday(){
       </div>
     </section>
 
-    ${P.timer ? timerCard(P, s) : ''}
+    ${restEnd ? restCard(s) : P.timer ? timerCard(P, s) : ''}
 
     <section class="card counter">
       <button class="ring ${done?'done':''}" data-act="tap" aria-label="1회 추가">
@@ -651,6 +725,10 @@ function renderSettings(){
         <div class="chips">${[2,3,4,5].map(n=>`<button class="chip ${S.sets===n?'on':''}" data-act="setnum" data-k="sets" data-v="${n}">${n}세트</button>`).join('')}</div></div>
       <div class="field"><span>세트당 횟수</span>
         <div class="chips">${[5,8,10,12,15].map(n=>`<button class="chip ${S.reps===n?'on':''}" data-act="setnum" data-k="reps" data-v="${n}">${n}회</button>`).join('')}</div></div>
+      <div class="field"><span>세트 사이 쉬는 시간 (세트가 끝나면 자동 시작)</span>
+        <div class="chips">${[30,60,90,120].map(n=>`<button class="chip ${(S.rest||60)===n?'on':''}" data-act="restsec" data-v="${n}">${n<60?n+'초':n/60+'분'}</button>`).join('')}</div></div>
+      <div class="field"><span>알림음 (쉬는 시간 끝나기 3초 전부터)</span>
+        <div class="chips"><button class="chip ${S.beep?'on':''}" data-act="beep">${S.beep?'켜짐':'꺼짐'}</button></div></div>
     </section>
     <section class="card">
       <h3>백업</h3>
@@ -731,6 +809,7 @@ function render(){
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
   renderSheet();
   if(timerStart!==null) startTicker();
+  if(restEnd) tickRest();
 }
 
 document.querySelector('nav.tabs').addEventListener('click', e=>{
@@ -752,12 +831,12 @@ document.addEventListener('click', e=>{
     case 'setup-start': finishSetup(); return;
     case 'draftnum': if(D){ D[b.dataset.k]=+b.dataset.v; } break;
     case 'resetup': S.setupDone=false; save(); break;
-    case 'undo': {
-      const s=sess(t,slot,false); if(!s||!s.sets.length) return;
-      s.done=false; s.sets[s.sets.length-1]--; if(s.sets[s.sets.length-1]<=0) s.sets.pop();
-      save(); break;
-    }
-    case 'finish': { const s=sess(t,slot,true); s.done=true; save(); buzz([40,60,40]); toast('세션 완료로 저장했어요'); break; }
+    case 'undo': { if(!undoRep(sess(t,slot,false))) return; break; }
+    case 'rest-skip': stopRest(false); toast('다음 세트 시작'); return;
+    case 'rest-add': if(restEnd){ restEnd += 15000; tickRest(); } return;
+    case 'restsec': S.rest=+b.dataset.v; save(); break;
+    case 'beep': S.beep=!S.beep; save(); if(S.beep) beep(880,0.2); break;
+    case 'finish': { if(restEnd){ restEnd=null; clearInterval(restIv); } keepAwake(false); const s=sess(t,slot,true); s.done=true; save(); buzz([40,60,40]); toast('세션 완료로 저장했어요'); break; }
     case 'reopen': { const s=sess(t,slot,true); s.done=false; s.sets=[]; save(); break; }
     case 'check': { const s=sess(t,slot,true); s.checks[+b.dataset.i]=b.checked; save(); return; }
     case 'mood': { const s=sess(t,slot,true); const v=+b.dataset.v; s.mood = s.mood===v?0:v; save(); break; }
