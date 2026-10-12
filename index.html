@@ -218,7 +218,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;'
 const _start0 = addDays(today(), 1);
 const DEFAULTS = {
   startDate:_start0, targetDate:addDays(_start0,76), endDate:addDays(_start0,181),
-  song:'', voice:'low', bpm:110, rest:15, inhale:4, exhale:8, beep:true, setupDone:false, logs:{}
+  song:'', voice:'low', bpm:110, rest:15, inhale:5, exhale:8, devInhale:'device', beep:true, setupDone:false, lower:{}, logs:{}
 };
 let S;
 function load(){
@@ -228,6 +228,8 @@ function load(){
   // 이전 버전(11주 플랜) 사용자: 6개월 완성일이 없으면 시작일+26주로 채움
   if(!S.endDate || diff(S.targetDate,S.endDate) < 14) S.endDate = addDays(S.startDate,181);
   if(S.setupDone && S.planV!==2){ S.setupDone=false; } // 새 플랜으로 한 번 다시 확인
+  if(S.planV===2 && !S.v3){ if(S.inhale===4) S.inhale=5; S.v3=true; } // 들숨 기본 4초 → 5초
+  if(!S.lower || typeof S.lower!=='object') S.lower={};
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('저장 실패: 브라우저 저장 공간을 확인해 주세요'); } }
 
@@ -255,47 +257,80 @@ const totalWeeks = () => Math.ceil((diff(S.startDate,S.endDate)+1)/7);
 const songTxt = () => S.song ? `〈${S.song}〉` : '목표 곡';
 
 // ---------- 음 높이 ----------
-// low = 남성 등 낮은 목소리 기준, high = 한 옥타브 위
-const NOTE = { A2:110, C3:130.81, D3:146.83, E3:164.81, F4:349.23, G4:392.00, A4:440.00 };
-const NAME_KO = { F4:'2옥타브 파', G4:'2옥타브 솔', A4:'2옥타브 라' };
-const oct = () => S.voice==='high' ? 2 : 1;
-function sirenTop(date){
-  // 처음부터 최고음으로 가지 않고 3주마다 한 음씩 넓힘
-  if(phaseOf(date)!==1) return 'A4';
-  const w = weekOf(date);
-  return w<=3 ? 'F4' : w<=6 ? 'G4' : 'A4';
+// 음 이름은 과학적 표기(A4=440Hz). 한국식 "2옥타브 라" = A4, "3옥타브 도" = C5
+// low = 낮은 목소리 기준, high = 모든 음을 한 옥타브 위로
+const SEMI = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const SOL = {C:'도',D:'레',E:'미',F:'파',G:'솔',A:'라',B:'시'};
+const midiOf = n => (Number(n.slice(-1))+1)*12 + SEMI[n[0]];
+const hz = midi => 440*Math.pow(2,(midi-69)/12) * (S.voice==='high'?2:1);
+const koName = n => `${Number(n.slice(-1))-2+(S.voice==='high'?1:0)}옥타브 ${SOL[n[0]]}`;
+const koMidi = m => { const names=['C','C','D','D','E','F','F','G','G','A','A','B']; const nm=names[m%12]+(Math.floor(m/12)-1); return koName(nm)+([1,3,6,8,10].includes(m%12)?'#':''); };
+const SIREN_LOW = 'A2';
+// 6개월 음정 로드맵: 슬라이딩 최고음(살짝 닿기) / 계단 최고음(정확히 안착)
+const LEVELS = [
+  {siren:'F4', arp:'E4'}, {siren:'G4', arp:'F4'}, {siren:'A4', arp:'G4'},   // 1단계: 파 → 솔 → 라
+  {siren:'A4', arp:'A4'}, {siren:'B4', arp:'A4'},                          // 2단계: 라 안정 → 시
+  {siren:'C5', arp:'B4'}, {siren:'C5', arp:'C5'}                           // 3단계: 3옥타브 도
+];
+function autoLevel(date){
+  const ph=phaseOf(date); if(ph===0) return 0; if(ph===4) return 6;
+  const [a,b]=phaseRange(ph); const f=diff(a,date)/(diff(a,b)+1);
+  if(ph===1) return f<0.27?0 : f<0.55?1 : 2;
+  if(ph===2) return f<0.4?3 : 4;
+  return f<0.4?5 : 6;
+}
+function levelOf(date){ return Math.max(0, autoLevel(date) - (S.lower[date]?1:0)); }
+// 레벨이 바뀌는 날짜 구간 (효과 탭 로드맵용)
+function levelRanges(){
+  const out=[]; let d=S.startDate, cur=autoLevel(d), from=d;
+  while(diff(d,S.endDate)>=0){ const l=autoLevel(d); if(l!==cur){ out.push({l:cur,from,to:addDays(d,-1)}); cur=l; from=d; } d=addDays(d,1); }
+  out.push({l:cur,from,to:S.endDate}); return out;
 }
 
 // ---------- 오늘의 루틴 만들기 ----------
 function buildRoutine(date){
   const ph = Math.max(1, Math.min(3, phaseOf(date)));
   const late = ph===1 && diff(date,S.targetDate) <= 20;   // 목표일 3주 전부터 실전 전환
-  const top = sirenTop(date);
+  const lv = levelOf(date), L = LEVELS[lv];
+  const top = L.siren, arpTop = L.arp;
+  const devIn = S.devInhale!=='quick';
   const R = [];
   const breath = sets => ({ id:'breath', kind:'breath', name:'횡격막 웜업', sub:'소리 없이 바람만', sets, reps:4,
     prep:'기구를 입술로 가볍게 물고 상체를 바로 세우세요',
     guide:[
       ['목표','바람을 끊김 없이, 처음부터 끝까지 같은 세기로'],
-      ['들이마시기',`기구를 문 채 입으로 ${S.inhale}초. 급하게 빨지 말고 배·옆구리·등이 둥글게 퍼지게`],
-      ['내쉬기',`${S.exhale}초 동안 원이 줄어드는 속도에 맞춰 일정하게. 촛불이 기울기만 하는 세기`],
+      ['들숨',`기구를 문 채 입으로 ${S.inhale}초 천천히. 기구 저항 때문에 천천히 들어오는 게 정상. 배·옆구리·등이 둥글게 퍼지게`],
+      ['날숨',`${S.exhale}초 동안 원이 줄어드는 속도에 맞춰 일정하게. 촛불이 기울기만 하는 세기`],
       ['볼','부풀리지 않기. 빵빵해지면 바람이 센 것'],
       ['자세','어깨·턱 힘 빼기. 숨 들어올 때 어깨가 올라가지 않게'],
+      ['시간 조절','들숨·날숨 시간은 설정에서 바꿀 수 있어요'],
     ]});
-  const siren = sets => ({ id:'siren', kind:'siren', name:'SOVT 슬라이딩', sub:`"우~" 저음 → ${NAME_KO[top]} → 저음`, sets, reps:5, top,
+  const siren = sets => ({ id:'siren', kind:'siren', name:'SOVT 슬라이딩', sub:`기구로 "우~" 편한 저음 → ${koName(top)} → 저음`, sets, reps:5, top,
     prep:'기구를 물고 "우~" 준비. 가이드음을 따라 오르내려요',
     guide:[
-      ['목표',`목을 좁히지 않고 ${NAME_KO[top]}까지 미끄럼틀처럼`],
-      ['압력','올라가도 바람을 더 밀지 않기. 소리 크기를 저음과 같게'],
+      ['목표',`목을 좁히지 않고 ${koName(top)}까지 미끄럼틀처럼`],
+      ['시작음',`편하게 말하는 높이보다 조금 낮은 곳 (가이드음은 낮은 목소리 기준 A2, 높은 목소리 기준 A3). 가이드음과 정확히 같지 않아도 되고, 편한 저음에서 시작하면 돼요`],
+      ['저음','내려올 때도 입술·코 주변 진동(앞쪽 울림)을 그대로. 목 아래로 툭 떨어뜨리지 않기'],
+      ['호흡','올라갈 때 더 밀지 않고, 내려올 때 풀지 않기. 바람 세기는 처음부터 끝까지 같게'],
+      ['들숨', devIn ? `기구로 ${S.inhale}초 천천히 (설정에서 "입·코로 빠르게"로 바꿀 수 있어요)` : '입·코로 3초 가볍게'],
       ['꺾일 때','뒤집혀도 괜찮아요. 그 구간을 더 작고 가볍게'],
-      ['범위','최고음은 3주마다 한 음씩 자동으로 넓어져요 (파 → 솔 → 라)'],
+      ['범위','최고음은 6개월 로드맵에 따라 자동으로 넓어져요. 목이 조이면 "오늘은 한 단계 낮게"'],
     ]});
-  const arp = (sets, deviceSets) => ({ id:'arp', kind:'arp', name:'음정 도약 · 롱톤', sub:'도-미-솔-도-솔-미-도', sets, reps:2, deviceSets,
-    prep: deviceSets>0 ? '기구를 물고 "우~"로 계단을 따라가요' : '기구를 빼고 "멈~"으로 계단을 따라가요',
+  const arp = (sets, deviceSets, vowel) => ({ id:'arp', kind:'arp', name:'음정 도약', sub:`도-미-솔-도-솔-미-도 · 최고 ${koName(arpTop)}`, sets, reps:2, deviceSets, arpTop, vowel,
+    prep: deviceSets>0 ? '기구를 물고 "우~"로 계단을 따라가요' : `기구를 빼고 "${vowel}~"으로 계단을 따라가요`,
     guide:[
       ['목표','불 들어오는 계단에 맞춰 음을 정확히 짚고, 한 음을 2초 길게'],
-      ['발음','기구를 문 세트는 입술을 못 움직이니 "우~", 기구 없는 세트는 "멈~" (입술 진동 유지)'],
+      ['발음',`기구를 문 세트는 입술을 못 움직이니 "우~", 기구 없는 세트는 "${vowel}~"`],
       ['C커브','소리가 뒤통수 위로 둥글게 넘어가 앞으로 떨어진다고 상상. 손을 앞에서 뒤로 굴리면 몸 힘이 빠져요'],
-      ['조성','세트마다 한 음씩 올라가요 (도 → 레 → 미 시작)'],
+      ['조성',`세트마다 한 음씩 올라가 마지막 세트 꼭대기가 ${koName(arpTop)}`],
+    ]});
+  const long = (sets, dev, vowel) => ({ id:'long', kind:'long', name:'롱톤 · 직선음', sub:`한 음을 흔들림 없이 8초 · ${dev?'기구':'맨소리 "'+vowel+'~"'}`, sets, reps:4, dev, vowel, arpTop,
+    prep: dev ? '기구를 물고 "우~". 들숨 동안 들리는 음을 그대로 8초' : `기구 없이 "${vowel}~". 들숨 동안 들리는 음을 그대로 8초`,
+    guide:[
+      ['목표','음높이·크기·음색이 처음부터 끝까지 한 줄로. R&B 가수들의 깔끔한 소리의 기초'],
+      ['방법','들숨 동안 가이드음을 듣고, 그 음을 떨림(비브라토) 없이 직선으로'],
+      ['흔들릴 때','소리를 더 작게. 끝에서 숨이 모자라 흔들리면 길이보다 일정함이 먼저'],
+      ['확인','가끔 녹음해서 들어 보기. 직선이 귀로 확인돼요'],
     ]});
   const free = (min, mode) => ({ id:'free', kind:'free', name: mode==='free' ? '자유곡 맨소리' : `감각 전이 · ${songTxt()}`, sets:1, reps:1, min, mode,
     sub: mode==='mumble' ? '기구 물고 가사 웅얼거리기' : mode==='alt' ? '기구 1소절 ↔ 맨소리 1소절' : '여러 곡을 맨소리로',
@@ -312,31 +347,38 @@ function buildRoutine(date){
       ['방법','다양한 곡을 기구 없이. 막히는 소절만 기구로 1번'],
       ['집중','발성은 생각하지 않기. 리듬·가사·감정에만'],
     ]});
-  if(ph===1){ R.push(breath(3), siren(3), arp(3,2), free(3, late?'alt':'mumble')); }
-  else if(ph===2){ R.push(breath(1), siren(2), arp(2,0), free(5,'free')); }
-  else { R.push(siren(1), arp(1,0), free(5,'free')); }
-  return { phase:ph, late, top, stages:R };
+  if(ph===1){ R.push(breath(3), siren(3), arp(3,2,'멈')); if(lv>=2) R.push(long(1,true,'우')); R.push(free(3, late?'alt':'mumble')); }
+  else if(ph===2){ R.push(breath(1), siren(2), arp(2,0,'멈'), long(2,false,'우'), free(5,'free')); }
+  else { R.push(siren(1), arp(1,0,'멈'), long(2,false,'아'), free(5,'free')); }
+  return { phase:ph, late, lv, top, arpTop, stages:R };
 }
 
 // 루틴을 시간 구간(segment) 목록으로 펼침 → 진행률·자동 전환에 사용
 function flatten(routine){
   const segs=[]; const restMs=S.rest*1000;
+  const inMs = dev => (dev && S.devInhale!=='quick') ? S.inhale*1000 : 3000;
   routine.stages.forEach((st,si)=>{
     segs.push({si, type:'prep', dur:5000, cue:'준비', sub:st.prep});
     for(let set=1; set<=st.sets; set++){
       if(st.kind==='arp' && set===st.deviceSets+1 && set>1)
-        segs.push({si, set, type:'prep', dur:5000, cue:'기구 빼기', sub:'이번 세트부터 기구 없이 "멈~"'});
+        segs.push({si, set, type:'prep', dur:5000, cue:'기구 빼기', sub:`이번 세트부터 기구 없이 "${st.vowel}~"`});
       for(let rep=1; rep<=st.reps; rep++){
         if(st.kind==='breath'){
-          segs.push({si,set,rep,type:'inhale',dur:S.inhale*1000,cue:'들이마시기',sub:'기구를 문 채 입으로 천천히'});
-          segs.push({si,set,rep,type:'exhale',dur:S.exhale*1000,cue:'내쉬기',sub:'원이 줄어드는 속도로 일정하게',count:true});
+          segs.push({si,set,rep,type:'inhale',dur:S.inhale*1000,cue:'들숨',sub:'기구를 문 채 입으로 천천히'});
+          segs.push({si,set,rep,type:'exhale',dur:S.exhale*1000,cue:'날숨',sub:'원이 줄어드는 속도로 일정하게',count:true});
         } else if(st.kind==='siren'){
-          segs.push({si,set,rep,type:'inhale',dur:2000,cue:'들이마시기',sub:'입으로 가볍게'});
-          segs.push({si,set,rep,type:'siren',dur:6000,cue:'"우~" 슬라이딩',sub:'가이드음을 따라 오르내리기',count:true});
+          const d=S.devInhale!=='quick';
+          segs.push({si,set,rep,type:'inhale',dur:inMs(true),cue:'들숨',sub:d?'기구를 문 채 입으로 천천히':'입·코로 가볍게'});
+          segs.push({si,set,rep,type:'siren',dur:6000,cue:'"우~" 슬라이딩',sub:'올라갈 때도 내려올 때도 같은 바람',count:true});
         } else if(st.kind==='arp'){
           const dev = set<=st.deviceSets;
-          segs.push({si,set,rep,type:'inhale',dur:3000,cue:'들이마시기',sub:dev?'기구를 문 채 입으로':'입으로 가볍게'});
-          segs.push({si,set,rep,type:'arp',dur:14000,cue:dev?'"우~"':'"멈~"',sub:'불 들어오는 계단을 따라',count:true,dev});
+          const topM = midiOf(st.arpTop) - 2*(st.sets-set), base = topM-12;
+          segs.push({si,set,rep,type:'inhale',dur:inMs(dev),cue:'들숨',sub:dev?'기구를 문 채 입으로':'입·코로 가볍게', preview:base});
+          segs.push({si,set,rep,type:'arp',dur:14000,cue:dev?'"우~"':`"${st.vowel}~"`,sub:`꼭대기 ${koMidi(topM)}`,count:true,dev,base});
+        } else if(st.kind==='long'){
+          const base = midiOf(st.arpTop)-12, m = base + [5,7,9,12][rep-1];
+          segs.push({si,set,rep,type:'inhale',dur:Math.max(inMs(st.dev),3000),cue:'들숨 · 음 듣기',sub:koMidi(m),preview:m,hold:true});
+          segs.push({si,set,rep,type:'long',dur:8000,cue:st.dev?'"우~" 직선으로':`"${st.vowel}~" 직선으로`,sub:`${koMidi(m)} · 흔들림 없이`,count:true,midi:m});
         } else {
           segs.push({si,set,rep,type:'free',dur:st.min*60000,cue:st.sub,sub:st.prep});
         }
@@ -438,8 +480,10 @@ function nextSeg(){
   // 단계가 바뀌면 진행 저장
   saveProgress();
   const st=P.routine.stages[g.si];
-  if(g.type==='siren') sirenSound(NOTE.A2*oct(), NOTE[st.top]*oct(), g.dur/1000);
-  if(g.type==='arp'){ const base=[NOTE.C3,NOTE.D3,NOTE.E3][Math.min(g.set-1,2)]*oct(); arpSound(base); }
+  if(g.type==='siren') sirenSound(hz(midiOf(SIREN_LOW)), hz(midiOf(st.top)), g.dur/1000);
+  if(g.type==='arp') arpSound(hz(g.base));
+  // 들숨 동안 다음 음을 미리 들려줌 (계단: 시작음 1번 / 롱톤: 잡을 음 2초)
+  if(g.type==='inhale' && g.preview!==undefined){ const a=ac(), d=out(); if(a&&d) piano(hz(g.preview), a.currentTime+0.2, g.hold?2.2:1.2, d); }
   if(g.type==='prep' && g.dur) beep(660,0.12);
   if(g.type!=='free' && metroIv) metroToggle(false);
   render();
@@ -466,6 +510,7 @@ function paintTick(g,e){
     const p=e/g.dur, x=20+p*280, y=170-130*Math.sin(Math.PI*p);
     el('dot').setAttribute('cx',x); el('dot').setAttribute('cy',y);
   }
+  if(g.type==='long' && el('lfill')) el('lfill').style.width=`${Math.min(100,e/g.dur*100)}%`;
   if(g.type==='arp'){
     const k=Math.min(6,Math.floor(e/2000));
     document.querySelectorAll('.stairs i').forEach((b,i)=>{ b.className = i===k?'on': i<k?'past':''; });
@@ -555,6 +600,10 @@ function renderToday(){
       <div class="row"><h3>오늘의 루틴</h3><span class="muted">약 ${Math.round(total/60000)}분</span></div>
       <ol class="plan-list">${stages}</ol>
       ${lateNote}
+      <div class="row" style="margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
+        <span style="font-size:13px"><b>오늘 최고음</b><br><span class="muted">슬라이딩 ${koName(routine.top)} · 계단 ${koName(routine.arpTop)}</span></span>
+        ${autoLevel(t)>0 ? `<button class="chip ${S.lower[t]?'on':''}" data-act="lower" style="flex:none">${S.lower[t]?'낮춤 해제':'오늘은 한 단계 낮게'}</button>`:''}
+      </div>
       <div class="actions"><button class="btn primary big" data-act="start">START</button></div>
       <p class="muted" style="text-align:center;margin:10px 0 0">누르면 끝날 때까지 자동으로 넘어가요. 소리를 켜 두세요.</p>
     </section>`}`;
@@ -567,10 +616,13 @@ function renderPlayer(){
   else if(resting) viz=`<div style="text-align:center"><div class="bigtime" id="tleft">${S.rest}</div><div style="margin-top:6px">다음: ${g.set+1}세트</div></div>`;
   else if(st.kind==='breath') viz=`<div class="circle" id="circle" style="transform:scale(${g.type==='inhale'?0.55:1})"><span id="tleft">${Math.ceil(g.dur/1000)}</span></div>`;
   else if(st.kind==='siren') viz = g.type==='siren'
-      ? `<svg viewBox="0 0 320 190" width="100%" height="210" aria-hidden="true"><path d="M20 170 Q 160 -90 300 170" fill="none" stroke="var(--tint2)" stroke-width="6" stroke-linecap="round"/><text x="160" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="var(--sub)">${NAME_KO[st.top]}</text><circle id="dot" cx="20" cy="170" r="12" fill="var(--accent)"/></svg>`
+      ? `<svg viewBox="0 0 320 190" width="100%" height="210" aria-hidden="true"><path d="M20 170 Q 160 -90 300 170" fill="none" stroke="var(--tint2)" stroke-width="6" stroke-linecap="round"/><text x="160" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="var(--sub)">${koName(st.top)}</text><circle id="dot" cx="20" cy="170" r="12" fill="var(--accent)"/></svg>`
       : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
   else if(st.kind==='arp') viz = g.type==='arp'
       ? `<div class="stairs" aria-hidden="true">${[1,3,5,8,5,3,1].map(h=>`<i style="height:${30+h*18}px"></i>`).join('')}</div>`
+      : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
+  else if(st.kind==='long') viz = g.type==='long'
+      ? `<div style="width:100%;text-align:center"><div style="font-size:15px;font-weight:600;color:var(--accent);margin-bottom:14px">${koMidi(g.midi)}</div><div class="bar" style="height:14px;border-radius:7px"><i id="lfill" style="transition:none"></i></div><div class="muted" style="margin-top:10px"><span id="tleft">8</span>초</div></div>`
       : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
   else viz=`<div class="bigtime" id="tleft">${mmss(st.min*60)}</div>`;
   const counts = (g.type==='prep'||st.kind==='free') ? '' :
@@ -677,17 +729,22 @@ function renderEffect(){
         <dt>역압력</dt><dd>좁은 입구에 막힌 바람이 성대 쪽으로 되돌아와 성대 위아래 압력의 균형을 맞춰요. 그래서 세게 부딪히지 않고도 쉽게 떨려요</dd>
         <dt>긴장 완화</dt><dd>혀뿌리를 누르거나 목을 조이는 습관이 끼어들 틈이 줄고, 후두가 안정된 위치에 머물러요</dd>
         <dt>공명 감각</dt><dd>입술·코 주변이 간질간질 떨리는 느낌으로 "소리가 앞으로 나간다"를 몸으로 알게 돼요</dd></dl>`)}
-    ${ex(4,'루틴 4단계가 하는 일',`<dl class="guide">
-        <dt>1 웜업</dt><dd>소리 없이 일정한 바람 → 호흡 압력을 고르게 세팅</dd>
-        <dt>2 슬라이딩</dt><dd>저음↔고음을 미끄러지며 소리가 꺾이는 구간(파사지오)을 부드럽게 연결</dd>
-        <dt>3 계단</dt><dd>1-3-5-8도 도약으로 정확한 음 안착. 마지막 세트는 기구 없이 "멈"으로 옮기기</dd>
-        <dt>4 전이</dt><dd>기구로 만든 열린 목을 실제 곡에 연결. 목표일 3주 전부터 기구↔맨소리 번갈아</dd></dl>`)}
-    ${ex(5,'체화되는 이유',`<dl class="guide">
+    ${ex(4,'음정 로드맵 (최종 3옥타브 도)',(()=>{ const cl=levelOf(t); return `<p class="muted" style="margin:0 0 10px;line-height:1.6">슬라이딩은 최고음에 살짝 닿기만, 계단은 그 음을 정확히 짚기. 슬라이딩으로 먼저 길을 내고, 몇 주 뒤 계단이 따라가는 구조예요.</p>
+      <div class="roadmap">${levelRanges().map(r=>`<div class="${autoLevel(t)===r.l?'now':''}"><span><b>슬라이딩 ${koName(LEVELS[r.l].siren)}</b><br><span class="muted">계단 ${koName(LEVELS[r.l].arp)}</span></span><span class="muted">${md(r.from)}~${md(r.to)}</span></div>`).join('')}</div>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6">목이 조이거나 소리가 갈라지는 날은 루틴 화면의 "오늘은 한 단계 낮게"를 쓰세요. 3옥타브 도는 높은 목표라 몸 상태에 따라 일정이 늦어질 수 있고, 억지로 맞추지 않는 게 더 빨라요.</p>`; })())}
+    ${ex(5,'루틴 단계가 하는 일',`<dl class="guide">
+        <dt>웜업</dt><dd>소리 없이 일정한 바람 → 호흡 압력을 고르게 세팅</dd>
+        <dt>슬라이딩</dt><dd>저음↔고음을 미끄러지며 소리가 꺾이는 구간(파사지오)을 부드럽게 연결</dd>
+        <dt>계단</dt><dd>1-3-5-8도 도약으로 정확한 음 안착. 기구 없는 세트는 "멈"으로 감각 옮기기</dd>
+        <dt>롱톤</dt><dd>한 음을 8초간 흔들림 없이. 음높이·크기·음색을 한 줄로 유지하는 R&B식 깔끔한 소리의 기초 (라에 도달한 뒤부터 추가)</dd>
+        <dt>전이</dt><dd>기구로 만든 열린 목을 실제 곡에 연결. 목표일 3주 전부터 기구↔맨소리 번갈아</dd>
+        <dt>기구 들숨</dt><dd>기구로 천천히 빨아들이면 들숨에도 저항이 생겨 가벼운 호흡근 훈련 효과를 기대할 수 있어요. 다만 이 기구의 주목적은 발성이고, 어지러우면 "입·코로 빠르게"로 바꾸세요</dd></dl>`)}
+    ${ex(6,'체화되는 이유',`<dl class="guide">
         <dt>조종 대신 환경</dt><dd>성대 근육은 직접 조종할 수 없어요. 기구가 좋은 환경을 만들면 몸이 알아서 맞춰요</dd>
         <dt>생각 없이 반복</dt><dd>START 하나로 끝까지 가게 만든 이유. 매번 결정할 필요가 없으면 꾸준히 하기 쉬워요</dd>
         <dt>짧게, 자주</dt><dd>한 번 길게보다 아침·저녁 짧게가 유리해요</dd>
         <dt>걸리는 시간</dt><dd>보통 2~3개월부터 차이가 느껴지고, 무의식적으로 굳히는 데는 더 걸려요</dd></dl>`)}
-    ${ex(6,'노래할 때는 그냥 부르기',`<div class="rule"><b>발성은 연습 때만. 노래는 노래만.</b>
+    ${ex(7,'노래할 때는 그냥 부르기',`<div class="rule"><b>발성은 연습 때만. 노래는 노래만.</b>
         <p>연습에서 몸에 저장해 두면 실전에서는 저절로 나와요. 노래 중에 발성을 생각하면 오히려 몸이 굳어요.</p></div>
       <dl class="guide"><dt>집중</dt><dd>리듬, 가사 전달, 감정</dd><dt>숨</dt><dd>입(또는 입+코)으로 "앗!" 놀라듯 빠르게</dd>
         <dt>볼륨</dt><dd>저음과 고음의 소리 크기를 비슷하게. 고음이라고 지르지 않기</dd><dt>막히면</dt><dd>그 소절만 기구로 1번 불고 다시 맨소리로</dd></dl>`)}
@@ -708,8 +765,9 @@ function renderSettings(){
     </section>
     <section class="card"><h3>루틴</h3>
       <div class="field"><span>세트 사이 휴식</span><div class="chips">${[15,30,60].map(n=>chip('setn','rest',n,n+'초',S.rest===n)).join('')}</div></div>
-      <div class="field"><span>웜업 들이마시기</span><div class="chips">${[3,4,5].map(n=>chip('setn','inhale',n,n+'초',S.inhale===n)).join('')}</div></div>
-      <div class="field"><span>웜업 내쉬기</span><div class="chips">${[6,8,10,12,15].map(n=>chip('setn','exhale',n,n+'초',S.exhale===n)).join('')}</div></div>
+      <div class="field"><span>들숨 시간 (기구로 빨아들일 때)</span><div class="chips">${[4,5,6,7,8].map(n=>chip('setn','inhale',n,n+'초',S.inhale===n)).join('')}</div></div>
+      <div class="field"><span>웜업 날숨 시간</span><div class="chips">${[6,8,10,12,15,20].map(n=>chip('setn','exhale',n,n+'초',S.exhale===n)).join('')}</div></div>
+      <div class="field"><span>슬라이딩·계단 사이 들숨</span><div class="chips">${chip('setv','devInhale','device',`기구로 천천히 (${S.inhale}초)`,S.devInhale!=='quick')}${chip('setv','devInhale','quick','입·코로 빠르게 (3초)',S.devInhale==='quick')}</div></div>
       <div class="field"><span>메트로놈 BPM (곡 템포에 맞추기)</span><div class="chips">${[70,80,90,100,110,120].map(n=>chip('setn','bpm',n,n,S.bpm===n)).join('')}</div></div>
       <div class="field"><span>알림음·가이드음</span><div class="chips">${chip('setv','beep',S.beep?'0':'1',S.beep?'켜짐':'꺼짐',S.beep)}</div></div>
     </section>
@@ -780,6 +838,7 @@ document.addEventListener('click', e=>{
   switch(act){
     case 'slot': if(P){ toast('루틴 진행 중에는 바꿀 수 없어요'); return; } slot=b.dataset.v; break;
     case 'start': startRoutine(); return;
+    case 'lower': if(S.lower[t]) delete S.lower[t]; else S.lower[t]=true; save(); break;
     case 'pause': togglePause(); return;
     case 'skip': skipStage(); return;
     case 'stop': stopRoutine(); return;
