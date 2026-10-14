@@ -218,7 +218,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;'
 const _start0 = addDays(today(), 1);
 const DEFAULTS = {
   startDate:_start0, targetDate:addDays(_start0,76), endDate:addDays(_start0,181),
-  song:'', voice:'low', bpm:110, rest:15, inhale:5, exhale:8, devInhale:'device', beep:true, setupDone:false, lower:{}, logs:{}
+  song:'', voice:'low', bpm:110, rest:15, inhale:5, exhale:8, devInhale:'device', beep:true, pitch:true, guideSound:'auto', setupDone:false, lower:{}, logs:{}
 };
 let S;
 function load(){
@@ -347,9 +347,9 @@ function buildRoutine(date){
       ['방법','다양한 곡을 기구 없이. 막히는 소절만 기구로 1번'],
       ['집중','발성은 생각하지 않기. 리듬·가사·감정에만'],
     ]});
-  if(ph===1){ R.push(breath(3), siren(3), arp(3,2,'멈')); if(lv>=2) R.push(long(1,true,'우')); R.push(free(3, late?'alt':'mumble')); }
-  else if(ph===2){ R.push(breath(1), siren(2), arp(2,0,'멈'), long(2,false,'우'), free(5,'free')); }
-  else { R.push(siren(1), arp(1,0,'멈'), long(2,false,'아'), free(5,'free')); }
+  if(ph===1){ R.push(breath(3), siren(3), arp(3,2,'멈')); if(lv>=2) R.push(long(1,true,'우')); R.push(free(2, late?'alt':'mumble')); }
+  else if(ph===2){ R.push(breath(1), siren(2), arp(2,0,'멈'), long(2,false,'우'), free(2,'free')); }
+  else { R.push(siren(1), arp(1,0,'멈'), long(2,false,'아'), free(2,'free')); }
   return { phase:ph, late, lv, top, arpTop, stages:R };
 }
 
@@ -368,7 +368,7 @@ function flatten(routine){
           segs.push({si,set,rep,type:'exhale',dur:S.exhale*1000,cue:'날숨',sub:'원이 줄어드는 속도로 일정하게',count:true});
         } else if(st.kind==='siren'){
           const d=S.devInhale!=='quick';
-          segs.push({si,set,rep,type:'inhale',dur:inMs(true),cue:'들숨',sub:d?'기구를 문 채 입으로 천천히':'입·코로 가볍게'});
+          segs.push({si,set,rep,type:'inhale',dur:inMs(true),cue:'들숨',sub:d?'기구를 문 채 입으로 천천히':'입·코로 가볍게',preview:midiOf(SIREN_LOW)});
           segs.push({si,set,rep,type:'siren',dur:6000,cue:'"우~" 슬라이딩',sub:'올라갈 때도 내려올 때도 같은 바람',count:true});
         } else if(st.kind==='arp'){
           const dev = set<=st.deviceSets;
@@ -456,48 +456,166 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden && P && !
 let P = null;   // {routine, segs, total, i, segStart, elapsedBefore, paused, pausedAt, date, slot}
 let tickIv = null;
 
-function startRoutine(){
+// ---------- 마이크 음정 측정 ----------
+// 내 목소리 높이를 실시간으로 잡아 가이드선과 함께 그려줌 (HTTPS 설치 버전에서 동작)
+let mic = { on:false, stream:null, an:null, buf:null, err:'' };
+async function startMic(){
+  if(!S.pitch) return false;
+  if(mic.on) return true;
+  try{
+    if(!navigator.mediaDevices?.getUserMedia) throw new Error('unsupported');
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false}});
+    const a=ac(); const src=a.createMediaStreamSource(stream); const an=a.createAnalyser(); an.fftSize=2048;
+    src.connect(an);   // 스피커로는 내보내지 않음
+    mic={on:true, stream, an, buf:new Float32Array(an.fftSize), err:''};
+    return true;
+  }catch(e){
+    mic.on=false; mic.err = (e && e.name==='NotAllowedError') ? '마이크 권한이 거부됐어요' : '이 화면에서는 마이크를 쓸 수 없어요 (설치한 앱에서 사용)';
+    return false;
+  }
+}
+function stopMic(){ try{ mic.stream && mic.stream.getTracks().forEach(t=>t.stop()); }catch(e){} mic={on:false,stream:null,an:null,buf:null,err:mic.err}; }
+// YIN 방식 음높이 검출 → Hz (소리가 작거나 불분명하면 0)
+function detectPitch(){
+  if(!mic.on) return 0;
+  const buf=mic.buf; mic.an.getFloatTimeDomainData(buf);
+  let rms=0; for(let i=0;i<buf.length;i++) rms+=buf[i]*buf[i]; rms=Math.sqrt(rms/buf.length);
+  if(rms<0.012) return 0;
+  const sr=actx.sampleRate, W=1024, minT=Math.floor(sr/1100), maxT=Math.min(W-1,Math.floor(sr/65));
+  const d=new Float32Array(maxT+1);
+  for(let t=minT;t<=maxT;t++){ let s=0; for(let i=0;i<W;i++){ const x=buf[i]-buf[i+t]; s+=x*x; } d[t]=s; }
+  let run=0, best=-1;
+  for(let t=1;t<=maxT;t++){ run+=d[t]; const c = t<minT ? 1 : d[t]*t/(run||1); d[t]=c; }
+  for(let t=minT;t<=maxT;t++){ if(d[t]<0.15){ while(t+1<=maxT && d[t+1]<d[t]) t++; best=t; break; } }
+  if(best<0) return 0;
+  const a=d[best-1]??d[best], b=d[best], c=d[best+1]??d[best];
+  const shift = (a+c-2*b) ? (a-c)/(2*(a+c-2*b)) : 0;
+  return sr/(best+shift);
+}
+const toMidi = f => 69+12*Math.log2(f/440) - (S.voice==='high'?12:0);   // 화면 기준(가이드와 같은 스케일)
+const SCI = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const sciName = m => SCI[((Math.round(m)%12)+12)%12] + (Math.floor(Math.round(m)/12)-1 + (S.voice==='high'?1:0));
+// 현재 구간의 가이드 음높이 (midi)
+function guideMidi(g, e){
+  const st=P.routine.stages[g.si];
+  if(g.type==='siren'){ const lo=midiOf(SIREN_LOW), hi=midiOf(st.top), p=e/g.dur; return lo+(hi-lo)*(p<0.5?p*2:2-2*p); }
+  if(g.type==='arp') return g.base + ARP[Math.min(6,Math.floor(e/2000))];
+  if(g.type==='long') return g.midi;
+  return null;
+}
+const pitchSeg = g => mic.on && (g.type==='siren'||g.type==='arp'||g.type==='long');
+const soundDuring = () => !mic.on || S.guideSound==='always';
+function drawPitch(g, e){
+  const cv=document.getElementById('pcv'); if(!cv) return;
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
+  if(cv.width!==W*dpr){ cv.width=W*dpr; cv.height=H*dpr; }
+  const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
+  const st=P.routine.stages[g.si];
+  let lo, hi;
+  if(g.type==='siren'){ lo=midiOf(SIREN_LOW)-2; hi=midiOf(st.top)+3; }
+  else if(g.type==='arp'){ lo=g.base-3; hi=g.base+15; }
+  else { lo=g.midi-6; hi=g.midi+6; }
+  const css=getComputedStyle(document.documentElement);
+  const cLine=css.getPropertyValue('--line').trim(), cSub=css.getPropertyValue('--sub').trim(), cAcc=css.getPropertyValue('--accent').trim();
+  const L=34, Y=m=>H-6-(m-lo)/(hi-lo)*(H-12), X=t=>L+t*(W-L-6);
+  // 음 격자 (C는 진하게)
+  x.font='10px system-ui'; x.textBaseline='middle';
+  for(let m=Math.ceil(lo); m<=hi; m++){
+    const nat=[0,2,4,5,7,9,11].includes(((m%12)+12)%12); if(!nat) continue;
+    const isC=((m%12)+12)%12===0;
+    x.strokeStyle=cLine; x.lineWidth=isC?1.4:0.6; x.beginPath(); x.moveTo(L,Y(m)); x.lineTo(W-6,Y(m)); x.stroke();
+    if(hi-lo<16 || isC || (g.type==='siren' && m===midiOf(st.top))){ x.fillStyle=cSub; x.fillText(sciName(m),2,Y(m)); }
+  }
+  // 가이드선
+  x.strokeStyle=cAcc; x.globalAlpha=0.35; x.lineWidth=10; x.lineCap='round'; x.beginPath();
+  for(let i=0;i<=60;i++){ const t=i/60, m=guideMidi(g,t*g.dur); i?x.lineTo(X(t),Y(m)):x.moveTo(X(t),Y(m)); } x.stroke(); x.globalAlpha=1;
+  // 가이드 음 이름 (작은 글씨)
+  x.font='600 11px system-ui'; x.fillStyle=cAcc; x.textBaseline='bottom'; x.textAlign='center';
+  const tag=(t,m)=>{ const px=Math.min(W-30,Math.max(L+28,X(t))); x.fillText(koMidi(Math.round(m)),px,Y(m)-8); };
+  if(g.type==='arp') ARP.forEach((d,i)=>tag((i+0.5)/7, g.base+d));
+  else if(g.type==='siren'){ tag(0.06, midiOf(SIREN_LOW)); tag(0.5, midiOf(st.top)); }
+  else tag(0.5, g.midi);
+  x.textAlign='left'; x.textBaseline='middle';
+  // 내 소리 (노란 선)
+  x.strokeStyle='#f2b705'; x.lineWidth=2.5; x.beginPath(); let started=false;
+  for(const p of P.trace){ if(p.m==null){ started=false; continue; } const px=X(p.t), py=Y(Math.max(lo,Math.min(hi,p.m))); started?x.lineTo(px,py):x.moveTo(px,py); started=true; }
+  x.stroke();
+  // 현재 위치 세로선
+  x.strokeStyle=cSub; x.globalAlpha=0.4; x.lineWidth=1; x.beginPath(); x.moveTo(X(e/g.dur),4); x.lineTo(X(e/g.dur),H-4); x.stroke(); x.globalAlpha=1;
+}
+function samplePitch(g, e){
+  const f=detectPitch(); const m = f>0 ? toMidi(f) : null;
+  P.trace.push({t:e/g.dur, m});
+  const gm=guideMidi(g,e), tol = g.type==='siren' ? 1.0 : 0.5;   // 반음 단위 허용 오차
+  const out=document.getElementById('pnow');
+  if(m!=null && gm!=null){
+    P.voiced++; const diff=m-gm; if(Math.abs(diff)<=tol) P.hit++;
+    if(out){ const c=Math.round(diff*100); const gap = Math.abs(c)>=100 ? `반음 ${Math.round(Math.abs(diff))}개` : `${Math.abs(c)}센트`; out.textContent = `${sciName(m)} · ${Math.abs(c)<=tol*100?'맞음':`${gap} ${c>0?'높음':'낮음'}`}`; out.style.color = Math.abs(diff)<=tol ? 'var(--ok)' : 'var(--sub)'; }
+  } else if(out) out.textContent='소리를 기다리는 중';
+  const acc=document.getElementById('pacc'); if(acc && P.voiced>4) acc.textContent=`정확도 ${Math.round(P.hit/P.voiced*100)}%`;
+}
+
+async function startRoutine(){
   const date=today(); const routine=buildRoutine(date); const {segs,total}=flatten(routine);
   ac(); // 사용자 터치로 오디오 시작 (모바일 필수)
-  P = {routine, segs, total, i:-1, elapsedBefore:0, paused:false, date, slot, t0:Date.now()};
+  P = {routine, segs, total, i:-1, elapsedBefore:0, paused:false, date, slot, t0:Date.now(), trace:[], hit:0, voiced:0, accs:[]};
   const s=sess(date,slot,true); s.done=false;
   keepAwake(true); nextSeg();
   clearInterval(tickIv); tickIv=setInterval(tick, 50);
+  if(S.pitch){ const ok=await startMic(); if(!ok && mic.err) toast(mic.err+' · 화면 가이드만 보여줘요'); if(P) render(); }
 }
 function curSeg(){ return P && P.segs[P.i]; }
 function segElapsed(){ if(!P) return 0; return P.paused ? P.pausedAt - P.segStart : Date.now() - P.segStart; }
 function nextSeg(){
-  cutAudio();
   if(P.i>=0){
     const prev=curSeg();
-    P.elapsedBefore = prev.at + prev.dur;
     if(prev.count){ beep(1320,0.09); }
     if(prev.type==='rest'){ beep(880,0.35); }
+    if(pitchSeg(prev) && P.voiced>10) P.accs.push(P.hit/P.voiced);
   }
-  P.i++;
+  enterSeg(P.i+1);
+}
+// 특정 구간으로 이동해서 시작 (다음·이전·건너뛰기 공용)
+function enterSeg(idx){
+  cutAudio();
+  P.trace=[]; P.hit=0; P.voiced=0; P.lastBeep=null;
+  P.i=Math.max(0,idx);
   if(P.i>=P.segs.length){ finishRoutine(); return; }
-  const g=curSeg(); P.segStart=Date.now();
-  // 단계가 바뀌면 진행 저장
+  const g=curSeg(); P.segStart=Date.now(); P.elapsedBefore=g.at;
   saveProgress();
   const st=P.routine.stages[g.si];
-  if(g.type==='siren') sirenSound(hz(midiOf(SIREN_LOW)), hz(midiOf(st.top)), g.dur/1000);
-  if(g.type==='arp') arpSound(hz(g.base));
-  // 들숨 동안 다음 음을 미리 들려줌 (계단: 시작음 1번 / 롱톤: 잡을 음 2초)
+  // 마이크를 쓸 때는 가이드음이 마이크에 섞이지 않게 들숨 때 미리 들려주고, 소리 낼 땐 화면만
+  if(soundDuring()){
+    if(g.type==='siren') sirenSound(hz(midiOf(SIREN_LOW)), hz(midiOf(st.top)), g.dur/1000);
+    if(g.type==='arp') arpSound(hz(g.base));
+  }
   if(g.type==='inhale' && g.preview!==undefined){ const a=ac(), d=out(); if(a&&d) piano(hz(g.preview), a.currentTime+0.2, g.hold?2.2:1.2, d); }
   if(g.type==='prep' && g.dur) beep(660,0.12);
   if(g.type!=='free' && metroIv) metroToggle(false);
   render();
 }
+// 뒤로: 2초 이상 진행했으면 이번 회차를 처음부터(들숨부터), 막 시작했으면 바로 앞 구간으로
+function goBack(){
+  if(!P) return; if(P.paused) togglePause();
+  const g=curSeg(), e=segElapsed();
+  let to = P.i;
+  if(e<2000) to = P.i-1;
+  const t=P.segs[to];
+  if(t && t.count && to>0 && P.segs[to-1].type==='inhale' && P.segs[to-1].rep===t.rep && P.segs[to-1].si===t.si) to--;
+  enterSeg(Math.max(0,to));
+}
+// 이 구간만 건너뛰기 (휴식·준비·타이머 등)
+function skipSeg(){ if(!P) return; if(P.paused) togglePause(); nextSeg(); }
 function tick(){
   if(!P || P.paused) return;
   const g=curSeg(); if(!g) return;
   const e=segElapsed();
-  // 휴식·준비 마지막 3초 카운트다운 소리
   if((g.type==='rest'||g.type==='prep') ){
     const left=Math.ceil((g.dur-e)/1000);
     if(left<=3 && left>0 && left!==P.lastBeep){ P.lastBeep=left; beep(660,0.1); }
   }
   if(e>=g.dur){ P.lastBeep=null; nextSeg(); return; }
+  if(pitchSeg(g)){ samplePitch(g,e); drawPitch(g,e); }
   paintTick(g,e);
 }
 function paintTick(g,e){
@@ -515,7 +633,6 @@ function paintTick(g,e){
     const k=Math.min(6,Math.floor(e/2000));
     document.querySelectorAll('.stairs i').forEach((b,i)=>{ b.className = i===k?'on': i<k?'past':''; });
   }
-  // 하단 전체 진행률
   const done=P.elapsedBefore+e, pct=Math.min(100,done/P.total*100);
   if(el('dockBar')) el('dockBar').style.width=pct+'%';
   if(el('dockTime')) el('dockTime').textContent=`${Math.round(pct)}% · 남은 ${mmss(Math.ceil((P.total-done)/1000))}`;
@@ -530,24 +647,27 @@ function skipStage(){
   if(!P) return; const si=curSeg().si;
   let j=P.i; while(j<P.segs.length && P.segs[j].si===si) j++;
   if(P.paused) togglePause();
-  P.i=j-1; const last=P.segs[j-1]; P.segStart=Date.now()-last.dur; // 현재 단계 끝으로 이동
+  P.i=j-1; const last=P.segs[j-1]; P.segStart=Date.now()-last.dur;
   nextSeg();
 }
+function pitchAvg(){ return P && P.accs.length ? Math.round(P.accs.reduce((a,b)=>a+b,0)/P.accs.length*100) : null; }
 function saveProgress(){
   if(!P) return; const s=sess(P.date,P.slot,true);
   const g=curSeg(); const done = g ? g.at : P.total;
   s.progress=Math.max(s.progress||0, Math.round(done/P.total*100)/100);
   s.secs=Math.max(s.secs||0, Math.round((Date.now()-P.t0)/1000));
+  const pa=pitchAvg(); if(pa!=null) s.pitch=pa;
   save();
 }
 function stopRoutine(){
-  if(!P) return; saveProgress(); cutAudio(); metroToggle(false); clearInterval(tickIv);
+  if(!P) return; saveProgress(); cutAudio(); metroToggle(false); clearInterval(tickIv); stopMic();
   P=null; keepAwake(false); render(); toast('여기까지 기록했어요');
 }
 function finishRoutine(){
   const s=sess(P.date,P.slot,true);
   s.done=true; s.progress=1; s.secs=Math.round((Date.now()-P.t0)/1000); s.finishedAt=Date.now();
-  save(); cutAudio(); metroToggle(false); clearInterval(tickIv);
+  const pa=pitchAvg(); if(pa!=null) s.pitch=pa;
+  save(); cutAudio(); metroToggle(false); clearInterval(tickIv); stopMic();
   P=null; keepAwake(false); fanfare(); try{navigator.vibrate&&navigator.vibrate([60,80,60,80,160]);}catch(e){}
   render(); window.scrollTo(0,0);
 }
@@ -588,7 +708,7 @@ function renderToday(){
     ${s?.done ? `
     <section class="card stamp">
       <div class="seal"><b>완료</b><span>${slot==='am'?'아침':'저녁'} 루틴</span></div>
-      <p class="muted">${s.secs?`${mmss(s.secs)} 동안 훈련했어요`:''}</p>
+      <p class="muted">${s.secs?`${mmss(s.secs)} 동안 훈련했어요`:''}${s.pitch!=null?` · 음정 정확도 ${s.pitch}%`:''}</p>
     </section>
     <section class="card">
       <h3>오늘 느낌 남기기</h3>
@@ -612,7 +732,9 @@ function renderPlayer(){
   const g=curSeg(); const st=P.routine.stages[g.si]; const n=P.routine.stages.length;
   const resting = g.type==='rest';
   let viz='';
-  if(g.type==='prep') viz=`<div class="bigtime" id="tleft">5</div>`;
+  if(pitchSeg(g)) viz=`<div style="width:100%"><canvas id="pcv" style="width:100%;height:230px;display:block;background:var(--bg);border-radius:12px"></canvas>
+      <div class="row" style="margin-top:6px;font-size:13px"><span id="pnow" class="muted">소리를 기다리는 중</span><span id="pacc" class="muted"></span></div></div>`;
+  else if(g.type==='prep') viz=`<div class="bigtime" id="tleft">5</div>`;
   else if(resting) viz=`<div style="text-align:center"><div class="bigtime" id="tleft">${S.rest}</div><div style="margin-top:6px">다음: ${g.set+1}세트</div></div>`;
   else if(st.kind==='breath') viz=`<div class="circle" id="circle" style="transform:scale(${g.type==='inhale'?0.55:1})"><span id="tleft">${Math.ceil(g.dur/1000)}</span></div>`;
   else if(st.kind==='siren') viz = g.type==='siren'
@@ -631,15 +753,19 @@ function renderPlayer(){
     <section class="card player ${resting?'resting':''}">
       <div class="stage-chip">STAGE ${g.si+1}/${n}</div>
       <div class="stage-name">${esc(st.name)}</div>
-      <div class="viz">${viz}</div>
+      <div class="viz" style="${pitchSeg(g)?'height:auto':''}">${viz}</div>
       <div class="cue">${esc(g.cue)}</div>
       <div class="cue-sub">${esc(g.sub||'')}</div>
       ${counts}
       ${st.kind==='free' && g.type==='free' ? `<div class="metro"><button class="btn" id="metroBtn" data-act="metro" style="flex:none">${metroIv?'메트로놈 끄기':'메트로놈 켜기'} (${S.bpm} BPM)</button></div>`:''}
       <div class="ctrl">
-        <button class="btn" data-act="stop">그만하기</button>
+        <button class="btn" data-act="back" aria-label="이전으로">◀ 이전</button>
         <button class="btn ${P.paused?'primary':''}" data-act="pause">${P.paused?'계속하기':'일시정지'}</button>
-        <button class="btn" data-act="skip">다음 단계</button>
+        <button class="btn" data-act="skipseg" aria-label="이 구간 건너뛰기">${resting?'휴식 건너뛰기':'건너뛰기'} ▶</button>
+      </div>
+      <div class="ctrl" style="grid-template-columns:1fr 1fr;margin-top:8px">
+        <button class="btn" data-act="stop">그만하기</button>
+        <button class="btn" data-act="skip">다음 단계 ⏭</button>
       </div>
       <details class="explain"><summary>${esc(st.name)} 설명</summary>
         <dl class="guide">${st.guide.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
@@ -697,7 +823,7 @@ function renderSheet(){
   const x=sheetDate, ph=Math.min(3,Math.max(1,phaseOf(x)));
   const block=(k,label)=>{ const s=sess(x,k);
     return `<div class="sess"><div class="row"><b>${label}</b><span class="muted">${s?.done?'완료':s?.progress?`${Math.round(s.progress*100)}%에서 멈춤`:'기록 없음'}</span></div>
-      ${s?.secs?`<div class="muted" style="margin-top:6px">훈련 ${mmss(s.secs)}${s.mood?` · 컨디션 ${s.mood}/5`:''}</div>`:''}
+      ${s?.secs?`<div class="muted" style="margin-top:6px">훈련 ${mmss(s.secs)}${s.pitch!=null?` · 음정 ${s.pitch}%`:''}${s.mood?` · 컨디션 ${s.mood}/5`:''}</div>`:''}
       ${s?.memo?`<div style="margin-top:6px;font-size:14px">${esc(s.memo)}</div>`:''}
       <div class="actions" style="margin-top:10px">${s?.done?`<button class="btn" data-act="mark" data-k="${k}" data-v="0">미완료로 변경</button>`:`<button class="btn primary" data-act="mark" data-k="${k}" data-v="1">완료로 표시</button>`}</div></div>`; };
   const el=document.createElement('div'); el.className='scrim'; el.id='sheet';
@@ -771,6 +897,12 @@ function renderSettings(){
       <div class="field"><span>메트로놈 BPM (곡 템포에 맞추기)</span><div class="chips">${[70,80,90,100,110,120].map(n=>chip('setn','bpm',n,n,S.bpm===n)).join('')}</div></div>
       <div class="field"><span>알림음·가이드음</span><div class="chips">${chip('setv','beep',S.beep?'0':'1',S.beep?'켜짐':'꺼짐',S.beep)}</div></div>
     </section>
+    <section class="card"><h3>음정 측정 (마이크)</h3>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">슬라이딩·계단·롱톤에서 내 소리를 노란 선으로, 가이드를 파란 띠로 보여줘요. 설치한 앱(HTTPS 주소)에서 마이크를 허용하면 작동해요.</p>
+      <div class="field"><span>음정 측정</span><div class="chips">${chip('setv','pitch',S.pitch?'0':'1',S.pitch?'켜짐':'꺼짐',S.pitch)}</div></div>
+      <div class="field"><span>소리 낼 때 가이드음</span><div class="chips">${chip('setv','guideSound','auto','자동 (마이크 켜면 들숨 때만)',S.guideSound!=='always')}${chip('setv','guideSound','always','항상 (이어폰 사용 시)',S.guideSound==='always')}</div></div>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6">스피커 가이드음이 마이크에 같이 잡히면 측정이 틀어져요. 이어폰을 끼면 "항상"으로 바꿔도 돼요.</p>
+    </section>
     <section class="card"><h3>백업</h3>
       <p class="muted" style="margin:6px 0 0">폰을 바꾸거나 브라우저 데이터를 지우면 기록이 사라져요. 주 1회 내보내기를 권해요.</p>
       <div class="actions"><button class="btn primary" data-act="export">내보내기</button><button class="btn" data-act="import">불러오기</button></div>
@@ -841,6 +973,8 @@ document.addEventListener('click', e=>{
     case 'lower': if(S.lower[t]) delete S.lower[t]; else S.lower[t]=true; save(); break;
     case 'pause': togglePause(); return;
     case 'skip': skipStage(); return;
+    case 'skipseg': skipSeg(); return;
+    case 'back': goBack(); return;
     case 'stop': stopRoutine(); return;
     case 'metro': metroToggle(); return;
     case 'mood': { const s=sess(t,slot,true); const v=+b.dataset.v; s.mood=s.mood===v?0:v; save(); break; }
@@ -848,7 +982,7 @@ document.addEventListener('click', e=>{
     case 'close': sheetDate=null; renderSheet(); return;
     case 'mark': { const s=sess(sheetDate,b.dataset.k,true); s.done=b.dataset.v==='1'; if(s.done) s.progress=1; save(); render(); return; }
     case 'setn': S[b.dataset.k]=+b.dataset.v; save(); break;
-    case 'setv': S[b.dataset.k] = b.dataset.k==='beep' ? b.dataset.v==='1' : b.dataset.v; save(); if(b.dataset.k==='beep'&&S.beep) beep(); break;
+    case 'setv': S[b.dataset.k] = (b.dataset.k==='beep'||b.dataset.k==='pitch') ? b.dataset.v==='1' : b.dataset.v; save(); if(b.dataset.k==='beep'&&S.beep) beep(); break;
     case 'draftv': if(D) D[b.dataset.k]=b.dataset.v; break;
     case 'setup-start': finishSetup(); return;
     case 'resetup': if(P) stopRoutine(); S.setupDone=false; save(); break;
