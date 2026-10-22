@@ -110,6 +110,13 @@
   .player.resting dl.guide dd{color:var(--accent-ink)}
 
   /* 하단 전체 진행률 */
+  .meter{position:relative;height:22px;background:var(--bg);border:1px solid var(--line);border-radius:11px;margin:6px 0 4px;overflow:hidden}
+  .meter .zone{position:absolute;top:0;bottom:0}
+  .meter .zone.singer{background:var(--tint2);opacity:.7}
+  .meter .zone.goal{border-left:2px solid var(--ok);border-right:2px solid var(--ok);background:rgba(31,138,91,.12)}
+  .meter .dot{position:absolute;top:2px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:#e0a400;transition:left .08s linear;box-shadow:0 0 0 2px var(--card)}
+  .auto{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--sub);cursor:pointer}
+  .auto input{width:18px;height:18px;accent-color:var(--accent)}
   .progress-dock{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:6;background:var(--card);border-top:1px solid var(--line);padding:8px 16px}
   .progress-dock .in{max-width:520px;margin:0 auto}
   .progress-dock .row{font-size:12px;color:var(--sub);margin-bottom:5px}
@@ -161,7 +168,7 @@
   .rule p{margin:6px 0 0;font-size:13px;color:var(--sub);line-height:1.6}
 
   /* 탭 */
-  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:7}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:7}
   nav.tabs button{border:0;background:none;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--sub);cursor:pointer;min-height:52px}
   nav.tabs button.on{color:var(--accent);font-weight:600}
   nav.tabs svg{width:22px;height:22px}
@@ -186,6 +193,7 @@
 
 <nav class="tabs" aria-label="화면 전환">
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>루틴</button>
+  <button data-tab="hm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10"/></svg>배음</button>
   <button data-tab="record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg>기록</button>
   <button data-tab="effect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>효과</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>설정</button>
@@ -465,7 +473,7 @@ async function startMic(){
   try{
     if(!navigator.mediaDevices?.getUserMedia) throw new Error('unsupported');
     const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false}});
-    const a=ac(); const src=a.createMediaStreamSource(stream); const an=a.createAnalyser(); an.fftSize=2048;
+    const a=ac(); const src=a.createMediaStreamSource(stream); const an=a.createAnalyser(); an.fftSize=8192; an.smoothingTimeConstant=0;
     src.connect(an);   // 스피커로는 내보내지 않음
     mic={on:true, stream, an, buf:new Float32Array(an.fftSize), err:''};
     return true;
@@ -479,18 +487,36 @@ function stopMic(){ try{ mic.stream && mic.stream.getTracks().forEach(t=>t.stop(
 function detectPitch(){
   if(!mic.on) return 0;
   const buf=mic.buf; mic.an.getFloatTimeDomainData(buf);
-  let rms=0; for(let i=0;i<buf.length;i++) rms+=buf[i]*buf[i]; rms=Math.sqrt(rms/buf.length);
-  if(rms<0.012) return 0;
-  const sr=actx.sampleRate, W=1024, minT=Math.floor(sr/1100), maxT=Math.min(W-1,Math.floor(sr/65));
-  const d=new Float32Array(maxT+1);
-  for(let t=minT;t<=maxT;t++){ let s=0; for(let i=0;i<W;i++){ const x=buf[i]-buf[i+t]; s+=x*x; } d[t]=s; }
-  let run=0, best=-1;
-  for(let t=1;t<=maxT;t++){ run+=d[t]; const c = t<minT ? 1 : d[t]*t/(run||1); d[t]=c; }
-  for(let t=minT;t<=maxT;t++){ if(d[t]<0.15){ while(t+1<=maxT && d[t+1]<d[t]) t++; best=t; break; } }
-  if(best<0) return 0;
-  const a=d[best-1]??d[best], b=d[best], c=d[best+1]??d[best];
-  const shift = (a+c-2*b) ? (a-c)/(2*(a+c-2*b)) : 0;
-  return sr/(best+shift);
+  const sr=actx.sampleRate, W=2048, N=W*2;
+  const x=buf.subarray(buf.length-N);                 // 가장 최근 샘플만 사용
+  let mean=0; for(let i=0;i<N;i++) mean+=x[i]; mean/=N;
+  let rms=0; for(let i=0;i<N;i++){ const v=x[i]-mean; rms+=v*v; } rms=Math.sqrt(rms/N);
+  if(rms<0.004){ mic.hist=[]; return 0; }              // 너무 작은 소리는 무시
+  const minT=Math.floor(sr/1100), maxT=Math.min(W-1,Math.floor(sr/65));
+  if(!mic.d || mic.d.length!==maxT+1) mic.d=new Float32Array(maxT+1);
+  const d=mic.d; d[0]=1;
+  // YIN: 차이 함수 → 누적 평균 정규화 (모든 지연값에 대해 계산)
+  let run=0;
+  for(let t=1;t<=maxT;t++){
+    let s2=0; for(let i=0;i<W;i++){ const v=x[i]-x[i+t]; s2+=v*v; }
+    run+=s2; d[t]= run ? s2*t/run : 1;
+  }
+  let best=-1, gmin=1, gidx=-1;
+  for(let t=minT;t<=maxT;t++){
+    if(d[t]<gmin){ gmin=d[t]; gidx=t; }
+    if(best<0 && d[t]<0.12){ while(t+1<=maxT && d[t+1]<d[t]) t++; best=t; break; }
+  }
+  if(best<0){ if(gmin<0.3) best=gidx; else return 0; }
+  const a0=d[best-1]??d[best], b0=d[best], c0=d[best+1]??d[best];
+  const sh=(a0+c0-2*b0) ? (a0-c0)/(2*(a0+c0-2*b0)) : 0;
+  let f=sr/(best+sh);
+  // 옥타브 튐 보정 + 중앙값 필터 (최근 5개)
+  mic.hist=mic.hist||[];
+  if(mic.hist.length){ const prev=mic.hist[mic.hist.length-1], r=f/prev;
+    if(r>1.9&&r<2.1) f/=2; else if(r>0.48&&r<0.52) f*=2; }
+  mic.hist.push(f); if(mic.hist.length>5) mic.hist.shift();
+  const sorted=[...mic.hist].sort((p,q)=>p-q);
+  return sorted[Math.floor(sorted.length/2)];
 }
 const toMidi = f => 69+12*Math.log2(f/440) - (S.voice==='high'?12:0);   // 화면 기준(가이드와 같은 스케일)
 const SCI = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -877,6 +903,197 @@ function renderEffect(){
     <section class="card"><h3>이럴 땐 쉬기</h3><p class="muted" style="margin:6px 0 0;line-height:1.6">목이 아프거나 따끔하면 그날은 쉬어요. 쉰 목소리가 2주 넘게 이어지면 이비인후과 진료를 받아 보세요.</p></section>`;
 }
 
+// =================== 배음·크기 트레이너 ===================
+// 가수 무반주 라이브 5개 분석 기준: 2옥 도~솔에서 윗배음 -25 ~ -19dB, 크기는 음이 올라가도 거의 일정
+const SINGER_BAND = [-25, -19];
+const HM_GOALS = { 1:{name:'1차 목표', lo:-29, hi:-18, desc:'노래할 때도 "녜" 스케일 수준의 무게 유지'},
+                   2:{name:'2차 목표', lo:-25, hi:-18, desc:'가수 무반주 범위 안으로'} };
+const HM_NOTES = ['C4','D4','E4','F4','G4','A4','B4','C5'];        // 낮은 목소리 기준 (높은 목소리는 한 옥타브 위)
+const HM_VOWELS = ['녜','네','나','아'];
+const HM_MODES = { long:{name:'롱톤 3초', desc:'한 음을 3초. 범위 안에 70% 이상 머물면 성공'},
+                   stac:{name:'스타카토', desc:'3초 동안 "녜 녜 녜" 짧게 4~5번. 시작부터 꽉 차게'},
+                   free:{name:'자유', desc:'점수 없이 미터만 보며 자유롭게'} };
+let H = null;   // 실행 중 상태
+function hmState(){
+  if(!S.hm) S.hm = { goal:1, vowel:'녜', mode:'long', top:2, unlockedAt:today(), base:null, log:{} };
+  return S.hm;
+}
+function hmNotes(){ const h=hmState(); return HM_NOTES.slice(0, h.top+1); }
+// 배음 측정: 기본음(H1) 대비 3~6번째 배음 평균 (오늘 녹음 분석과 같은 방식)
+function measureRich(f){
+  if(!mic.on || !f) return null;
+  const an=mic.an, n=an.frequencyBinCount; if(!mic.spec || mic.spec.length!==n) mic.spec=new Float32Array(n);
+  an.getFloatFrequencyData(mic.spec);
+  const binHz = actx.sampleRate/an.fftSize, H_=[];
+  for(let k=1;k<=6;k++){
+    const fk=k*f, bw=Math.max(fk*0.03, 8); let mx=-200;
+    for(let b=Math.floor((fk-bw)/binHz); b<=Math.ceil((fk+bw)/binHz); b++){ if(b>0 && b<n && mic.spec[b]>mx) mx=mic.spec[b]; }
+    H_.push(mx);
+  }
+  return (H_[2]+H_[3]+H_[4]+H_[5])/4 - H_[0];
+}
+function measureDb(){ const b=mic.buf; let s=0; const N=Math.min(2048,b.length); for(let i=0;i<N;i++) s+=b[i]*b[i]; return 20*Math.log10(Math.sqrt(s/N)+1e-9); }
+
+async function hmStart(kind){
+  ac(); if(!S.pitch) S.pitch=true;
+  const ok=await startMic(); if(!ok){ toast(mic.err||'마이크를 쓸 수 없어요'); return; }
+  const h=hmState();
+  H = { kind, t0:Date.now(), samples:[], noteIdx:0, dir:1, phase:'listen', phaseAt:Date.now(), results:[], rec:null, chunks:[] };
+  if(kind==='calib'){ H.phase='calib'; }
+  if(S.hmRec && window.MediaRecorder){ try{ H.rec=new MediaRecorder(mic.stream); H.rec.ondataavailable=e=>H.chunks.push(e.data); H.rec.start(); }catch(e){ H.rec=null; } }
+  keepAwake(true);
+  if(kind==='train' && h.mode!=='free') hmCue();
+  clearInterval(H.iv); H.iv=setInterval(hmTick, 50);
+  render();
+}
+function hmTarget(){ const n=hmNotes(); return n[Math.min(H.noteIdx, n.length-1)]; }
+function hmCue(){ // 들려주기 1초 → 부르기 3초 → 결과 1.5초
+  H.phase='listen'; H.phaseAt=Date.now(); H.samples=[];
+  const a=ac(); if(a) piano(hz(midiOf(hmTarget())), a.currentTime+0.05, 1.0);
+}
+function hmTick(){
+  if(!H) return;
+  const f=detectPitch(), m = f>0 ? toMidi(f) : null, r = f>0 ? measureRich(f) : null, d=measureDb();
+  const now=Date.now(), el=id=>document.getElementById(id), h=hmState(), g=HM_GOALS[h.goal];
+  // 미터 표시
+  if(el('hmNote')) el('hmNote').textContent = m!=null ? koMidi(Math.round(m)) : '—';
+  if(r!=null && el('hmRichDot')) el('hmRichDot').style.left = `${Math.max(0,Math.min(100,(r+45)/40*100))}%`;
+  if(r!=null && el('hmRichVal')) el('hmRichVal').textContent = `${r.toFixed(0)}dB`;
+  const rel = h.base!=null ? d-h.base : null;
+  if(m!=null && rel!=null && el('hmDbDot')) el('hmDbDot').style.left = `${Math.max(0,Math.min(100,(rel+12)/24*100))}%`;
+  if(m!=null && rel!=null && el('hmDbVal')) el('hmDbVal').textContent = `${rel>0?'+':''}${rel.toFixed(1)}dB`;
+  // 기준 크기 잡기: 편한 "네~" 3초
+  if(H.kind==='calib'){
+    if(m!=null) H.samples.push(d);
+    const left=3-(now-H.t0)/1000; if(el('hmPhase')) el('hmPhase').textContent = left>0 ? `"네~" 편하게 말하는 크기로 ${Math.ceil(left)}초` : '저장 중';
+    if(left<=0){ const v=H.samples.sort((a,b)=>a-b); h.base = v.length>10 ? v[Math.floor(v.length/2)] : null; save(); hmStop(false); toast(h.base!=null?'기준 크기를 저장했어요':'소리가 안 잡혔어요. 다시 해주세요'); }
+    return;
+  }
+  if(h.mode==='free') return;
+  const e=now-H.phaseAt, tgt=midiOf(hmTarget());
+  if(H.phase==='listen'){ if(el('hmPhase')) el('hmPhase').textContent=`듣기 · ${koName(hmTarget())}`; if(e>1300){ H.phase='sing'; H.phaseAt=now; H.samples=[]; } return; }
+  if(H.phase==='sing'){
+    const left=3-e/1000; if(el('hmPhase')) el('hmPhase').textContent=`"${h.vowel}~" ${h.mode==='stac'?'짧게 여러 번':'3초 유지'} · ${Math.max(0,left).toFixed(1)}`;
+    if(m!=null && r!=null) H.samples.push({m,r,rel});
+    if(el('hmHold')) el('hmHold').style.width=`${Math.min(100,e/30)}%`;
+    if(e>=3000){ hmScore(tgt); H.phase='result'; H.phaseAt=now; }
+    return;
+  }
+  if(H.phase==='result' && e>1600){ hmAdvance(); hmCue(); render(); }
+}
+function hmScore(tgt){
+  const h=hmState(), g=HM_GOALS[h.goal], sm=H.samples;
+  const pitchOk=sm.filter(s=>Math.abs(s.m-tgt)<=0.6);
+  const n=pitchOk.length;
+  const richIn = n ? pitchOk.filter(s=>s.r>=g.lo && s.r<=g.hi).length/n : 0;
+  const dbIn = (h.base==null) ? 1 : (n ? pitchOk.filter(s=>s.rel!=null && Math.abs(s.rel)<=3).length/n : 0);
+  const med = n ? pitchOk.map(s=>s.r).sort((a,b)=>a-b)[Math.floor(n/2)] : null;
+  const dbMed = n && h.base!=null ? pitchOk.map(s=>s.rel).sort((a,b)=>a-b)[Math.floor(n/2)] : null;
+  const ok = n>=20 && richIn>=0.7 && dbIn>=0.7;
+  const note=hmTarget(); H.results.push({note, ok, rich:med, db:dbMed, pitch:n/Math.max(1,sm.length)});
+  // 기록 저장
+  const L=(h.log[today()] = h.log[today()]||{}); const x=(L[note]=L[note]||{tries:0,ok:0,richSum:0,richN:0});
+  x.tries++; if(ok) x.ok++; if(med!=null){ x.richSum+=med; x.richN++; } save();
+  const el=document.getElementById('hmPhase');
+  const sungMed = sm.length ? sm.map(x=>x.m).sort((a,b)=>a-b)[Math.floor(sm.length/2)] : null;
+  if(el) el.textContent = n<20 ? (sm.length>=20 ? `음높이가 달라요 · ${koMidi(Math.round(sungMed))} 냄, 목표 ${koName(note)}` : '소리가 잘 안 잡혔어요 · 폰을 한 뼘 거리로') : ok ? `성공! 배음 ${med.toFixed(0)}dB` :
+    richIn<0.7 ? (med<g.lo ? `배음 ${med.toFixed(0)}dB · 조금 더 밝고 단단하게` : `배음 ${med.toFixed(0)}dB · 너무 누름, 힘 빼기`) : `크기 ${dbMed>0?'+':''}${dbMed.toFixed(1)}dB · 기준 크기로`;
+  try{ navigator.vibrate && navigator.vibrate(ok?[30,40,30]:20); }catch(e){}
+  if(ok) beep(1320,0.1);
+}
+function hmAdvance(){ const n=hmNotes().length; if(n<=1) return; let i=H.noteIdx+H.dir; if(i>=n){ H.dir=-1; i=n-2; } if(i<0){ H.dir=1; i=1; } H.noteIdx=i; }
+function hmStop(showSummary=true){
+  if(!H) return; clearInterval(H.iv);
+  if(H.rec){ try{ H.rec.onstop=()=>{ const blob=new Blob(H.chunksSaved||[], {type:H.rec.mimeType||'audio/webm'}); hmDownload(blob); }; H.chunksSaved=H.chunks; H.rec.stop(); }catch(e){} }
+  const res=H.results; H=null; stopMic(); keepAwake(false);
+  if(showSummary && res.length){ const ok=res.filter(r=>r.ok).length; toast(`${res.length}회 중 ${ok}회 성공`); }
+  hmCheckUnlock(); render();
+}
+function hmDownload(blob){
+  if(!blob.size) return;
+  if(window.self!==window.top){ toast('미리보기에서는 녹음 저장이 안 돼요 (설치한 앱에서 가능)'); return; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`배음연습-${today()}-${Date.now()%100000}.webm`;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},800); toast('녹음 파일을 저장했어요');
+}
+// 다음 음 열기: 지금 가장 높은 음에서 성공 15회 + 마지막으로 연 뒤 7일
+function hmUnlockInfo(){
+  const h=hmState(); const top=HM_NOTES[h.top]; let ok=0;
+  Object.entries(h.log).forEach(([d,L])=>{ if(diff(h.unlockedAt,d)>=0 && L[top]) ok+=L[top].ok; });
+  const days=diff(h.unlockedAt,today());
+  return { top, ok, need:15, days, needDays:7, can: ok>=15 && days>=7 && h.top<HM_NOTES.length-1 };
+}
+function hmCheckUnlock(){ const u=hmUnlockInfo(), h=hmState(); if(u.can){ h.top++; h.unlockedAt=today(); save(); toast(`새 음이 열렸어요: ${koName(HM_NOTES[h.top])}`); } }
+function hmRecent(){ // 최근 7일 음별 평균 배음·성공률
+  const h=hmState(), out={};
+  for(let i=0;i<7;i++){ const L=h.log[addDays(today(),-i)]; if(!L) continue;
+    Object.entries(L).forEach(([n,x])=>{ const o=(out[n]=out[n]||{tries:0,ok:0,rs:0,rn:0}); o.tries+=x.tries; o.ok+=x.ok; o.rs+=x.richSum; o.rn+=x.richN; }); }
+  return out;
+}
+function renderHm(){
+  const h=hmState(), g=HM_GOALS[h.goal], u=hmUnlockInfo(), notes=hmNotes(), rec=hmRecent();
+  const running = H && H.kind==='train';
+  const pct=v=>Math.max(0,Math.min(100,(v+45)/40*100));
+  const chip=(act,v,label,on)=>`<button class="chip ${on?'on':''}" data-act="${act}" data-v="${v}">${label}</button>`;
+  return `
+    <header class="top"><div><div class="dday" style="font-size:24px">배음 연습</div>
+      <div class="dsub">기구 루틴 뒤 하루 3~5분 · 기구 없이 맨소리</div></div>
+      <span class="badge">${g.name}</span></header>
+
+    <section class="card">
+      <div class="row"><h3>이번 연습 음</h3><span class="muted">${koName(notes[0])} ~ ${koName(notes[notes.length-1])}</span></div>
+      <p class="muted" style="margin:6px 0 0">다음 음 ${h.top<HM_NOTES.length-1?koName(HM_NOTES[h.top+1]):'(최고음 도달)'} 열기: ${koName(u.top)} 성공 ${Math.min(u.ok,u.need)}/${u.need}회 · ${Math.min(u.days,u.needDays)}/${u.needDays}일</p>
+      <div class="field"><span>목표</span><div class="chips">${chip('hmgoal',1,'1차 (-29 ~ -18dB)',h.goal===1)}${chip('hmgoal',2,'2차 (-25 ~ -18dB)',h.goal===2)}</div></div>
+      <div class="field"><span>연습 방식</span><div class="chips">${Object.entries(HM_MODES).map(([k,v])=>chip('hmmode',k,v.name,h.mode===k)).join('')}</div>
+        <span class="muted" style="font-weight:400">${HM_MODES[h.mode].desc}</span></div>
+      <div class="field"><span>발음</span><div class="chips">${HM_VOWELS.map(v=>chip('hmvowel',v,v,h.vowel===v)).join('')}</div></div>
+    </section>
+
+    <section class="card">
+      <div class="row"><h3>실시간 미터</h3><span class="muted" id="hmNote">—</span></div>
+      <div style="margin-top:14px;font-size:13px"><b>배음</b> <span class="muted" id="hmRichVal"></span></div>
+      <div class="meter">
+        <i class="zone singer" style="left:${pct(SINGER_BAND[0])}%;width:${pct(SINGER_BAND[1])-pct(SINGER_BAND[0])}%"></i>
+        <i class="zone goal" style="left:${pct(g.lo)}%;width:${pct(g.hi)-pct(g.lo)}%"></i>
+        <b class="dot" id="hmRichDot" style="left:0%"></b>
+      </div>
+      <div class="row muted" style="font-size:11px"><span>가벼움 (가성)</span><span>파란 띠 = 가수 범위</span><span>무거움</span></div>
+      <div style="margin-top:14px;font-size:13px"><b>크기</b> <span class="muted" id="hmDbVal">${h.base==null?'기준 크기를 먼저 잡아 주세요':''}</span></div>
+      <div class="meter">
+        <i class="zone goal" style="left:${(9/24)*100}%;width:${(6/24)*100}%"></i>
+        <b class="dot" id="hmDbDot" style="left:50%"></b>
+      </div>
+      <div class="row muted" style="font-size:11px"><span>-12dB</span><span>기준 ±3dB</span><span>+12dB</span></div>
+      ${running ? `<div class="cue" id="hmPhase" style="font-size:18px;margin-top:14px">준비</div>
+        <div class="bar" style="margin-top:8px"><i id="hmHold" style="transition:none"></i></div>` :
+        H && H.kind==='calib' ? `<div class="cue" id="hmPhase" style="font-size:18px;margin-top:14px">"네~"</div>` : ''}
+      <div class="actions">
+        ${running || (H&&H.kind==='calib') ? `<button class="btn primary big" data-act="hmstop">정지</button>` :
+          `<button class="btn" data-act="hmcalib">기준 크기 잡기</button><button class="btn primary" data-act="hmstart">시작</button>`}
+      </div>
+      <label class="auto"><input type="checkbox" data-act="hmrec" ${S.hmRec?'checked':''}> 연습 녹음 파일로 저장 (분석 요청용)</label>
+    </section>
+
+    <section class="card">
+      <h3>최근 7일 음별 기록</h3>
+      ${Object.keys(rec).length ? `<div class="wtable" style="grid-template-columns:1.4fr 1fr 1fr 1fr;text-align:left">
+        <div class="muted">음</div><div class="muted">평균 배음</div><div class="muted">성공</div><div class="muted">상태</div>
+        ${HM_NOTES.filter(n=>rec[n]).map(n=>{ const o=rec[n], av=o.rn?o.rs/o.rn:null, inS=av!=null&&av>=SINGER_BAND[0];
+          return `<div>${koName(n)}</div><div>${av!=null?av.toFixed(0)+'dB':'—'}</div><div>${o.ok}/${o.tries}</div><div>${inS?'가수 범위':av!=null&&av>=-29?'1차 달성':'연습 중'}</div>`; }).join('')}
+      </div>` : `<p class="muted" style="margin:6px 0 0">아직 기록이 없어요.</p>`}
+    </section>
+
+    <details class="ex"><summary><span class="exn">?</span>어떻게 연습하나요</summary><div class="body"><dl class="guide">
+      <dt>순서</dt><dd>① 기구 루틴 → ② 기준 크기 잡기("네~" 3초) → ③ 롱톤 3초로 연습 음 오르내리기 → ④ 가끔 스타카토</dd>
+      <dt>롱톤 3초</dt><dd>무게를 "유지"하는 연습. 주력으로 쓰세요</dd>
+      <dt>스타카토</dt><dd>소리 "시작"부터 꽉 차게 붙이는 연습. 음 첫머리가 가볍게 새는 습관 교정용</dd>
+      <dt>슬라이딩</dt><dd>연결 연습은 루틴 탭에서. 음이 계속 움직여 배음 점수에는 맞지 않아요</dd>
+      <dt>발음 순서</dt><dd>녜(가장 쉬움) → 네 → 나 → 아. 앞 발음이 70% 이상 성공하면 다음으로</dd>
+      <dt>범위 넓히기</dt><dd>가장 높은 음에서 15번 성공 + 7일이 지나면 한 음씩 자동으로 열려요</dd>
+      <dt>크기</dt><dd>배음을 올릴 때 크기가 +3dB 넘게 커지면 목을 쓰는 신호. 크기는 기준 그대로</dd>
+      <dt>측정 한계</dt><dd>폰 마이크와 방 울림에 따라 몇 dB 달라질 수 있어요. 같은 장소, 한 뼘 거리로 하면 비교가 정확해요</dd>
+    </dl></div></details>`;
+}
+
 // =================== 설정 ===================
 function renderSettings(){
   const chip=(act,k,v,label,on)=>`<button class="chip ${on?'on':''}" data-act="${act}" data-k="${k}" data-v="${v}">${label}</button>`;
@@ -947,7 +1164,7 @@ function finishSetup(){
 function render(){
   const setup=!S.setupDone;
   document.querySelector('nav.tabs').classList.toggle('hidden', setup);
-  $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
+  $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='hm' ? renderHm() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
   // 하단 진행률: 루틴 탭에서 실행 중일 때 또는 실행 전 0%
   const dock=document.getElementById('dock');
@@ -969,7 +1186,14 @@ document.addEventListener('click', e=>{
   const act=b.dataset.act, t=today();
   switch(act){
     case 'slot': if(P){ toast('루틴 진행 중에는 바꿀 수 없어요'); return; } slot=b.dataset.v; break;
-    case 'start': startRoutine(); return;
+    case 'start': if(H) hmStop(false); startRoutine(); return;
+    case 'hmstart': if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; } hmStart('train'); return;
+    case 'hmcalib': if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; } hmStart('calib'); return;
+    case 'hmstop': hmStop(); return;
+    case 'hmrec': S.hmRec=b.checked; save(); return;
+    case 'hmgoal': hmState().goal=+b.dataset.v; save(); break;
+    case 'hmmode': hmState().mode=b.dataset.v; save(); if(H){ hmStop(false); } break;
+    case 'hmvowel': hmState().vowel=b.dataset.v; save(); break;
     case 'lower': if(S.lower[t]) delete S.lower[t]; else S.lower[t]=true; save(); break;
     case 'pause': togglePause(); return;
     case 'skip': skipStage(); return;
