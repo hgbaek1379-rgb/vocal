@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0f1115">
+<meta name="mobile-web-app-capable" content="yes">
+<title>음정 모니터</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --line:#2a2f3a; --grid:#232833; --text:#e8ebf0; --sub:#8b93a3;
+  --acc:#38bdf8; --ok:#34d399; --warn:#fbbf24; --bad:#f87171; --goal:rgba(52,211,153,.13); --singer:rgba(52,211,153,.22);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif;overscroll-behavior:none}
+body{display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);gap:8px;user-select:none;-webkit-user-select:none}
+header{display:flex;align-items:center;gap:8px;padding-top:8px}
+header h1{font-size:15px;margin:0;font-weight:700;letter-spacing:-.2px;flex:1;color:var(--sub)}
+.btn{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;font-weight:600;min-height:40px}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#04202c}
+.btn.stop{background:var(--bad);border-color:var(--bad);color:#2a0606}
+.chip{font-size:12px;padding:7px 10px;min-height:34px;color:var(--sub)}
+.read{display:flex;align-items:baseline;gap:12px;padding:0 2px}
+#note{font-size:40px;font-weight:800;letter-spacing:-1px;min-width:3.3em;line-height:1}
+#noteKo{font-size:15px;color:var(--sub);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hz{font-size:15px;color:var(--sub);font-variant-numeric:tabular-nums}
+.cents{position:relative;height:8px;background:var(--panel);border-radius:4px;margin:-2px 2px 0;overflow:hidden}
+.cents i{position:absolute;left:50%;top:0;width:2px;height:100%;background:var(--sub);opacity:.6}
+.cents b{position:absolute;top:0;height:100%;width:10px;margin-left:-5px;border-radius:4px;background:var(--acc);left:50%;transition:left .06s linear}
+.plots{flex:1;display:flex;flex-direction:column;gap:6px;min-height:0}
+.cv{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;touch-action:none}
+.cv canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cvP{flex:3;min-height:120px}
+#cvH{flex:1.1;min-height:70px}
+.tag{position:absolute;right:8px;top:6px;font-size:11px;color:var(--sub);pointer-events:none;background:rgba(15,17,21,.6);padding:2px 6px;border-radius:6px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .lb{font-size:12px;color:var(--sub);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.tile .v{font-size:34px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.tile .v small{font-size:14px;font-weight:600;color:var(--sub);margin-left:3px;letter-spacing:0}
+.tile .st{font-size:12px;color:var(--sub);min-height:1.3em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .mini{font-size:11px;padding:4px 8px;min-height:28px;border-radius:8px}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)} .dim{color:var(--sub)}
+#ov{position:fixed;inset:0;background:rgba(15,17,21,.94);display:flex;align-items:center;justify-content:center;padding:24px;z-index:9}
+#ov .box{max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;text-align:center}
+#ov h2{margin:0;font-size:24px}
+#ov p{margin:0;color:var(--sub);font-size:14px;line-height:1.55}
+#ov .btn{font-size:17px;padding:14px;min-height:52px}
+#msg{color:var(--bad);font-size:13px;min-height:1.2em}
+@media (orientation:landscape) and (max-height:560px){
+  body{display:grid;grid-template-columns:minmax(0,1fr) 210px;grid-template-rows:auto auto auto minmax(0,1fr);
+       grid-template-areas:"h h" "r t" "c t" "p t";column-gap:10px;row-gap:6px}
+  header{grid-area:h;padding-top:4px} .read{grid-area:r} .cents{grid-area:c;align-self:start;width:100%} .plots{grid-area:p} .tiles{grid-area:t;grid-template-columns:1fr;align-content:start}
+  .tile .v{font-size:28px} #note{font-size:30px} .btn{min-height:34px;padding:6px 10px} .tag{display:none}
+}
+</style>
+</head>
+<body>
+<div id="ov"><div class="box">
+  <h2>음정 모니터</h2>
+  <p>소리를 내면 음정이 화면에 선으로 흘러가고,<br>아래에 배음(소리의 풍성함)과 크기가 실시간으로 표시돼요.</p>
+  <p>이어폰 없이 폰 마이크로, 입에서 한 뼘 거리에서 해 주세요.<br>조용한 곳일수록 정확해요.</p>
+  <button class="btn primary" id="ovGo">마이크 켜고 시작</button>
+  <div id="msg"></div>
+</div></div>
+
+<header>
+  <h1>음정 모니터</h1>
+  <button class="btn chip" id="bTime">10초</button>
+  <button class="btn chip" id="bSpan">음역 24</button>
+  <button class="btn" id="bRun">정지</button>
+</header>
+
+<div class="read"><div id="note">--</div><div id="noteKo"></div><div id="hz"></div></div>
+<div class="cents"><i></i><b id="cb"></b></div>
+
+<div class="plots">
+  <div class="cv" id="cvP"><canvas id="cP"></canvas><div class="tag" id="tagP">그래프를 탭하면 기준선 · 좌우로 밀면 지난 소리</div></div>
+  <div class="cv" id="cvH"><canvas id="cH"></canvas><div class="tag">배음(dB) · 0에 가까울수록 풍성</div></div>
+</div>
+
+<div class="tiles">
+  <div class="tile"><div class="lb"><span>배음 (0에 가까울수록 풍성)</span></div>
+    <div class="v" id="vH">--<small>dB</small></div><div class="st" id="sH">소리를 내 주세요</div></div>
+  <div class="tile"><div class="lb"><span>크기</span><button class="btn mini" id="bBase">기준 잡기</button></div>
+    <div class="v" id="vL">--<small id="uL">dB</small></div><div class="st" id="sL">평소 말하는 크기로 "네~" 3초</div></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const store = { get(k,d){ try{ const v=localStorage.getItem('pmon-'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+                set(k,v){ try{ localStorage.setItem('pmon-'+k, JSON.stringify(v)); }catch(e){} } };
+
+// ---------- 설정 ----------
+const WINS = [6,10,20], SPANS = [18,24,36];
+let winI = store.get('winI',1), spanI = store.get('spanI',1);
+let base = store.get('base', null);            // 기준 크기(dBFS)
+let target = null;                              // 기준선(midi, 탭으로 지정)
+const GOAL = [-29,-18], SINGER = [-25,-19];     // 배음 목표 / 가수 라이브 대역(dB)
+const DB_MIN = -40, DB_MAX = 0;
+
+// ---------- 음 이름 ----------
+const SCI = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const KO  = ['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
+function names(m){
+  const n=Math.round(m), pc=((n%12)+12)%12, oct=Math.floor(n/12)-1;
+  const ko = oct-2;
+  return { sci: SCI[pc]+oct, ko: (ko>=1 ? ko+'옥타브 ' : '낮은 ')+KO[pc], pc, oct };
+}
+const NAT = new Set([0,2,4,5,7,9,11]);
+
+// ---------- 오디오 ----------
+let ac=null, an=null, buf=null, spec=null, stream=null, running=false, hist5=[], dArr=null, wake=null;
+async function startMic(){
+  if(!navigator.mediaDevices?.getUserMedia) throw new Error('unsupported');
+  stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false}});
+  ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+  if(ac.state==='suspended') await ac.resume();
+  const src = ac.createMediaStreamSource(stream);
+  an = ac.createAnalyser(); an.fftSize = 8192; an.smoothingTimeConstant = 0;
+  src.connect(an);                              // 스피커로는 내보내지 않음
+  buf = new Float32Array(an.fftSize); spec = new Float32Array(an.frequencyBinCount);
+  running = true; hist5 = [];
+  try{ if(navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){ wake=null; }
+}
+function stopMic(){
+  running=false;
+  try{ stream && stream.getTracks().forEach(t=>t.stop()); }catch(e){}
+  try{ wake && wake.release(); }catch(e){} wake=null; stream=null; an=null;
+}
+
+// YIN 음높이 검출 → {f, db} (f=0이면 소리 없음/불분명)
+function analyze(){
+  an.getFloatTimeDomainData(buf);
+  const sr=ac.sampleRate, W=2048, N=W*2;
+  const x=buf.subarray(buf.length-N);
+  let mean=0; for(let i=0;i<N;i++) mean+=x[i]; mean/=N;
+  let rms=0; for(let i=0;i<N;i++){ const v=x[i]-mean; rms+=v*v; } rms=Math.sqrt(rms/N);
+  const db = 20*Math.log10(rms+1e-9);
+  if(rms<0.004){ hist5=[]; return {f:0, db}; }
+  const minT=Math.floor(sr/1100), maxT=Math.min(W-1,Math.floor(sr/65));
+  if(!dArr || dArr.length!==maxT+1) dArr=new Float32Array(maxT+1);
+  const d=dArr; d[0]=1; let run=0;
+  for(let t=1;t<=maxT;t++){
+    let s2=0; for(let i=0;i<W;i++){ const v=x[i]-x[i+t]; s2+=v*v; }
+    run+=s2; d[t]= run ? s2*t/run : 1;
+  }
+  let best=-1, gmin=1, gidx=-1;
+  for(let t=minT;t<=maxT;t++){
+    if(d[t]<gmin){ gmin=d[t]; gidx=t; }
+    if(best<0 && d[t]<0.12){ while(t+1<=maxT && d[t+1]<d[t]) t++; best=t; break; }
+  }
+  if(best<0){ if(gmin<0.3) best=gidx; else return {f:0, db}; }
+  const a0=d[best-1]??d[best], b0=d[best], c0=d[best+1]??d[best];
+  const sh=(a0+c0-2*b0) ? (a0-c0)/(2*(a0+c0-2*b0)) : 0;
+  let f=sr/(best+sh);
+  if(hist5.length){ const prev=hist5[hist5.length-1], r=f/prev;       // 옥타브 튐 보정
+    if(r>1.9&&r<2.1) f/=2; else if(r>0.48&&r<0.52) f*=2; }
+  hist5.push(f); if(hist5.length>5) hist5.shift();
+  const s=[...hist5].sort((p,q)=>p-q);
+  return {f:s[Math.floor(s.length/2)], db};
+}
+// 배음: 기본음(H1) 대비 3~6번째 배음 평균 (dB, 0에 가까울수록 풍성)
+function richness(f){
+  if(!f) return null;
+  an.getFloatFrequencyData(spec);
+  const n=spec.length, binHz=ac.sampleRate/an.fftSize, H=[];
+  for(let k=1;k<=6;k++){
+    const fk=k*f, bw=Math.max(fk*0.03,8); let mx=-Infinity;
+    for(let b=Math.floor((fk-bw)/binHz); b<=Math.ceil((fk+bw)/binHz); b++){ if(b>0&&b<n&&spec[b]>mx) mx=spec[b]; }
+    if(!isFinite(mx)) return null;
+    H.push(mx);
+  }
+  const r=(H[2]+H[3]+H[4]+H[5])/4 - H[0];
+  return (r>-80 && r<20) ? r : null;
+}
+
+// ---------- 기록(그래프용) ----------
+const hist=[];           // {t, m, r, db}
+const KEEP=180;          // 초
+let emaR=null, lastVoiced=0, view={live:true,end:0}, lastAn=0;
+let calib=null;          // 기준 크기 잡는 중 {until, vals}
+const nowS = () => performance.now()/1000;
+
+function tick(){
+  if(running){
+    const t=nowS();
+    if(t-lastAn>=0.033){
+      lastAn=t;
+      const {f,db}=analyze();
+      let m=null, r=null;
+      if(f){ m=69+12*Math.log2(f/440); r=richness(f);
+             if(r!=null){ emaR = emaR==null ? r : emaR*0.75+r*0.25; }
+             lastVoiced=t; }
+      hist.push({t,m,r:(f&&r!=null)?emaR:null,db:f?db:null,dbAll:db});
+      while(hist.length && t-hist[0].t>KEEP) hist.shift();
+      if(calib){ if(f) calib.vals.push(db); if(t>=calib.until) finishCalib(); }
+      readout(t,f,m,db);
+    }
+  }
+  draw();
+  requestAnimationFrame(tick);
+}
+
+// ---------- 숫자 표시 ----------
+let lastRead=0;
+function readout(t,f,m,db){
+  if(t-lastRead<0.08) return; lastRead=t;
+  if(f){
+    const nm=names(m), cents=(m-Math.round(m))*100;
+    $('note').textContent=nm.sci; $('noteKo').textContent=nm.ko;
+    $('hz').textContent=f.toFixed(1)+' Hz · '+(cents>=0?'+':'')+Math.round(cents)+'¢';
+    $('cb').style.left=(50+Math.max(-50,Math.min(50,cents)))+'%';
+    $('cb').style.background = Math.abs(cents)<=15 ? 'var(--ok)' : Math.abs(cents)<=30 ? 'var(--warn)' : 'var(--bad)';
+  } else if(t-lastVoiced>0.4){
+    $('note').textContent='--'; $('noteKo').textContent=''; $('hz').textContent=''; $('cb').style.left='50%';
+  }
+  const vH=$('vH'), sH=$('sH');
+  if(f && emaR!=null && t-lastVoiced<0.3){
+    vH.innerHTML=emaR.toFixed(1)+'<small>dB</small>';
+    let cls='ok', msg='목표 구간';
+    if(emaR<GOAL[0]){ cls='warn'; msg='조금 더 밝고 단단하게'; }
+    else if(emaR>GOAL[1]){ cls='bad'; msg='힘 빼고 가볍게'; }
+    else if(emaR<SINGER[0]){ cls='ok'; msg='목표 구간 · 조금만 더 밝게'; }
+    vH.className='v '+cls; sH.textContent=msg;
+  } else if(t-lastVoiced>0.6){ vH.innerHTML='--<small>dB</small>'; vH.className='v dim'; sH.textContent='소리를 내 주세요'; emaR=null; }
+  const vL=$('vL'), sL=$('sL');
+  if(calib){ vL.innerHTML='...<small></small>'; vL.className='v dim'; sL.textContent='"네~" 편하게 말하는 크기로 '+Math.max(0,Math.ceil(calib.until-t))+'초'; return; }
+  if(f && t-lastVoiced<0.3){
+    if(base!=null){ const rel=db-base;
+      vL.innerHTML=(rel>=0?'+':'')+rel.toFixed(1)+'<small>dB</small>';
+      const a=Math.abs(rel); vL.className='v '+(a<=3?'ok':a<=6?'warn':'bad');
+      sL.textContent = a<=3 ? '기준 크기와 비슷해요' : rel>0 ? '기준보다 커요' : '기준보다 작아요';
+    } else { vL.innerHTML=db.toFixed(0)+'<small>dBFS</small>'; vL.className='v'; sL.textContent='기준 잡기를 누르면 ±로 표시'; }
+  } else if(t-lastVoiced>0.6){ vL.innerHTML='--<small>dB</small>'; vL.className='v dim'; sL.textContent = base!=null ? '기준 크기 저장됨' : '평소 말하는 크기로 "네~" 3초'; }
+}
+function finishCalib(){
+  const v=calib.vals.sort((a,b)=>a-b); calib=null;
+  if(v.length>10){ base=v[Math.floor(v.length/2)]; store.set('base',base); $('sL').textContent='기준 크기를 저장했어요'; }
+  else { $('sL').textContent='소리가 안 잡혔어요. 다시 해 주세요'; }
+  $('bBase').textContent = base!=null ? '다시 잡기' : '기준 잡기';
+}
+
+// ---------- 그리기 ----------
+const cP=$('cP'), cH=$('cH'), gP=cP.getContext('2d'), gH=cH.getContext('2d');
+let DPR=1;
+function fit(c){ const r=c.parentElement.getBoundingClientRect(); DPR=window.devicePixelRatio||1;
+  const w=Math.max(1,Math.round(r.width*DPR)), h=Math.max(1,Math.round(r.height*DPR));
+  if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } return {w:r.width,h:r.height}; }
+let yMid=62;
+const LM=58;   // 왼쪽 라벨 폭
+function viewEnd(){ return view.live ? nowS() : view.end; }
+
+function draw(){
+  const t=nowS(), WIN=WINS[winI], SPAN=SPANS[spanI], end=viewEnd(), start=end-WIN;
+  // 음역 자동 따라가기 (최근 2초 중앙값)
+  const rec=hist.filter(p=>p.m!=null && p.t>end-2 && p.t<=end).map(p=>p.m).sort((a,b)=>a-b);
+  if(rec.length>5){ const med=rec[Math.floor(rec.length/2)]; yMid += (med-yMid)*0.06; }
+  const X = tt => LM + (tt-start)/WIN*(W1-LM-6);
+  // --- 음정 그래프 ---
+  const s1=fit(cP); var W1=s1.w, H1=s1.h;
+  const g=gP; g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W1,H1);
+  const lo=yMid-SPAN/2, hi=yMid+SPAN/2, Y = m => H1-8 - (m-lo)/(hi-lo)*(H1-16);
+  g.font='11px system-ui,sans-serif'; g.textBaseline='middle';
+  const px=(H1-16)/SPAN;   // 반음 1칸 높이(px)
+  for(let m=Math.ceil(lo); m<=Math.floor(hi); m++){
+    const nm=names(m); if(!NAT.has(nm.pc)) continue;
+    const y=Y(m), isC=nm.pc===0;
+    const showLb = px>=14 || (px>=8 && (nm.pc===0||nm.pc===4||nm.pc===7)) || isC;
+    g.strokeStyle=isC?'#394152':'#232833'; g.lineWidth=isC?1.2:1;
+    g.beginPath(); g.moveTo(LM,y); g.lineTo(W1-4,y); g.stroke();
+    if(!showLb) continue;
+    g.fillStyle=isC?'#c6ccd8':'#6c7586'; g.textAlign='left';
+    g.fillText(nm.sci+' '+nm.ko.replace(/^.*옥타브 |^낮은 /,''), 6, y);
+    if(isC && px>=10){ g.fillStyle='#8b93a3'; g.fillText(nm.ko.replace(' 도','').replace('낮은',''), 6, y-11); }
+  }
+  // 기준선
+  if(target!=null){ const y=Y(target); g.setLineDash([6,5]); g.strokeStyle='#fbbf24'; g.lineWidth=1.5;
+    g.beginPath(); g.moveTo(LM,y); g.lineTo(W1-4,y); g.stroke(); g.setLineDash([]);
+    g.fillStyle='#fbbf24'; g.textAlign='right'; g.fillText('기준 '+names(target).sci, W1-8, y-9); }
+  // 음정선
+  g.lineWidth=3.2; g.lineCap='round'; g.lineJoin='round';
+  let prev=null;
+  for(const p of hist){
+    if(p.t<start-0.3 || p.t>end) { prev=null; continue; }
+    if(p.m==null){ prev=null; continue; }
+    const x=X(p.t), y=Y(p.m);
+    if(prev && p.t-prev.t<0.18){
+      g.strokeStyle = colorOf(p.r);
+      g.beginPath(); g.moveTo(X(prev.t),Y(prev.m)); g.lineTo(x,y); g.stroke();
+    }
+    prev=p;
+  }
+  if(prev && view.live && t-prev.t<0.3){ g.fillStyle=colorOf(prev.r); g.beginPath(); g.arc(X(prev.t),Y(prev.m),5,0,6.3); g.fill(); }
+  // 시간 눈금 (초)
+  // --- 배음 그래프 ---
+  const s2=fit(cH), W2=s2.w, H2=s2.h, h=gH; h.setTransform(DPR,0,0,DPR,0,0); h.clearRect(0,0,W2,H2);
+  const YD = v => 6 + (1-(v-DB_MIN)/(DB_MAX-DB_MIN))*(H2-12);
+  h.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--goal'); h.fillRect(LM,YD(GOAL[1]),W2-LM-4,YD(GOAL[0])-YD(GOAL[1]));
+  h.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--singer'); h.fillRect(LM,YD(SINGER[1]),W2-LM-4,YD(SINGER[0])-YD(SINGER[1]));
+  h.font='11px system-ui,sans-serif'; h.textBaseline='middle'; h.textAlign='left';
+  [[0,'0'],[-10,'-10'],[-20,'-20'],[-30,'-30'],[-40,'-40']].forEach(([v,l])=>{
+    h.strokeStyle='#232833'; h.lineWidth=1; h.beginPath(); h.moveTo(LM,YD(v)); h.lineTo(W2-4,YD(v)); h.stroke();
+    h.fillStyle='#6c7586'; h.fillText(l+' dB',6,YD(v)); });
+  h.lineWidth=2.6; h.lineCap='round'; h.lineJoin='round'; prev=null;
+  const X2 = tt => LM + (tt-start)/WIN*(W2-LM-6);
+  for(const p of hist){
+    if(p.t<start-0.3 || p.t>end){ prev=null; continue; }
+    if(p.r==null){ prev=null; continue; }
+    if(prev && p.t-prev.t<0.18){ h.strokeStyle=colorOf(p.r);
+      h.beginPath(); h.moveTo(X2(prev.t),YD(Math.max(DB_MIN,Math.min(DB_MAX,prev.r)))); h.lineTo(X2(p.t),YD(Math.max(DB_MIN,Math.min(DB_MAX,p.r)))); h.stroke(); }
+    prev=p;
+  }
+  // 라이브/지난 구간 표시
+  $('tagP').textContent = view.live ? '그래프를 탭하면 기준선 · 좌우로 밀면 지난 소리' : '지난 소리 보는 중 · 오른쪽 끝으로 밀면 실시간';
+}
+function colorOf(r){ if(r==null) return '#38bdf8'; return (r>=GOAL[0] && r<=GOAL[1]) ? '#34d399' : (r<GOAL[0] ? '#fbbf24' : '#f87171'); }
+
+// ---------- 입력(탭/드래그) ----------
+let drag=null;
+cP.parentElement.addEventListener('pointerdown', e=>{ drag={x:e.clientX,y:e.clientY,moved:false,end:viewEnd()}; cP.parentElement.setPointerCapture(e.pointerId); });
+cP.parentElement.addEventListener('pointermove', e=>{
+  if(!drag) return; const dx=e.clientX-drag.x;
+  if(Math.abs(dx)>6) drag.moved=true;
+  if(drag.moved){
+    const r=cP.parentElement.getBoundingClientRect(), WIN=WINS[winI];
+    let ne = drag.end - dx/(r.width-LM-6)*WIN;
+    const oldest = hist.length ? hist[0].t+WIN : nowS(), now=nowS();
+    ne=Math.max(oldest,Math.min(now,ne));
+    if(ne>=now-0.05){ view.live=true; } else { view.live=false; view.end=ne; }
+  }
+});
+cP.parentElement.addEventListener('pointerup', e=>{
+  if(drag && !drag.moved){            // 탭 → 기준선 지정/해제
+    const r=cP.parentElement.getBoundingClientRect(), H=r.height, SPAN=SPANS[spanI];
+    const y=e.clientY-r.top, m=yMid-SPAN/2 + (H-8-y)/(H-16)*SPAN, mr=Math.round(m);
+    target = (target!=null && Math.abs(target-mr)<1) ? null : mr;
+  }
+  drag=null;
+});
+
+// ---------- 버튼 ----------
+function setRunBtn(){ const b=$('bRun'); b.textContent=running?'정지':'시작'; b.className='btn '+(running?'stop':'primary'); }
+$('bRun').onclick=async()=>{
+  if(running){ stopMic(); setRunBtn(); return; }
+  try{ await startMic(); setRunBtn(); }catch(e){ showErr(e); $('ov').style.display='flex'; }
+};
+$('bTime').onclick=()=>{ winI=(winI+1)%WINS.length; store.set('winI',winI); $('bTime').textContent=WINS[winI]+'초'; };
+$('bSpan').onclick=()=>{ spanI=(spanI+1)%SPANS.length; store.set('spanI',spanI); $('bSpan').textContent='음역 '+SPANS[spanI]; };
+$('bBase').onclick=()=>{ if(!running){ $('sL').textContent='먼저 시작을 눌러 주세요'; return; } calib={until:nowS()+3,vals:[]}; };
+$('ovGo').onclick=async()=>{
+  try{ $('msg').textContent=''; await startMic(); $('ov').style.display='none'; setRunBtn(); }catch(e){ showErr(e); }
+};
+function showErr(e){
+  $('msg').textContent = (e && e.name==='NotAllowedError') ? '마이크 권한이 거부됐어요. 주소창 옆 자물쇠에서 마이크를 허용해 주세요.'
+    : '이 환경에서는 마이크를 쓸 수 없어요. 설치한 앱(HTTPS)에서 사용해 주세요.';
+}
+document.addEventListener('visibilitychange',async()=>{ if(!document.hidden && running && !wake && navigator.wakeLock){ try{ wake=await navigator.wakeLock.request('screen'); }catch(e){} } });
+
+$('bTime').textContent=WINS[winI]+'초'; $('bSpan').textContent='음역 '+SPANS[spanI];
+$('bBase').textContent = base!=null ? '다시 잡기' : '기준 잡기'; setRunBtn();
+requestAnimationFrame(tick);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+window.__pm = { get hist(){return hist;}, get emaR(){return emaR;} };
+})();
+</script>
+</body>
+</html>
