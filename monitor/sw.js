@@ -1,5 +1,5 @@
 // 오프라인용 서비스워커 (네트워크 우선, 실패하면 캐시)
-const CACHE = 'pitchmon-v1';
+const CACHE = 'pitchmon-v2';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

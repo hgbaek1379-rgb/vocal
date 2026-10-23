@@ -79,7 +79,7 @@ header h1{font-size:15px;margin:0;font-weight:700;letter-spacing:-.2px;flex:1;co
 <div class="cents"><i></i><b id="cb"></b></div>
 
 <div class="plots">
-  <div class="cv" id="cvP"><canvas id="cP"></canvas><div class="tag" id="tagP">그래프를 탭하면 기준선 · 좌우로 밀면 지난 소리</div></div>
+  <div class="cv" id="cvP"><canvas id="cP"></canvas><div class="tag" id="tagP">탭: 기준선 · 좌우로 밀면 지난 소리</div></div>
   <div class="cv" id="cvH"><canvas id="cH"></canvas><div class="tag">배음(dB) · 0에 가까울수록 풍성</div></div>
 </div>
 
@@ -125,8 +125,10 @@ async function startMic(){
   const src = ac.createMediaStreamSource(stream);
   an = ac.createAnalyser(); an.fftSize = 8192; an.smoothingTimeConstant = 0;
   src.connect(an);                              // 스피커로는 내보내지 않음
+  ac.onstatechange = () => { if(running && ac.state!=='running') ac.resume().catch(()=>{}); };
+  stream.getTracks().forEach(tr => tr.addEventListener('ended', () => { if(running){ stopMic(); setRunBtn(); $('sH').textContent='마이크가 끊겼어요. 시작을 다시 눌러 주세요'; } }));
   buf = new Float32Array(an.fftSize); spec = new Float32Array(an.frequencyBinCount);
-  running = true; hist5 = [];
+  running = true; hist5 = []; snapY = true; view.live = true;
   try{ if(navigator.wakeLock) wake = await navigator.wakeLock.request('screen'); }catch(e){ wake=null; }
 }
 function stopMic(){
@@ -184,7 +186,7 @@ function richness(f){
 // ---------- 기록(그래프용) ----------
 const hist=[];           // {t, m, r, db}
 const KEEP=180;          // 초
-let emaR=null, lastVoiced=0, view={live:true,end:0}, lastAn=0;
+let emaR=null, lastVoiced=0, view={live:true,end:0,touch:0}, lastAn=0, snapY=true;
 let calib=null;          // 기준 크기 잡는 중 {until, vals}
 const nowS = () => performance.now()/1000;
 
@@ -196,6 +198,8 @@ function tick(){
       const {f,db}=analyze();
       let m=null, r=null;
       if(f){ m=69+12*Math.log2(f/440); r=richness(f);
+             if(!view.live && !drag) view.live=true;                 // 소리가 감지되면 자동으로 실시간 화면으로
+             if(snapY){ yMid=m; snapY=false; }
              if(r!=null){ emaR = emaR==null ? r : emaR*0.75+r*0.25; }
              lastVoiced=t; }
       hist.push({t,m,r:(f&&r!=null)?emaR:null,db:f?db:null,dbAll:db});
@@ -258,10 +262,16 @@ const LM=58;   // 왼쪽 라벨 폭
 function viewEnd(){ return view.live ? nowS() : view.end; }
 
 function draw(){
-  const t=nowS(), WIN=WINS[winI], SPAN=SPANS[spanI], end=viewEnd(), start=end-WIN;
-  // 음역 자동 따라가기 (최근 2초 중앙값)
-  const rec=hist.filter(p=>p.m!=null && p.t>end-2 && p.t<=end).map(p=>p.m).sort((a,b)=>a-b);
-  if(rec.length>5){ const med=rec[Math.floor(rec.length/2)]; yMid += (med-yMid)*0.06; }
+  const t=nowS(), WIN=WINS[winI], SPAN=SPANS[spanI];
+  if(!view.live && !drag && t-view.touch>2.5) view.live=true;      // 손을 떼고 2.5초 지나면 실시간으로 복귀
+  const end=viewEnd(), start=end+WIN*0.08-WIN;                       // 오른쪽 8% 여백: 새 소리가 가장자리에 붙지 않게
+  // 음역 자동 따라가기: 현재 음이 화면 위/아래 가장자리에 가까우면 빠르게, 평소엔 천천히
+  const rec=hist.filter(p=>p.m!=null && p.t>end-2 && p.t<=end);
+  if(rec.length){
+    const cur=rec[rec.length-1].m, edge=SPAN*0.2;
+    if(cur>yMid+SPAN/2-edge || cur<yMid-SPAN/2+edge) yMid += (cur-yMid)*0.25;
+    else if(rec.length>5){ const a=rec.map(p=>p.m).sort((x,y)=>x-y), med=a[Math.floor(a.length/2)]; yMid += (med-yMid)*0.04; }
+  }
   const X = tt => LM + (tt-start)/WIN*(W1-LM-6);
   // --- 음정 그래프 ---
   const s1=fit(cP); var W1=s1.w, H1=s1.h;
@@ -318,21 +328,22 @@ function draw(){
     prev=p;
   }
   // 라이브/지난 구간 표시
-  $('tagP').textContent = view.live ? '그래프를 탭하면 기준선 · 좌우로 밀면 지난 소리' : '지난 소리 보는 중 · 오른쪽 끝으로 밀면 실시간';
+  $('tagP').textContent = view.live ? '탭: 기준선 · 좌우로 밀면 지난 소리' : '지난 소리 보는 중 (소리를 내면 자동으로 돌아와요)';
 }
 function colorOf(r){ if(r==null) return '#38bdf8'; return (r>=GOAL[0] && r<=GOAL[1]) ? '#34d399' : (r<GOAL[0] ? '#fbbf24' : '#f87171'); }
 
 // ---------- 입력(탭/드래그) ----------
 let drag=null;
-cP.parentElement.addEventListener('pointerdown', e=>{ drag={x:e.clientX,y:e.clientY,moved:false,end:viewEnd()}; cP.parentElement.setPointerCapture(e.pointerId); });
+cP.parentElement.addEventListener('pointerdown', e=>{ drag={x:e.clientX,y:e.clientY,moved:false,end:viewEnd()}; view.touch=nowS(); try{ cP.parentElement.setPointerCapture(e.pointerId); }catch(_){} });
 cP.parentElement.addEventListener('pointermove', e=>{
   if(!drag) return; const dx=e.clientX-drag.x;
-  if(Math.abs(dx)>6) drag.moved=true;
+  if(Math.abs(dx)>12) drag.moved=true;
   if(drag.moved){
     const r=cP.parentElement.getBoundingClientRect(), WIN=WINS[winI];
     let ne = drag.end - dx/(r.width-LM-6)*WIN;
     const oldest = hist.length ? hist[0].t+WIN : nowS(), now=nowS();
     ne=Math.max(oldest,Math.min(now,ne));
+    view.touch=nowS();
     if(ne>=now-0.05){ view.live=true; } else { view.live=false; view.end=ne; }
   }
 });
@@ -342,8 +353,11 @@ cP.parentElement.addEventListener('pointerup', e=>{
     const y=e.clientY-r.top, m=yMid-SPAN/2 + (H-8-y)/(H-16)*SPAN, mr=Math.round(m);
     target = (target!=null && Math.abs(target-mr)<1) ? null : mr;
   }
-  drag=null;
+  view.touch=nowS(); drag=null;
 });
+const dragEnd=()=>{ view.touch=nowS(); drag=null; };
+cP.parentElement.addEventListener('pointercancel', dragEnd);
+cP.parentElement.addEventListener('lostpointercapture', dragEnd);
 
 // ---------- 버튼 ----------
 function setRunBtn(){ const b=$('bRun'); b.textContent=running?'정지':'시작'; b.className='btn '+(running?'stop':'primary'); }
@@ -367,7 +381,7 @@ $('bTime').textContent=WINS[winI]+'초'; $('bSpan').textContent='음역 '+SPANS[
 $('bBase').textContent = base!=null ? '다시 잡기' : '기준 잡기'; setRunBtn();
 requestAnimationFrame(tick);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-window.__pm = { get hist(){return hist;}, get emaR(){return emaR;} };
+window.__pm = { get hist(){return hist;}, get emaR(){return emaR;}, get view(){return view;} };
 })();
 </script>
 </body>
