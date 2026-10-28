@@ -179,6 +179,41 @@
   .toast.show{opacity:1}
   .hidden{display:none !important}
   .setup h1{font-size:26px;margin:8px 0 4px;letter-spacing:-.02em}
+
+  /* 노래 연습 */
+  .sp-top{align-items:center}
+  .sp-select{width:100%;font:inherit;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink);background:transparent;border:0;padding:0 22px 0 0;min-height:40px;appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 10px) 55%,calc(100% - 5px) 55%;background-size:5px 5px;background-repeat:no-repeat;text-overflow:ellipsis}
+  .sp-card{padding:12px}
+  .sp-read{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:6px;margin-bottom:10px}
+  .sp-read > div{background:var(--bg);border-radius:12px;padding:8px 10px;min-width:0}
+  .sp-read span{display:block;font-size:11px}
+  .sp-read b{display:block;font-size:16px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .sp-read small{display:block;font-size:11px;color:var(--sub);min-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp-goal{font-style:normal;opacity:.8}
+  .sp-cents.ok{color:var(--ok);font-weight:600} .sp-cents.bad{color:#d9534f;font-weight:600}
+  .sp-rich.ok{color:var(--ok)} .sp-rich.low{color:#c98a00} .sp-rich.high{color:#d9534f}
+  .sp-canvas{position:relative;height:min(48vh,380px);min-height:240px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+  .sp-canvas canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .sp-lyrics{margin-top:10px;min-height:52px}
+  .sp-ln{font-size:17px;line-height:1.5;word-break:keep-all}
+  .sp-ln.next{font-size:13px;color:var(--sub)}
+  .sp-ln em{font-style:normal;font-size:11px;font-weight:700;color:var(--accent);margin-right:6px;vertical-align:2px}
+  .sp-ln span.w{margin-right:.28em}
+  .sp-ln span.on{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:4px}
+  .sp-result{font-size:13px;color:var(--sub);margin-top:6px;min-height:20px}
+  .sp-result.good b{color:var(--ok)} .sp-result.mid b{color:#c98a00} .sp-result.low b{color:#d9534f}
+  .sp-transport{display:grid;grid-template-columns:52px 1fr 52px 1fr;gap:8px;margin-top:10px}
+  .sp-transport .btn{padding:10px 6px}
+  .sp-range{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px}
+  .sp-range .btn{flex:none;width:44px;padding:6px}
+  .sp-phrases{display:flex;gap:6px;overflow-x:auto;margin:10px -12px 0;padding:2px 12px 6px;scrollbar-width:thin}
+  .sp-phrases .chip{flex:none;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;font-size:13px}
+  .sp-phrases .chip em{font-style:normal;font-weight:700;font-size:11px;opacity:.75}
+  .sp-phrases .chip i{font-style:normal;font-size:11px;font-weight:700;padding:1px 6px;border-radius:999px;background:var(--bg)}
+  .sp-phrases .chip i.good{color:var(--ok)} .sp-phrases .chip i.mid{color:#c98a00} .sp-phrases .chip i.low{color:#d9534f}
+  .sp-phrases .chip.cur{outline:2px solid var(--accent);outline-offset:1px}
+  .sp-range-input{width:100%;accent-color:var(--accent);min-height:32px}
 </style>
 </head>
 <body>
@@ -193,7 +228,7 @@
 
 <nav class="tabs" aria-label="화면 전환">
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>루틴</button>
-  <button data-tab="hm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10"/></svg>배음</button>
+  <button data-tab="hm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>노래</button>
   <button data-tab="record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg>기록</button>
   <button data-tab="effect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>효과</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>설정</button>
@@ -201,6 +236,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+<input type="file" id="songFile" accept="application/json,.json" class="hidden">
 
 <script>
 /* =========================================================
@@ -510,10 +546,8 @@ function detectPitch(){
   const a0=d[best-1]??d[best], b0=d[best], c0=d[best+1]??d[best];
   const sh=(a0+c0-2*b0) ? (a0-c0)/(2*(a0+c0-2*b0)) : 0;
   let f=sr/(best+sh);
-  // 옥타브 튐 보정 + 중앙값 필터 (최근 5개)
+  // 중앙값 필터 (최근 5개): 순간적인 옥타브 튐은 여기서 걸러짐. 실제 옥타브 도약(예: 팝콘 첫 소절)은 그대로 따라감
   mic.hist=mic.hist||[];
-  if(mic.hist.length){ const prev=mic.hist[mic.hist.length-1], r=f/prev;
-    if(r>1.9&&r<2.1) f/=2; else if(r>0.48&&r<0.52) f*=2; }
   mic.hist.push(f); if(mic.hist.length>5) mic.hist.shift();
   const sorted=[...mic.hist].sort((p,q)=>p-q);
   return sorted[Math.floor(sorted.length/2)];
@@ -1029,14 +1063,15 @@ function hmRecent(){ // 최근 7일 음별 평균 배음·성공률
     Object.entries(L).forEach(([n,x])=>{ const o=(out[n]=out[n]||{tries:0,ok:0,rs:0,rn:0}); o.tries+=x.tries; o.ok+=x.ok; o.rs+=x.richSum; o.rn+=x.richN; }); }
   return out;
 }
-function renderHm(){
+function renderHmTrainer(){
   const h=hmState(), g=HM_GOALS[h.goal], u=hmUnlockInfo(), notes=hmNotes(), rec=hmRecent();
   const running = H && H.kind==='train';
   const pct=v=>Math.max(0,Math.min(100,(v+45)/40*100));
   const chip=(act,v,label,on)=>`<button class="chip ${on?'on':''}" data-act="${act}" data-v="${v}">${label}</button>`;
   return `
-    <header class="top"><div><div class="dday" style="font-size:24px">배음 연습</div>
-      <div class="dsub">기구 루틴 뒤 하루 3~5분 · 기구 없이 맨소리</div></div>
+    <button class="btn" style="flex:none;margin:4px 0 4px" data-sp="back">← 노래 연습으로</button>
+    <header class="top"><div><div class="dday" style="font-size:24px">배음 설정</div>
+      <div class="dsub">목표 구간을 정하면 노래 연습 화면의 배음 색이 이 기준을 따라요</div></div>
       <span class="badge">${g.name}</span></header>
 
     <section class="card">
@@ -1093,6 +1128,424 @@ function renderHm(){
       <dt>측정 한계</dt><dd>폰 마이크와 방 울림에 따라 몇 dB 달라질 수 있어요. 같은 장소, 한 뼘 거리로 하면 비교가 정확해요</dd>
     </dl></div></details>`;
 }
+
+// =================== 노래 연습 (악보 가이드 + 음정 모니터) ===================
+// 곡 데이터는 이 기기에만 저장 (localStorage 'sovt-songs-v1'), 백업 파일에는 포함되지 않음
+const SONG_KEY = 'sovt-songs-v1';
+const KO_SOL = ['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
+const SCI_N  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const NATURAL = new Set([0,2,4,5,7,9,11]);
+const koOct = m => { const n=Math.round(m), pc=((n%12)+12)%12, o=Math.floor(n/12)-1; return { ko:`${o-2}옥타브 ${KO_SOL[pc]}`, sol:KO_SOL[pc], oct:o-2, sci:SCI_N[pc]+o, pc }; };
+let hmView = 'song';      // 'song' | 'trainer'
+let SONGS = [];
+function songsLoad(){ try{ const r=localStorage.getItem(SONG_KEY); SONGS = r ? JSON.parse(r) : []; if(!Array.isArray(SONGS)) SONGS=[]; }catch(e){ SONGS=[]; } }
+function songsSave(){ try{ localStorage.setItem(SONG_KEY, JSON.stringify(SONGS)); return true; }catch(e){ toast('저장 공간이 부족해요'); return false; } }
+function spCfg(){
+  if(!S.sp) S.sp = { song:null, speed:1, key:0, guide:'alt', loop:false, reps:0, countIn:true, metro:false, vol:0.6, mic:true, swing:{} };
+  if(!S.spLog) S.spLog = {};
+  return S.sp;
+}
+
+// ---------- 곡 불러오기 ----------
+async function spImportFile(f){
+  try{
+    const d=JSON.parse(await f.text());
+    const list = Array.isArray(d.songs) ? d.songs : (d.notes ? [d] : null);
+    if(!list || !list.length) throw new Error('bad');
+    let n=0;
+    list.forEach(s=>{
+      if(!s || !s.id || !Array.isArray(s.notes) || !s.notes.length || !s.bpm) return;
+      const i=SONGS.findIndex(x=>x.id===s.id);
+      const clean={ id:String(s.id).slice(0,40), title:String(s.title||s.id).slice(0,60), artist:String(s.artist||'').slice(0,60), bpm:+s.bpm, swing:!!s.swing,
+        notes:s.notes.map(n=>({t:+n.t, d:+n.d, p:+n.p, l:String(n.l||'').slice(0,20)})).filter(n=>isFinite(n.t)&&isFinite(n.d)&&isFinite(n.p)&&n.d>0),
+        phrases:(s.phrases||[]).map(p=>({s:+p.s, e:+p.e, label:String(p.label||'').slice(0,30)})), measures:(s.measures||[]).map(m=>({t:+m.t, len:+m.len})) };
+      if(!clean.phrases.length) clean.phrases=[{s:clean.notes[0].t, e:clean.notes[clean.notes.length-1].t+clean.notes[clean.notes.length-1].d, label:'전체'}];
+      if(i>=0) SONGS[i]=clean; else SONGS.push(clean); n++;
+    });
+    if(!n) throw new Error('bad');
+    if(songsSave()){ const c=spCfg(); if(!c.song || !SONGS.some(s=>s.id===c.song)) c.song=SONGS[0].id; save(); spSelect(c.song, true); toast(`${n}곡을 불러왔어요`); render(); }
+  }catch(e){ toast('곡 파일이 아니에요. 받은 .json 파일을 선택해 주세요'); }
+}
+
+// ---------- 곡 준비 (스윙·키 반영) ----------
+let SP = null;   // 실행 상태
+let spRaf = null;
+function swingWarp(b, on){ if(!on) return b; const fl=Math.floor(b), f=b-fl; return Math.abs(f-0.5)<0.01 ? fl+2/3 : b; }
+function spPrepare(song){
+  const c=spCfg(), sw = song.swing && c.swing[song.id]!==false;
+  const notes = song.notes.map((n,i)=>({ i, s:swingWarp(n.t,sw), e:swingWarp(n.t+n.d,sw), p:n.p, l:n.l }));
+  const phrases = song.phrases.map((p,i)=>({ i, s:swingWarp(p.s,sw), e:swingWarp(p.e,sw), label:p.label }));
+  const end = Math.max(...notes.map(n=>n.e));
+  const bpb = (t)=>{ const ms=song.measures||[]; let len=4; for(const m of ms){ if(m.t<=t+1e-6) len=m.len; else break; } return len; };
+  return { song, notes, phrases, end, swing:sw, bpb };
+}
+function spSelect(id, keepPos){
+  const song=SONGS.find(s=>s.id===id); if(!song) return;
+  spStop(true);
+  const c=spCfg(); c.song=id; save();
+  const prev = SP && SP.song && SP.song.id===id ? SP : null;
+  SP = { ...spPrepare(song), playing:false, pos: prev&&keepPos?prev.pos:(spPrepare(song).notes[0].s-1), t0:0, startBeat:0, A:0, B:0, repN:0, pass:'listen',
+         trace:[], sched:[], schedPos:0, lastPh:-1, lastNote:-1, yMid:null, ySpan:14, live:{m:null,r:null,db:null,t:0}, results:{}, flash:null };
+  SP.A = SP.B = Math.max(0, SP.phrases.findIndex(p=>p.e>SP.pos));
+}
+const spBps = () => SP.song.bpm*spCfg().speed/60;     // 초당 박
+const spNoteAt = b => { for(const n of SP.notes){ if(n.s<=b && b<n.e) return n; if(n.s>b) break; } return null; };
+const spPhraseAt = b => { const ph=SP.phrases; let k=0; for(let i=0;i<ph.length;i++){ if(ph[i].s<=b+1.05) k=i; else break; } return k; };   // 다음 소절이 1박 안이면 미리 표시
+function spScoreDue(upto){   // 끝난 소절 채점 (재생 시작 뒤에 처음부터 부른 소절만)
+  const ph=SP.phrases;
+  while(SP.scoreNext<ph.length && upto>ph[SP.scoreNext].e+0.3){
+    const i=SP.scoreNext++; if(ph[i].s>=SP.startBeat-1.05 && spScoring()){ const r=spScorePhrase(i); if(r) spFlash(i,r); }
+  }
+}
+const spTarget = n => n ? n.p + spCfg().key : null;
+const spHz = m => 440*Math.pow(2,(m-69)/12);
+
+// ---------- 재생 ----------
+function spGuideOn(){ const g=spCfg().guide; if(g==='off') return false; if(g==='on') return true; return !spCfg().loop || SP.pass==='listen'; }
+function spScoring(){ const c=spCfg(); return c.mic && mic.on && !(c.guide==='alt' && c.loop && SP.pass==='listen'); }
+async function spPlay(fromBeat){
+  if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; }
+  if(H) hmStop(false);
+  const a=ac(); if(!a){ toast('소리를 낼 수 없는 환경이에요'); return; }
+  const c=spCfg();
+  if(c.mic && !mic.on){ S.pitch=true; const ok=await startMic(); if(!ok) toast(mic.err||'마이크 없이 가이드만 재생해요'); }
+  spCutAudio();
+  const bps=spBps(), b = fromBeat!=null ? fromBeat : SP.pos;
+  const cnt = c.countIn ? SP.bpb(b) : 0;                       // 한 마디 카운트인
+  SP.trace = SP.trace.filter(s=>s.b < b-0.01);
+  SP.startBeat = b; SP.t0 = a.currentTime + 0.12 + cnt/bps; SP.schedPos = b - cnt; SP.playing=true; SP.countBeats=cnt;
+  // 카운트인 클릭
+  for(let k=0;k<cnt;k++) spClick(SP.t0 - (cnt-k)/bps, k===0);
+  SP.lastPh=-1; SP.scoreNext=Math.max(0,SP.phrases.findIndex(p=>p.e>b+0.01)); if(SP.scoreNext<0) SP.scoreNext=SP.phrases.length; keepAwake(true);
+  clearInterval(SP.iv); SP.iv=setInterval(spSchedule, 25);
+  spPaintControls();
+}
+function spPause(){ if(!SP||!SP.playing) return; SP.pos=spNow(); SP.playing=false; clearInterval(SP.iv); spCutAudio(); keepAwake(false); spPaintControls(); }
+function spStop(silent){
+  if(!SP) return; clearInterval(SP.iv); SP.playing=false; spCutAudio(); keepAwake(false);
+  if(mic.on && !P && !H) stopMic();
+  if(!silent) spPaintControls();
+}
+function spNow(){ if(!SP.playing) return SP.pos; const a=ac(); return SP.startBeat + (a.currentTime - SP.t0)*spBps(); }
+let spOut=null;
+function spDest(){ const a=ac(); if(!spOut){ spOut=a.createGain(); spOut.gain.value=1; spOut.connect(a.destination); } return spOut; }
+function spCutAudio(){ try{ spOut && spOut.disconnect(); }catch(e){} spOut=null; if(SP) SP.sched=[]; }
+function spClick(t, accent){
+  const a=ac(); if(!a || t < a.currentTime-0.01) return;
+  const o=a.createOscillator(), g=a.createGain(); o.type='square'; o.frequency.value=accent?1600:1100;
+  o.connect(g); g.connect(spDest()); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.003); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+  o.start(t); o.stop(t+0.06);
+}
+function spVoice(freq, t0, dur){
+  const a=ac(), d=spDest(), vol=0.22*spCfg().vol;
+  const g=a.createGain(), f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2600; g.connect(f); f.connect(d);
+  const o1=a.createOscillator(), o2=a.createOscillator(), g2=a.createGain();
+  o1.type='triangle'; o1.frequency.value=freq; o2.type='sine'; o2.frequency.value=freq*2; g2.gain.value=0.25;
+  o1.connect(g); o2.connect(g2); g2.connect(g);
+  const rel=Math.min(0.08, dur*0.3), end=t0+Math.max(0.06,dur);
+  g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+0.02);
+  g.gain.setValueAtTime(vol*0.85,Math.max(t0+0.03,end-rel)); g.gain.exponentialRampToValueAtTime(0.0001,end);
+  o1.start(t0); o2.start(t0); o1.stop(end+0.02); o2.stop(end+0.02);
+}
+function spSchedule(){
+  if(!SP || !SP.playing) return;
+  const a=ac(), bps=spBps(), now=spNow(), ahead=now+0.3*bps, c=spCfg();
+  const tAt = b => SP.t0 + (b-SP.startBeat)/bps;
+  // 가이드음
+  if(spGuideOn()){
+    for(const n of SP.notes){
+      if(n.s<SP.schedPos-1e-6) continue; if(n.s>=ahead) break;
+      const from = c.loop ? Math.max(SP.startBeat, SP.phrases[SP.A].s-0.01) : SP.startBeat;
+      if(n.s>=from-1e-6 && n.s<=spEndBeat()) spVoice(spHz(spTarget(n)), tAt(n.s), (n.e-n.s)/bps*0.97);
+    }
+  }
+  // 메트로놈
+  if(c.metro){ for(let b=Math.ceil(SP.schedPos-1e-6); b<ahead; b++){ if(b>=SP.startBeat) spClick(tAt(b), false); } }
+  SP.schedPos = Math.max(SP.schedPos, ahead);
+  // 구간 끝 처리
+  if(now >= spEndBeat()+0.6) spEndOfRange();
+}
+function spEndBeat(){ return spCfg().loop ? SP.phrases[SP.B].e : SP.end; }
+function spEndOfRange(){
+  const c=spCfg();
+  spScoreDue(spNow()+1);
+  SP.lastPh=-2;
+  if(!c.loop){ spPause(); SP.pos=SP.notes[0].s-1; toast('끝까지 불렀어요'); spPaintControls(); return; }
+  SP.repN++;
+  if(c.reps && SP.repN >= c.reps*(c.guide==='alt'?2:1)){ spPause(); SP.pos=SP.phrases[SP.A].s-0.5; SP.repN=0; SP.pass='listen'; toast('구간 반복을 마쳤어요'); spPaintControls(); return; }
+  if(c.guide==='alt') SP.pass = SP.pass==='listen' ? 'sing' : 'listen';
+  spPause(); setTimeout(()=>{ if(SP && !SP.playing && spCfg().loop) spPlay(spLoopStart()); }, 700);
+}
+function spLoopStart(){ return Math.max(SP.notes[0].s-1, SP.phrases[SP.A].s - 1); }
+
+// ---------- 측정 & 채점 ----------
+let spLastAn=0;
+function spMeasure(){
+  const t=performance.now();
+  if(!mic.on || t-spLastAn<30) return; spLastAn=t;
+  const f=detectPitch();
+  let db=null; if(mic.buf){ const b=mic.buf, N=2048; let s=0; for(let i=b.length-N;i<b.length;i++) s+=b[i]*b[i]; db=20*Math.log10(Math.sqrt(s/N)+1e-9); }
+  const m = f>0 ? 69+12*Math.log2(f/440) : null, r = f>0 ? measureRich(f) : null;
+  SP.live = { m, r: r!=null ? (SP.live.r==null ? r : SP.live.r*0.7+r*0.3) : (t-SP.live.t>500?null:SP.live.r), db, t: m!=null?t:SP.live.t };
+  if(SP.playing){
+    const b=spNow() - 0.12*spBps();     // 마이크·분석 지연(약 0.12초) 보정
+    if(b>=SP.startBeat-0.1){ SP.trace.push({b, m, r, sc:spScoring()}); if(SP.trace.length>6000) SP.trace.splice(0,1000); }
+  }
+}
+function spScorePhrase(i){
+  const ph=SP.phrases[i]; if(!ph) return null;
+  const bps=spBps(), grace=0.08*bps;
+  let tot=0, hit=0, voiced=0, rs=0, rn=0;
+  for(const s of SP.trace){
+    if(!s.sc || s.b<ph.s || s.b>ph.e) continue;
+    const n=spNoteAt(s.b); if(!n || s.b-n.s<grace) continue;
+    // 타이밍 여유: ±0.12초 안의 앞뒤 음과 맞아도 정답
+    const tol=0.12*bps, alt=[spNoteAt(s.b-tol), spNoteAt(s.b+tol)];
+    tot++; if(s.m!=null){ voiced++; const ok=[n,...alt].some(x=>x && Math.abs(s.m-spTarget(x))<=0.5); if(ok){ hit++; if(s.r!=null){ rs+=s.r; rn++; } } }
+  }
+  if(tot<8 || voiced<tot*0.25) return null;
+  const res={ acc:Math.round(hit/tot*100), rich: rn? rs/rn : null };
+  const L=(S.spLog[SP.song.id]=S.spLog[SP.song.id]||{}), x=(L[i]=L[i]||{best:0,last:0,n:0});
+  x.last=res.acc; x.best=Math.max(x.best,res.acc); x.n++; save();
+  SP.results[i]=res; return res;
+}
+
+// ---------- 그리기 ----------
+function spDraw(){
+  const cv=document.getElementById('spCanvas'); if(!cv || !SP) return;
+  const box=cv.parentElement.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  const W=box.width, Hh=box.height; if(W<10) return;
+  if(cv.width!==Math.round(W*dpr) || cv.height!==Math.round(Hh*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(Hh*dpr); }
+  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,Hh);
+  const cs=getComputedStyle(document.documentElement), col=k=>cs.getPropertyValue(k).trim();
+  const C={ink:col('--ink'), sub:col('--sub'), line:col('--line'), acc:col('--accent'), tint:col('--tint'), tint2:col('--tint2'), ok:col('--ok'), card:col('--card')};
+  const now=spNow(), bps=spBps(), key=spCfg().key;
+  const winSec=W<420?5.5:7, winB=winSec*bps, PH=0.3, LM=60;
+  const b0=now-winB*PH, b1=now+winB*(1-PH);
+  const X=b=>LM+(b-b0)/(b1-b0)*(W-LM-4);
+  // 세로 범위: 보이는 음표 기준 부드럽게
+  const vis=SP.notes.filter(n=>n.e>b0-winB*0.3 && n.s<b1+winB*0.5);
+  let lo=Infinity, hi=-Infinity; vis.forEach(n=>{ lo=Math.min(lo,n.p+key); hi=Math.max(hi,n.p+key); });
+  if(SP.live.m!=null){ lo=Math.min(lo,SP.live.m); hi=Math.max(hi,SP.live.m); }
+  if(!isFinite(lo)){ lo=SP.yMid!=null?SP.yMid-6:57; hi=lo+12; }
+  const span=Math.max(13, hi-lo+5), mid=(lo+hi)/2;
+  if(SP.yMid==null){ SP.yMid=mid; SP.ySpan=span; }
+  SP.yMid += (mid-SP.yMid)*0.08; SP.ySpan += (span-SP.ySpan)*0.08;
+  const ylo=SP.yMid-SP.ySpan/2, yhi=SP.yMid+SP.ySpan/2, top=10, bot=Hh-26;
+  const Y=m=>bot-(m-ylo)/(yhi-ylo)*(bot-top), rowH=(bot-top)/(yhi-ylo);
+  // 격자 + 음 이름 (도는 옥타브까지 크게)
+  g.font='11px "IBM Plex Sans KR",system-ui,sans-serif'; g.textBaseline='middle';
+  for(let m=Math.ceil(ylo); m<=Math.floor(yhi); m++){
+    const k=koOct(m), y=Y(m);
+    if(k.pc===0){ g.fillStyle=C.tint; g.fillRect(LM,y-rowH/2,W-LM,rowH); }
+    g.strokeStyle=C.line; g.lineWidth=k.pc===0?1.2:0.6; g.beginPath(); g.moveTo(LM,y); g.lineTo(W,y); g.stroke();
+    if(k.pc===0){ g.fillStyle=C.ink; g.font='600 11px "IBM Plex Sans KR",system-ui,sans-serif'; g.fillText(`${k.oct}옥타브 도`,4,y); g.font='11px "IBM Plex Sans KR",system-ui,sans-serif'; }
+    else if(NATURAL.has(k.pc) && rowH>=7){ g.fillStyle=C.sub; g.fillText(k.sol,30,y); }
+  }
+  // 소절 반복 구간 표시
+  if(spCfg().loop){ const a=SP.phrases[SP.A], z=SP.phrases[SP.B]; g.fillStyle=C.tint; g.globalAlpha=0.55;
+    const xa=Math.max(LM,X(a.s)), xz=Math.min(W,X(z.e)); if(xz>xa) g.fillRect(xa,0,xz-xa,6); g.globalAlpha=1; }
+  // 가이드 막대 + 가사
+  const curN=spNoteAt(now);
+  for(const n of vis){
+    const x0=X(n.s), x1=X(n.e)-1.5, m=n.p+key, y=Y(m), h=Math.max(8,Math.min(22,rowH*0.82));
+    if(x1<LM || x0>W) continue;
+    const past=n.e<now, cur=n===curN;
+    g.globalAlpha = past ? 0.35 : 1;
+    g.fillStyle = cur ? C.acc : C.tint2; g.strokeStyle=C.acc; g.lineWidth=cur?0:1;
+    const xx=Math.max(LM,x0), ww=Math.max(3,x1-xx);
+    g.beginPath(); g.roundRect ? g.roundRect(xx,y-h/2,ww,h,Math.min(5,h/2)) : g.rect(xx,y-h/2,ww,h); g.fill(); if(!cur) g.stroke();
+    if(ww>16 && h>=10){ g.fillStyle = cur ? col('--accent-ink') : C.ink; g.font='600 10px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='left'; g.fillText(koOct(m).sol, xx+3, y+0.5); }
+    if(n.l){ g.fillStyle = cur ? C.acc : C.ink; g.font=(cur?'700 ':'500 ')+'12px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='left'; g.fillText(n.l, Math.max(LM,x0), y+h/2+9); }
+    g.globalAlpha=1; g.textAlign='left';
+  }
+  // 내 음정 선
+  g.lineWidth=3; g.lineCap='round'; let prev=null;
+  for(const s of SP.trace){
+    if(s.b<b0-0.5 || s.b>now+0.05){ prev=null; continue; }
+    if(s.m==null){ prev=null; continue; }
+    const n=spNoteAt(s.b), tg=spTarget(n), okc = tg==null ? C.sub : Math.abs(s.m-tg)<=0.5 ? C.ok : '#d9534f';
+    if(prev && s.b-prev.b < 0.25*bps){ g.strokeStyle=okc; g.beginPath(); g.moveTo(X(prev.b),Y(prev.m)); g.lineTo(X(s.b),Y(s.m)); g.stroke(); }
+    prev=s;
+  }
+  // 지금 위치
+  const xp=X(now); g.strokeStyle=C.ink; g.globalAlpha=0.5; g.lineWidth=1.5; g.beginPath(); g.moveTo(xp,0); g.lineTo(xp,Hh-20); g.stroke(); g.globalAlpha=1;
+  if(SP.live.m!=null && performance.now()-SP.live.t<250){ g.fillStyle='#e0a400'; g.beginPath(); g.arc(xp,Y(SP.live.m),6,0,7); g.fill(); }
+  // 카운트인
+  if(SP.playing && now<SP.startBeat){ const left=Math.ceil(SP.startBeat-now); g.fillStyle=C.acc; g.font='700 48px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='center'; g.fillText(String(left), (LM+W)/2, Hh/2); g.textAlign='left'; }
+  // 진행 바
+  const p0=SP.notes[0].s, pr=Math.max(0,Math.min(1,(now-p0)/(SP.end-p0)));
+  g.fillStyle=C.line; g.fillRect(LM,Hh-8,W-LM-4,4); g.fillStyle=C.acc; g.fillRect(LM,Hh-8,(W-LM-4)*pr,4);
+}
+function spLoop(){
+  if(!document.getElementById('spCanvas')){ spRaf=null; return; }
+  if(SP){
+    spMeasure(); spDraw(); spPaintLive();
+    // 소절 바뀜 → 채점·가사 갱신
+    const now=spNow(), pi=spPhraseAt(now);
+    if(SP.playing) spScoreDue(now);
+    if(pi!==SP.lastPh){ SP.lastPh=pi; spPaintLyrics(); spPaintChips(); }
+    const n=spNoteAt(now), ni=n?n.i:-1; if(ni!==SP.lastNote){ SP.lastNote=ni; spPaintLyricHi(); }
+  }
+  spRaf=requestAnimationFrame(spLoop);
+}
+function spFlash(i,r){ SP.flash={i, r, t:performance.now()}; const el=document.getElementById('spResult'); if(el){ el.innerHTML=`<b>${i+1}소절 음정 ${r.acc}%</b>${r.rich!=null?` · 배음 ${r.rich.toFixed(0)}dB`:''}`; el.className='sp-result '+(r.acc>=80?'good':r.acc>=55?'mid':'low'); } }
+
+// ---------- 화면 조각 갱신 ----------
+function spPaintLive(){
+  const el=id=>document.getElementById(id); if(!el('spNow')) return;
+  const L=SP.live, fresh=L.m!=null && performance.now()-L.t<300, n=spNoteAt(spNow()), tg=spTarget(n);
+  if(fresh){ const k=koOct(L.m); el('spNow').textContent=k.ko; el('spNowSci').textContent=k.sci; }
+  else if(performance.now()-L.t>600){ el('spNow').textContent='—'; el('spNowSci').textContent=mic.on?'소리를 내 주세요':'마이크 꺼짐'; }
+  el('spTgt').textContent = tg!=null ? koOct(tg).ko : '—';
+  const cents = fresh && tg!=null ? Math.round((L.m-tg)*100) : null;
+  el('spCents').textContent = cents==null ? '' : Math.abs(cents)<=50 ? `맞음 ${cents>0?'+':''}${cents}¢` : Math.abs(cents)<100 ? `${cents>0?'높음':'낮음'} ${cents>0?'+':''}${cents}¢` : `반음 ${Math.round(Math.abs(cents)/100)}개 ${cents>0?'높음':'낮음'}`;
+  el('spCents').className = 'sp-cents '+(cents==null?'':Math.abs(cents)<=50?'ok':'bad');
+  const g=HM_GOALS[hmState().goal];
+  if(L.r!=null && fresh){ el('spRich').textContent=`${L.r.toFixed(0)}dB`; el('spRich').className='sp-rich '+(L.r>=g.lo&&L.r<=g.hi?'ok':L.r<g.lo?'low':'high'); }
+  else if(!fresh){ el('spRich').textContent='—'; el('spRich').className='sp-rich'; }
+}
+function spPaintLyrics(){
+  const box=document.getElementById('spLyrics'); if(!box||!SP) return;
+  const now=spNow(), i=spPhraseAt(now), ph=SP.phrases[i], nx=SP.phrases[i+1];
+  const words=ns=>ns.map(n=>{ const h=/^[가-힣]$/.test(n.l); return `<span data-n="${n.i}" class="${h?'h':'w'}">${esc(n.l)}</span>`; }).join('');
+  const inPh=p=>SP.notes.filter(n=>n.l && n.s>=p.s-0.01 && n.s<p.e);
+  box.innerHTML = `<div class="sp-ln"><em>${i+1}</em>${words(inPh(ph))}</div>${nx?`<div class="sp-ln next"><em>${i+2}</em>${words(inPh(nx))}</div>`:''}`;
+  spPaintLyricHi();
+}
+function spPaintLyricHi(){ const box=document.getElementById('spLyrics'); if(!box) return; box.querySelectorAll('span.on').forEach(s=>s.classList.remove('on'));
+  if(SP.lastNote>=0){ const s=box.querySelector(`span[data-n="${SP.lastNote}"]`); if(s) s.classList.add('on'); } }
+function spPaintChips(){
+  const box=document.getElementById('spPhrases'); if(!box||!SP) return;
+  const c=spCfg(), cur=spPhraseAt(spNow()), L=S.spLog[SP.song.id]||{};
+  box.querySelectorAll('button[data-sp="ph"]').forEach(b=>{ const i=+b.dataset.i;
+    b.classList.toggle('on', c.loop ? (i>=SP.A && i<=SP.B) : i===cur); b.classList.toggle('cur', i===cur && SP.playing); });
+  const cb=box.querySelector('button.cur'); if(cb && SP.playing){ const r=cb.getBoundingClientRect(), br=box.getBoundingClientRect(); if(r.left<br.left || r.right>br.right) box.scrollTo({left:cb.offsetLeft-16, behavior:'smooth'}); }
+}
+function spPaintControls(){
+  const el=id=>document.getElementById(id); if(!el('spPlay')||!SP) return;
+  const c=spCfg();
+  el('spPlay').innerHTML = SP.playing ? '❚❚ 일시정지' : '▶ 재생';
+  el('spPlay').classList.toggle('primary', !SP.playing);
+  el('spLoopInfo').textContent = c.loop ? `${SP.A+1}${SP.B>SP.A?'~'+(SP.B+1):''}소절 반복${c.reps?` · ${c.reps}회`:''}${c.guide==='alt'?` · 지금 ${SP.pass==='listen'?'듣기':'부르기'}`:''}` : '처음부터 끝까지';
+  el('spMode').textContent = !SP.playing ? '' : (c.guide==='alt' && c.loop) ? (SP.pass==='listen'?'듣기 차례 · 가이드음을 들어요':'부르기 차례 · 가이드음 없이 불러요') : (c.guide!=='off' && c.mic && mic.on ? '이어폰을 끼면 더 정확해요' : '');
+  spPaintChips();
+}
+
+// ---------- 화면 ----------
+function renderSong(){
+  songsLoad(); const c=spCfg();
+  if(!SONGS.length){
+    return `<header class="top"><div><div class="dday" style="font-size:24px">노래 연습</div><div class="dsub">악보 멜로디를 따라 부르며 음정 맞추기</div></div>
+        <button class="btn" style="flex:none" data-sp="trainer">배음 설정</button></header>
+      <section class="card"><h3>곡 파일을 먼저 불러와 주세요</h3>
+        <p class="muted" style="margin:8px 0 0;line-height:1.6">받은 곡 파일(.json)을 한 번 불러오면 이 폰에만 저장돼요. 사이트에는 올라가지 않아요.</p>
+        <div class="actions"><button class="btn primary" data-sp="import">곡 파일 불러오기</button></div></section>`;
+  }
+  if(!SP || !SONGS.some(s=>s.id===SP.song.id) || (c.song && SP.song.id!==c.song)) spSelect(SONGS.some(s=>s.id===c.song)?c.song:SONGS[0].id);
+  const song=SP.song, L=S.spLog[song.id]||{}, g=HM_GOALS[hmState().goal];
+  const chip=(k,v,label)=>`<button class="chip ${String(c[k])===String(v)?'on':''}" data-sp="cfg" data-k="${k}" data-v="${v}">${label}</button>`;
+  const rng=[Math.min(...song.notes.map(n=>n.p)), Math.max(...song.notes.map(n=>n.p))].map(m=>koOct(m+c.key).ko);
+  return `
+    <header class="top sp-top"><div style="min-width:0;flex:1">
+        <select class="sp-select" data-sp="song" aria-label="곡 선택">${SONGS.map(s=>`<option value="${esc(s.id)}" ${s.id===song.id?'selected':''}>${esc(s.title)}</option>`).join('')}</select>
+        <div class="dsub">${esc(song.artist)} · ♩=${song.bpm}${song.swing?' · 스윙':''} · 음역 ${rng[0]} ~ ${rng[1]}</div></div>
+      <button class="btn" style="flex:none" data-sp="trainer">배음 설정</button></header>
+
+    <section class="card sp-card">
+      <div class="sp-read">
+        <div><span class="muted">내 소리</span><b id="spNow">—</b><small id="spNowSci"></small></div>
+        <div><span class="muted">가이드</span><b id="spTgt">—</b><small id="spCents" class="sp-cents"></small></div>
+        <div><span class="muted">배음 <i class="sp-goal">${g.lo}~${g.hi}</i></span><b id="spRich" class="sp-rich">—</b></div>
+      </div>
+      <div class="sp-canvas"><canvas id="spCanvas"></canvas></div>
+      <div id="spLyrics" class="sp-lyrics"></div>
+      <div class="sp-result" id="spResult">${spCfg().mic?'소절이 끝나면 음정 점수가 나와요':'마이크가 꺼져 있어요'}</div>
+      <div class="sp-transport">
+        <button class="btn" data-sp="prev" aria-label="이전 소절">⏮</button>
+        <button class="btn primary" id="spPlay" data-sp="play">▶ 재생</button>
+        <button class="btn" data-sp="next" aria-label="다음 소절">⏭</button>
+        <button class="btn ${c.loop?'primary':''}" data-sp="loop">구간 반복</button>
+      </div>
+      <div class="row" style="margin-top:8px"><span class="muted" id="spLoopInfo"></span><span class="muted" id="spMode"></span></div>
+      ${c.loop?`<div class="sp-range"><span class="muted" style="white-space:nowrap">반복 끝 소절</span><button class="btn" data-sp="bminus" aria-label="끝 소절 줄이기">−</button><button class="btn" data-sp="bplus" aria-label="끝 소절 늘리기">+</button><span class="muted">아래 소절을 누르면 시작이 바뀌어요</span></div>`:''}
+      <div class="sp-phrases" id="spPhrases">${SP.phrases.map((p,i)=>{ const x=L[i]; return `<button class="chip" data-sp="ph" data-i="${i}"><em>${i+1}</em>${esc(p.label)}${x?`<i class="${x.best>=80?'good':x.best>=55?'mid':'low'}">${x.best}%</i>`:''}</button>`; }).join('')}</div>
+    </section>
+
+    <section class="card">
+      <div class="field" style="margin-top:0"><span>가이드음</span><div class="chips">${chip('guide','on','켜기')}${chip('guide','alt','듣고 부르기 (번갈아)')}${chip('guide','off','끄기')}</div>
+        <span class="muted" style="font-weight:400">${c.guide==='alt'?'구간 반복 때 한 번 듣고, 다음 번엔 가이드 없이 불러요. 점수는 부르는 차례에만 매겨요':c.guide==='on'?'스피커 가이드음이 마이크에 잡힐 수 있어요. 이어폰을 권해요':'가이드 없이 막대만 보고 불러요'}</span></div>
+      <div class="field"><span>가이드 볼륨</span><input type="range" min="0.1" max="1" step="0.05" value="${c.vol}" data-sp="vol" class="sp-range-input"></div>
+      <div class="field"><span>속도</span><div class="chips">${[0.6,0.75,0.9,1].map(v=>chip('speed',v,Math.round(v*100)+'%')).join('')}</div></div>
+      <div class="field"><span>키 (반음)</span><div class="chips"><button class="chip" data-sp="key" data-v="-1">− 낮게</button><span class="badge" style="min-width:56px;justify-content:center">${c.key>0?'+':''}${c.key}</span><button class="chip" data-sp="key" data-v="1">+ 높게</button>${c.key?'<button class="chip" data-sp="key" data-v="0">원래 키</button>':''}</div></div>
+      <div class="field"><span>구간 반복 횟수</span><div class="chips">${chip('reps',0,'계속')}${chip('reps',3,'3회')}${chip('reps',5,'5회')}${chip('reps',10,'10회')}</div></div>
+      <div class="field"><span>보조</span><div class="chips">
+        <button class="chip ${c.countIn?'on':''}" data-sp="tog" data-k="countIn">카운트인 (한 마디)</button>
+        <button class="chip ${c.metro?'on':''}" data-sp="tog" data-k="metro">메트로놈</button>
+        <button class="chip ${c.mic?'on':''}" data-sp="tog" data-k="mic">음정 측정 (마이크)</button>
+        ${song.swing?`<button class="chip ${c.swing[song.id]!==false?'on':''}" data-sp="swing">스윙 리듬</button>`:''}</div></div>
+    </section>
+
+    <details class="ex"><summary><span class="exn">?</span>이렇게 연습해요</summary><div class="body"><dl class="guide">
+      <dt>막대</dt><dd>악보의 음 하나 = 막대 하나. 막대 안 글자는 계이름, 아래는 가사. 왼쪽 눈금의 "2옥타브 도" 줄을 기준으로 높이를 읽어요</dd>
+      <dt>내 선</dt><dd>내 목소리가 선으로 그려져요. 막대 위에 겹치면 초록(±50센트 이내), 벗어나면 빨강</dd>
+      <dt>추천 순서</dt><dd>① 속도 75%·듣고 부르기로 한 소절 반복 → ② 80% 넘으면 속도 100% → ③ 소절 2~3개 묶어서 → ④ 가이드 끄고 처음부터</dd>
+      <dt>배음</dt><dd>위쪽 배음 수치는 "배음 설정"의 목표 구간(${g.lo}~${g.hi}dB) 기준으로 색이 바뀌어요</dd>
+      <dt>이어폰</dt><dd>스피커로 가이드를 크게 틀면 마이크가 가이드음을 내 소리로 착각할 수 있어요</dd>
+      <dt>악보 오류</dt><dd>악보를 자동으로 옮긴 거라 일부 박자가 조금 다를 수 있어요. 이상한 소절은 알려 주세요</dd>
+    </dl></div></details>
+
+    <section class="card"><h3>곡 관리</h3>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">곡 데이터는 이 폰에만 저장돼요. 새 곡 파일을 받으면 다시 불러오면 돼요.</p>
+      <div class="actions"><button class="btn" data-sp="import">곡 파일 불러오기</button><button class="btn danger" data-sp="del">이 곡 지우기</button></div></section>`;
+}
+function spMount(){
+  if(!SP) return;
+  if(!spRaf) spRaf=requestAnimationFrame(spLoop);
+  SP.lastPh=-2; spPaintLyrics(); spPaintControls();
+  const cv=document.getElementById('spCanvas');
+  if(cv){ cv.onclick = e=>{ const r=cv.getBoundingClientRect(); if(e.clientY>r.bottom-22){ const f=Math.max(0,Math.min(1,(e.clientX-r.left-60)/(r.width-64))); const b=SP.notes[0].s+(SP.end-SP.notes[0].s)*f; spSeek(b); } }; }
+}
+function spLeave(){ if(SP && SP.playing) spPause(); if(SP && mic.on && !P && !H) stopMic(); }
+function spSeek(b){ const was=SP.playing; if(was) spPause(); SP.pos=b; SP.trace=[]; SP.lastPh=-2; if(spCfg().loop){ SP.A=SP.B=spPhraseAt(b+1); } if(was) spPlay(b); else { spPaintLyrics(); spPaintControls(); } }
+function spGoPhrase(i){
+  i=Math.max(0,Math.min(SP.phrases.length-1,i)); const c=spCfg();
+  if(c.loop){ SP.A=i; if(SP.B<i) SP.B=i; SP.repN=0; SP.pass='listen'; }
+  const was=SP.playing; if(was) spPause(); SP.pos=Math.max(SP.notes[0].s-1, SP.phrases[i].s-1); SP.lastPh=-2;
+  if(was) spPlay(SP.pos); else { spPaintLyrics(); spPaintControls(); }
+}
+
+// ---------- 이벤트 ----------
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-sp]'); if(!b || b.tagName==='SELECT' || b.type==='range') return;
+  const a=b.dataset.sp, c=spCfg();
+  switch(a){
+    case 'trainer': if(SP) spLeave(); hmView='trainer'; render(); window.scrollTo(0,0); return;
+    case 'back': hmView='song'; if(H) hmStop(false); render(); window.scrollTo(0,0); return;
+    case 'import': document.getElementById('songFile').click(); return;
+    case 'del': if(!SP) return; if(confirm(`"${SP.song.title}"을(를) 이 폰에서 지울까요?`)){ spStop(true); SONGS=SONGS.filter(s=>s.id!==SP.song.id); songsSave(); SP=null; c.song=SONGS[0]?.id||null; save(); render(); } return;
+    case 'play': if(!SP) return; if(SP.playing) spPause(); else spPlay(c.loop && (SP.pos<SP.phrases[SP.A].s-1.01 || SP.pos>SP.phrases[SP.B].e) ? spLoopStart() : SP.pos); return;
+    case 'prev': spGoPhrase(spPhraseAt(spNow()) - (spNow()-SP.phrases[spPhraseAt(spNow())].s > 1.5 ? 0 : 1)); return;
+    case 'next': spGoPhrase(spPhraseAt(spNow())+1); return;
+    case 'ph': spGoPhrase(+b.dataset.i); return;
+    case 'loop': c.loop=!c.loop; save(); if(c.loop){ SP.A=SP.B=spPhraseAt(spNow()); SP.repN=0; SP.pass='listen'; } render(); return;
+    case 'bplus': SP.B=Math.min(SP.phrases.length-1,SP.B+1); spPaintControls(); return;
+    case 'bminus': SP.B=Math.max(SP.A,SP.B-1); spPaintControls(); return;
+    case 'cfg': { const k=b.dataset.k, v=b.dataset.v; c[k] = (k==='guide') ? v : +v; save();
+      if(k==='speed' && SP.playing){ const p=spNow(); spPause(); spPlay(p); }
+      if(k==='guide'){ SP.pass='listen'; SP.repN=0; }
+      render(); return; }
+    case 'key': { const v=+b.dataset.v; c.key = v===0 ? 0 : Math.max(-12,Math.min(12,c.key+v)); save(); if(SP.playing){ const p=spNow(); spPause(); spPlay(p); } render(); return; }
+    case 'tog': { const k=b.dataset.k; c[k]=!c[k]; save(); if(k==='mic' && !c.mic && mic.on && !P && !H) stopMic(); render(); return; }
+    case 'swing': { c.swing[SP.song.id] = c.swing[SP.song.id]===false; save(); const id=SP.song.id; spSelect(id,true); render(); return; }
+  }
+});
+document.addEventListener('change', e=>{
+  const t=e.target; if(t.dataset.sp==='song'){ spSelect(t.value); render(); }
+});
+document.addEventListener('input', e=>{ const t=e.target; if(t.dataset.sp==='vol'){ spCfg().vol=+t.value; save(); } });
+
+function renderHm(){ return hmView==='trainer' ? renderHmTrainer() : renderSong(); }
 
 // =================== 설정 ===================
 function renderSettings(){
@@ -1166,6 +1619,7 @@ function render(){
   document.querySelector('nav.tabs').classList.toggle('hidden', setup);
   $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='hm' ? renderHm() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  if(!setup && tab==='hm' && hmView==='song') spMount(); else spLeave();
   // 하단 진행률: 루틴 탭에서 실행 중일 때 또는 실행 전 0%
   const dock=document.getElementById('dock');
   const showDock = !setup && (P || (tab==='today' && phaseOf(today())!==4));
@@ -1178,7 +1632,7 @@ function render(){
 }
 
 document.querySelector('nav.tabs').addEventListener('click', e=>{
-  const b=e.target.closest('button[data-tab]'); if(!b) return; tab=b.dataset.tab; sheetDate=null; render(); window.scrollTo(0,0);
+  const b=e.target.closest('button[data-tab]'); if(!b) return; if(H && b.dataset.tab!=='hm') hmStop(false); tab=b.dataset.tab; sheetDate=null; render(); window.scrollTo(0,0);
 });
 document.addEventListener('click', e=>{
   if(e.target.id==='sheet'){ sheetDate=null; renderSheet(); return; }
@@ -1253,6 +1707,8 @@ document.getElementById('importFile').addEventListener('change', async e=>{
   try{ const d=JSON.parse(await f.text()); if(!d||typeof d.logs!=='object') throw 0; S={...DEFAULTS,...d}; save(); render(); toast('기록을 불러왔어요'); }
   catch(err){ toast('불러오기 실패: 올바른 기록 파일이 아니에요'); }
 });
+
+document.getElementById('songFile').addEventListener('change', e=>{ const f=e.target.files[0]; e.target.value=''; if(f) spImportFile(f); });
 
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && !P && today()!==lastDay){ lastDay=today(); render(); } });
