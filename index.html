@@ -91,11 +91,85 @@
   .bigtime{font-size:76px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
   .circle{width:200px;height:200px;border-radius:50%;background:var(--tint);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;transition:transform .1s linear}
   .circle span{font-size:40px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
-  .stairs{display:flex;align-items:flex-end;gap:6px;height:180px}
-  .stairs i{width:34px;border-radius:6px 6px 2px 2px;background:var(--line);transition:background .15s}
+  .stairs{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:170px;width:100%}
+  .stairs i{flex:1;max-width:30px;border-radius:6px 6px 2px 2px;background:var(--line);transition:background .15s}
   .stairs i.on{background:var(--accent)}
   .stairs i.past{background:var(--tint2)}
   .metro{margin-top:12px;display:flex;justify-content:center}
+
+  /* 기구·들숨 태그 */
+  .tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--bg);color:var(--sub);border:1px solid var(--line);white-space:nowrap}
+  .tag.t-h3,.tag.t-h2{background:var(--tint);color:var(--accent);border-color:var(--tint2)}
+  .tag.t-none{background:transparent}
+  .tag.i-dev{color:#b07a00;border-color:#f0d58a;background:#fff7dc}
+  .tag.i-nose,.tag.i-mouth,.tag.i-pant{color:var(--ok);border-color:rgba(31,138,91,.35);background:rgba(31,138,91,.08)}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .tag.i-dev{background:#3a2f12;border-color:#6b5520;color:#f2c94c} }
+  .mini-tags .tags{margin-top:0}
+  .player.resting .tag{background:rgba(255,255,255,.18);color:var(--accent-ink);border-color:transparent}
+  .goal-line{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--accent)}
+  .plan-list .mins{flex:none;font-variant-numeric:tabular-nums}
+  .plan-list .n{width:auto;min-width:30px;padding:0 6px;border-radius:999px}
+  /* 타임라인 */
+  .tl{display:flex;gap:3px;margin-top:12px;height:26px}
+  .tl i{border-radius:6px;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden}
+  .tl i span{font-size:10px;font-weight:700;font-style:normal;color:var(--accent-ink);white-space:nowrap}
+  .tl .g1{background:#7a95e8}.tl .g2{background:#e0a400}.tl .g3{background:#5b7fe0}.tl .g4{background:var(--accent)}.tl .g5{background:#1f8a5b}.tl .g6{background:#8b5cf6}
+  /* 몸 그림 */
+  .viz2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px;align-items:center;width:100%}
+  .vright{min-width:0}
+  .figbox{position:relative}
+  .figbox.lg{width:min(100%,260px);height:236px}
+  .figbox.sm{width:100%;height:200px}
+  .figbox .bf{width:100%;height:100%;display:block}
+  .figtime{position:absolute;top:0;left:0;font-size:38px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+  .prepbox{text-align:center;display:grid;gap:10px;justify-items:center}
+  .prep-tags .tags{justify-content:center}
+  .prep-tags .tag{font-size:13px;padding:5px 12px}
+  .bf .bf-skin{fill:var(--card);stroke:var(--sub);stroke-width:1.4}
+  .bf .bf-torso{stroke:var(--sub);stroke-width:1.4}
+  .bf .bf-g1{stop-color:var(--card)} .bf .bf-g2{stop-color:var(--tint)}
+  .bf .bf-lung{fill:var(--tint2);opacity:.8}
+  .bf .bf-pipe{fill:none;stroke:var(--tint2);stroke-width:5;stroke-linecap:round}
+  .bf .bf-dia{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+  .bf .bf-band{fill:#f2b705;opacity:0;transition:opacity .2s}
+  .bf .bf-lar{fill:#e0a400;stroke:var(--card);stroke-width:1.5}
+  .bf .bf-lar.bad{fill:#d9534f}
+  .bf .bf-dev rect{fill:var(--accent)}
+  .bf .bf-dev circle{fill:var(--card)}
+  .bf .bf-ahd{fill:var(--accent)}
+  .bf .bf-flow{fill:none;stroke:var(--accent);stroke-width:2.6;stroke-dasharray:6 6;stroke-linecap:round;opacity:0;transition:opacity .2s}
+  .bf .bf-flow.on{opacity:1;animation:bfdash .55s linear infinite}
+  .bf .bf-flow.slow{animation-duration:1.5s}
+  .bf .bf-flow.fast{animation-duration:.22s}
+  @keyframes bfdash{to{stroke-dashoffset:-12}}
+  .bf .bf-tissue{fill:var(--card);stroke:var(--sub);stroke-width:1.2}
+  .bf .bf-pin{stroke:var(--sub);stroke-width:2;stroke-linecap:round}
+  .bf .bf-ring{fill:none;stroke:var(--accent);stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center}
+  .bf .bf-ring.on{animation:bfring 1.3s ease-out infinite}
+  .bf .bf-ring.b.on{animation-delay:.65s}
+  @keyframes bfring{0%{transform:scale(.3);opacity:.85}100%{transform:scale(1.1);opacity:0}}
+  .bf .bf-t{font-size:10px;fill:var(--sub)}
+  .bf .bf-lab{font-size:13px;font-weight:700;fill:var(--accent)}
+  .player.resting .bf .bf-lab{fill:var(--accent-ink)}
+  @media (prefers-reduced-motion: reduce){ .bf .bf-flow.on,.bf .bf-ring.on{animation:none} .bf .bf-ring.on{opacity:.5} }
+  /* 가이드 그림 */
+  .demo-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:4px}
+  .demo-row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .demo{background:var(--bg);border-radius:12px;padding:6px 4px 2px;text-align:center}
+  .demo .bf{width:100%;height:auto;display:block}
+  .demo .bf .bf-lab{font-size:15px}
+  .demo-cap{font-size:12px;font-weight:700;padding:2px 0 6px}
+  table.cmp td:first-child{white-space:nowrap}
+  .legend-fig{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--sub)}
+  .legend-fig i{display:inline-block;width:14px;height:8px;border-radius:4px;vertical-align:1px;margin-right:4px}
+  .check{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+  .check li{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--bg);border-radius:10px;font-size:14px;line-height:1.5}
+  .check li b{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px;display:flex;align-items:center;justify-content:center}
+  table.cmp{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.cmp th,table.cmp td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+  table.cmp th{font-size:12px;color:var(--sub);font-weight:600}
+  .src{font-size:12px;color:var(--sub);margin-top:10px;line-height:1.6}
 
   /* 설명 (기본 접힘) */
   details.explain{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
@@ -168,7 +242,7 @@
   .rule p{margin:6px 0 0;font-size:13px;color:var(--sub);line-height:1.6}
 
   /* 탭 */
-  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:7}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:7}
   nav.tabs button{border:0;background:none;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--sub);cursor:pointer;min-height:52px}
   nav.tabs button.on{color:var(--accent);font-weight:600}
   nav.tabs svg{width:22px;height:22px}
@@ -180,40 +254,6 @@
   .hidden{display:none !important}
   .setup h1{font-size:26px;margin:8px 0 4px;letter-spacing:-.02em}
 
-  /* 노래 연습 */
-  .sp-top{align-items:center}
-  .sp-select{width:100%;font:inherit;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink);background:transparent;border:0;padding:0 22px 0 0;min-height:40px;appearance:none;-webkit-appearance:none;
-    background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 10px) 55%,calc(100% - 5px) 55%;background-size:5px 5px;background-repeat:no-repeat;text-overflow:ellipsis}
-  .sp-card{padding:12px}
-  .sp-read{display:grid;grid-template-columns:1.2fr 1.2fr .8fr;gap:6px;margin-bottom:10px}
-  .sp-read > div{background:var(--bg);border-radius:12px;padding:8px 10px;min-width:0}
-  .sp-read span{display:block;font-size:11px}
-  .sp-read b{display:block;font-size:16px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-  .sp-read small{display:block;font-size:11px;color:var(--sub);min-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .sp-goal{font-style:normal;opacity:.8}
-  .sp-cents.ok{color:var(--ok);font-weight:600} .sp-cents.bad{color:#d9534f;font-weight:600}
-  .sp-rich.ok{color:var(--ok)} .sp-rich.low{color:#c98a00} .sp-rich.high{color:#d9534f}
-  .sp-canvas{position:relative;height:min(48vh,380px);min-height:240px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
-  .sp-canvas canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .sp-lyrics{margin-top:10px;min-height:52px}
-  .sp-ln{font-size:17px;line-height:1.5;word-break:keep-all}
-  .sp-ln.next{font-size:13px;color:var(--sub)}
-  .sp-ln em{font-style:normal;font-size:11px;font-weight:700;color:var(--accent);margin-right:6px;vertical-align:2px}
-  .sp-ln span.w{margin-right:.28em}
-  .sp-ln span.on{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:4px}
-  .sp-result{font-size:13px;color:var(--sub);margin-top:6px;min-height:20px}
-  .sp-result.good b{color:var(--ok)} .sp-result.mid b{color:#c98a00} .sp-result.low b{color:#d9534f}
-  .sp-transport{display:grid;grid-template-columns:52px 1fr 52px 1fr;gap:8px;margin-top:10px}
-  .sp-transport .btn{padding:10px 6px}
-  .sp-range{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px}
-  .sp-range .btn{flex:none;width:44px;padding:6px}
-  .sp-phrases{display:flex;gap:6px;overflow-x:auto;margin:10px -12px 0;padding:2px 12px 6px;scrollbar-width:thin}
-  .sp-phrases .chip{flex:none;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;font-size:13px}
-  .sp-phrases .chip em{font-style:normal;font-weight:700;font-size:11px;opacity:.75}
-  .sp-phrases .chip i{font-style:normal;font-size:11px;font-weight:700;padding:1px 6px;border-radius:999px;background:var(--bg)}
-  .sp-phrases .chip i.good{color:var(--ok)} .sp-phrases .chip i.mid{color:#c98a00} .sp-phrases .chip i.low{color:#d9534f}
-  .sp-phrases .chip.cur{outline:2px solid var(--accent);outline-offset:1px}
-  .sp-range-input{width:100%;accent-color:var(--accent);min-height:32px}
 </style>
 </head>
 <body>
@@ -228,15 +268,13 @@
 
 <nav class="tabs" aria-label="화면 전환">
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>루틴</button>
-  <button data-tab="hm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>노래</button>
   <button data-tab="record"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></svg>기록</button>
-  <button data-tab="effect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>효과</button>
+  <button data-tab="effect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>가이드</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>설정</button>
 </nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="importFile" accept="application/json,.json" class="hidden">
-<input type="file" id="songFile" accept="application/json,.json" class="hidden">
 
 <script>
 /* =========================================================
@@ -262,7 +300,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;'
 const _start0 = addDays(today(), 1);
 const DEFAULTS = {
   startDate:_start0, targetDate:addDays(_start0,76), endDate:addDays(_start0,181),
-  song:'', voice:'low', bpm:110, rest:15, inhale:5, exhale:8, devInhale:'device', beep:true, pitch:true, guideSound:'auto', setupDone:false, lower:{}, logs:{}
+  song:'', voice:'low', bpm:110, rest:15, inhale:5, exhale:10, solid:'G4', beep:true, pitch:true, guideSound:'auto', setupDone:false, lower:{}, logs:{}
 };
 let S;
 function load(){
@@ -273,6 +311,7 @@ function load(){
   if(!S.endDate || diff(S.targetDate,S.endDate) < 14) S.endDate = addDays(S.startDate,181);
   if(S.setupDone && S.planV!==2){ S.setupDone=false; } // 새 플랜으로 한 번 다시 확인
   if(S.planV===2 && !S.v3){ if(S.inhale===4) S.inhale=5; S.v3=true; } // 들숨 기본 4초 → 5초
+  if(!S.v4){ if(S.exhale===8) S.exhale=10; delete S.devInhale; S.v4=true; } // 15분 루틴: 버티는 날숨 기본 10초
   if(!S.lower || typeof S.lower!=='object') S.lower={};
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('저장 실패: 브라우저 저장 공간을 확인해 주세요'); } }
@@ -309,7 +348,6 @@ const midiOf = n => (Number(n.slice(-1))+1)*12 + SEMI[n[0]];
 const hz = midi => 440*Math.pow(2,(midi-69)/12) * (S.voice==='high'?2:1);
 const koName = n => `${Number(n.slice(-1))-2+(S.voice==='high'?1:0)}옥타브 ${SOL[n[0]]}`;
 const koMidi = m => { const names=['C','C','D','D','E','F','F','G','G','A','A','B']; const nm=names[m%12]+(Math.floor(m/12)-1); return koName(nm)+([1,3,6,8,10].includes(m%12)?'#':''); };
-const SIREN_LOW = 'A2';
 // 6개월 음정 로드맵: 슬라이딩 최고음(살짝 닿기) / 계단 최고음(정확히 안착)
 const LEVELS = [
   {siren:'F4', arp:'E4'}, {siren:'G4', arp:'F4'}, {siren:'A4', arp:'G4'},   // 1단계: 파 → 솔 → 라
@@ -324,6 +362,12 @@ function autoLevel(date){
   return f<0.4?5 : 6;
 }
 function levelOf(date){ return Math.max(0, autoLevel(date) - (S.lower[date]?1:0)); }
+// 기준음: 바람 없이 4가지 체크를 지키며 내는 최고음 (직접 정함). 도전음은 그 위 한 칸
+const SOLID_NOTES = ['D4','E4','F4','G4','A4','B4','C5','D5'];
+function solidOf(date){
+  const i = Math.max(0, Math.min(SOLID_NOTES.length-2, SOLID_NOTES.indexOf(S.solid) - (S.lower[date]?1:0)));
+  return { solid: midiOf(SOLID_NOTES[i]), chal: midiOf(SOLID_NOTES[i+1]) };
+}
 // 레벨이 바뀌는 날짜 구간 (효과 탭 로드맵용)
 function levelRanges(){
   const out=[]; let d=S.startDate, cur=autoLevel(d), from=d;
@@ -332,99 +376,125 @@ function levelRanges(){
 }
 
 // ---------- 오늘의 루틴 만들기 ----------
+// 15분 루틴: 복압 감각은 기구 없이 찾고, 버티는 날숨과 소리는 기구로.
+// 근거: 보컬 앙리 「고음 뚫는 법(복압호흡)」 · 「목잡이 연습(빨대 발성)」
+const WARM_LO = 'G3', WARM_HI = 'E4';          // 슬라이딩 ① 범위: 1옥 솔 ↔ 2옥 미
+const TOOL = { h3:'구멍 3개', h2:'구멍 2개', none:'기구 없이', alt:'기구 ↔ 맨소리' };
+const INH = { dev:'기구로 들숨', nose:'코로 들숨', mouth:'입으로 들숨', pant:'개호흡 2초' };
+const SCALE5 = [0,2,4,5,7,5,4,2,0];            // "헙" 5음 스케일
 function buildRoutine(date){
   const ph = Math.max(1, Math.min(3, phaseOf(date)));
-  const late = ph===1 && diff(date,S.targetDate) <= 20;   // 목표일 3주 전부터 실전 전환
-  const lv = levelOf(date), L = LEVELS[lv];
-  const top = L.siren, arpTop = L.arp;
-  const devIn = S.devInhale!=='quick';
+  const lv = levelOf(date);
+  const { solid, chal } = solidOf(date);                          // 기준음(지금 2옥 솔) · 도전음(2옥 라)
+  const evening = slot==='pm';
   const R = [];
-  const breath = sets => ({ id:'breath', kind:'breath', name:'횡격막 웜업', sub:'소리 없이 바람만', sets, reps:4,
-    prep:'기구를 입술로 가볍게 물고 상체를 바로 세우세요',
+  R.push({ id:'warm', no:'1', kind:'breath', name:'호흡 목 풀기', sub:'기구로 들숨 → 버티면서 날숨', sets:1, reps:5, tool:'h3', inh:'dev',
+    prep:'기구를 구멍 3개로 맞추고, 한 손은 후두(목젖)에 올려요',
     guide:[
-      ['목표','바람을 끊김 없이, 처음부터 끝까지 같은 세기로'],
-      ['들숨',`기구를 문 채 입으로 ${S.inhale}초 천천히. 기구 저항 때문에 천천히 들어오는 게 정상. 배·옆구리·등이 둥글게 퍼지게`],
-      ['날숨',`${S.exhale}초 동안 원이 줄어드는 속도에 맞춰 일정하게. 촛불이 기울기만 하는 세기`],
-      ['볼','부풀리지 않기. 빵빵해지면 바람이 센 것'],
-      ['자세','어깨·턱 힘 빼기. 숨 들어올 때 어깨가 올라가지 않게'],
-      ['시간 조절','들숨·날숨 시간은 설정에서 바꿀 수 있어요'],
+      ['목표','들숨 때 넓어진 윗배·옆구리를 날숨 때 바로 놓지 않고 천천히 놓아주기 (복압호흡)'],
+      ['숙여 확인','다리를 벌리고 상체를 숙여 숨이 아랫배·등까지 차는지 2번 확인'],
+      ['들숨',`기구를 문 채 ${S.inhale}초 천천히 빨아들이기. 후두가 아래로 내려가는지 손으로 확인`],
+      ['날숨',`${S.exhale}초. 처음 70%는 넓이를 거의 유지, 마지막 30%에 놓아주기. 원이 줄어드는 속도를 따라가세요`],
+      ['힘의 종류','배를 내밀거나 조이는 힘이 아니에요. 무거운 아령을 천천히 내리듯 "버티며 풀리는" 힘. 세기는 20~30%'],
+      ['후두','날숨 때도 후두가 올라오지 않게. 소리를 안 내는데 올라올 이유가 없어요'],
+      ['과할 때','목에서 "읍" 막히거나 얼굴이 붉어지면 너무 센 거예요'],
     ]});
-  const siren = sets => ({ id:'siren', kind:'siren', name:'SOVT 슬라이딩', sub:`기구로 "우~" 편한 저음 → ${koName(top)} → 저음`, sets, reps:5, top,
-    prep:'기구를 물고 "우~" 준비. 가이드음을 따라 오르내려요',
+  R.push({ id:'pant', no:'2', kind:'pant', name:'개호흡', sub:'빠르게 헥헥 · 복압 감각 찾기', sets:1, reps:3, tool:'none', inh:'mouth',
+    prep:'기구를 빼고, 입을 편하게 열어요',
     guide:[
-      ['목표',`목을 좁히지 않고 ${koName(top)}까지 미끄럼틀처럼`],
-      ['시작음',`편하게 말하는 높이보다 조금 낮은 곳 (가이드음은 낮은 목소리 기준 A2, 높은 목소리 기준 A3). 가이드음과 정확히 같지 않아도 되고, 편한 저음에서 시작하면 돼요`],
-      ['저음','내려올 때도 입술·코 주변 진동(앞쪽 울림)을 그대로. 목 아래로 툭 떨어뜨리지 않기'],
-      ['호흡','올라갈 때 더 밀지 않고, 내려올 때 풀지 않기. 바람 세기는 처음부터 끝까지 같게'],
-      ['들숨', devIn ? `기구로 ${S.inhale}초 천천히 (설정에서 "입·코로 빠르게"로 바꿀 수 있어요)` : '입·코로 3초 가볍게'],
-      ['꺾일 때','뒤집혀도 괜찮아요. 그 구간을 더 작고 가볍게'],
-      ['범위','최고음은 6개월 로드맵에 따라 자동으로 넓어져요. 목이 조이면 "오늘은 한 단계 낮게"'],
+      ['방법','입을 열고 "하하하" 빠르게 10초 → 10초 쉬기 × 3'],
+      ['찾을 감각','윗배 안쪽(명치 아래)이 불편하게 단단해지는 느낌. 이게 횡격막으로 만드는 복압이에요'],
+      ['복근과 다름','배를 꽉 조이는 힘과는 달라요. 빠르게 하면 흉식으로는 절대 못 해서 저절로 횡격막을 쓰게 돼요'],
+      ['목','목구멍은 하품 직전처럼 시원하게 열린 채로'],
+      ['주의','어지러우면 바로 멈추고 평소대로 숨 쉬기'],
     ]});
-  const arp = (sets, deviceSets, vowel) => ({ id:'arp', kind:'arp', name:'음정 도약', sub:`도-미-솔-도-솔-미-도 · 최고 ${koName(arpTop)}`, sets, reps:2, deviceSets, arpTop, vowel,
-    prep: deviceSets>0 ? '기구를 물고 "우~"로 계단을 따라가요' : `기구를 빼고 "${vowel}~"으로 계단을 따라가요`,
+  R.push({ id:'siren1', no:'3', kind:'siren', name:'슬라이딩 ① 바람 OK', sub:`"우~" ${koName(WARM_LO)} ↔ ${koName(WARM_HI)} · 목 풀기`, sets:1, reps:7, tool:'h3', inh:'nose',
+    lo:midiOf(WARM_LO), hi:Math.min(midiOf(WARM_HI), solid),
+    prep:'기구(구멍 3개)를 문 채 코로 숨 쉬어요. 바람이 새도 괜찮아요',
     guide:[
-      ['목표','불 들어오는 계단에 맞춰 음을 정확히 짚고, 한 음을 2초 길게'],
-      ['발음',`기구를 문 세트는 입술을 못 움직이니 "우~", 기구 없는 세트는 "${vowel}~"`],
-      ['C커브','소리가 뒤통수 위로 둥글게 넘어가 앞으로 떨어진다고 상상. 손을 앞에서 뒤로 굴리면 몸 힘이 빠져요'],
-      ['조성',`세트마다 한 음씩 올라가 마지막 세트 꼭대기가 ${koName(arpTop)}`],
+      ['목표','가볍게 오르내리며 목 풀기. 이 단계는 바람 새는 소리가 나도 돼요'],
+      ['들숨','기구를 문 채 코로 2~3초. 노래할 때와 같은 빠른 들숨'],
+      ['크기','말하는 정도. 올라갈 때 더 밀지 않기'],
+      ['저음','내려올 때도 입술·코 주변 울림을 그대로'],
     ]});
-  const long = (sets, dev, vowel) => ({ id:'long', kind:'long', name:'롱톤 · 직선음', sub:`한 음을 흔들림 없이 8초 · ${dev?'기구':'맨소리 "'+vowel+'~"'}`, sets, reps:4, dev, vowel, arpTop,
-    prep: dev ? '기구를 물고 "우~". 들숨 동안 들리는 음을 그대로 8초' : `기구 없이 "${vowel}~". 들숨 동안 들리는 음을 그대로 8초`,
+  R.push({ id:'hum', no:'4-1', kind:'long', name:'바람 없는 "음"', sub:'구멍에서 쉬익 소리가 안 나게', sets:1, reps:4, tool:'h2', inh:'nose', midi:solid-5,
+    prep:'기구를 구멍 2개로 바꿔요. 입 앞에 휴지를 대 보면 더 좋아요',
     guide:[
-      ['목표','음높이·크기·음색이 처음부터 끝까지 한 줄로. R&B 가수들의 깔끔한 소리의 기초'],
-      ['방법','들숨 동안 가이드음을 듣고, 그 음을 떨림(비브라토) 없이 직선으로'],
-      ['흔들릴 때','소리를 더 작게. 끝에서 숨이 모자라 흔들리면 길이보다 일정함이 먼저'],
-      ['확인','가끔 녹음해서 들어 보기. 직선이 귀로 확인돼요'],
+      ['목표','공기가 거의 안 새는데 소리는 나는 상태. 휴지가 거의 안 흔들리면 성공'],
+      ['느낌','입을 막고 "나한테" 소리치는 것처럼. 내 몸 안에서 울리는 감각'],
+      ['크기','말하는 정도 그대로. 지르면 목을 써요'],
+      ['콧소리','코가 살짝 막힌 듯한 울림은 괜찮아요. 심한 콧소리는 아니에요'],
+      ['안 될 때','한 번 더 2단계(바람 OK)처럼 가볍게 낸 뒤, 압력은 그대로 두고 새는 바람만 줄여 보세요'],
     ]});
-  const free = (min, mode) => ({ id:'free', kind:'free', name: mode==='free' ? '자유곡 맨소리' : `감각 전이 · ${songTxt()}`, sets:1, reps:1, min, mode,
-    sub: mode==='mumble' ? '기구 물고 가사 웅얼거리기' : mode==='alt' ? '기구 1소절 ↔ 맨소리 1소절' : '여러 곡을 맨소리로',
-    prep: mode==='mumble' ? '기구를 문 채 입은 닫고, 혀만 움직여 가사를 웅얼거려요' : mode==='alt' ? '기구로 1소절 부르고, 바로 빼고 같은 소절을 불러요' : '기구 없이 편하게 불러요. 발성 생각은 내려놓기',
-    guide: mode==='mumble' ? [
-      ['방법',`${songTxt()}의 고음 소절을 떠올리며 기구를 문 채 혀만 움직여 가사 웅얼거리기`],
-      ['체크','기구를 물었을 때의 열린 목 느낌을 유지'],
-      ['메트로놈','템포를 몸에 익히고 싶으면 켜기 (BPM은 설정에서 곡에 맞게)'],
-    ] : mode==='alt' ? [
-      ['방법','기구로 1소절 → 기구 빼고 바로 같은 1소절. 번갈아 반복'],
-      ['혀뿌리','맨소리에서 혀뿌리에 힘이 들어가면 다시 기구로 1소절'],
-      ['실전','MR이 있으면 같이 틀고 리듬·가사 전달 위주로'],
-    ] : [
-      ['방법','다양한 곡을 기구 없이. 막히는 소절만 기구로 1번'],
-      ['집중','발성은 생각하지 않기. 리듬·가사·감정에만'],
+  R.push({ id:'siren2', no:'4-2', kind:'siren', name:'슬라이딩 ② 바람 없이', sub:`같은 감각으로 ${koName(WARM_LO)} ↔ ${koMidi(solid)}`, sets:evening?3:4, reps:5, tool:'h2', inh:'nose',
+    lo:midiOf(WARM_LO), hi:solid,
+    prep:'구멍 2개 그대로. 4-1의 "바람 없는" 감각을 유지한 채 올라가요',
+    guide:[
+      ['목표',`${koMidi(solid)}까지 바람 새는 소리 없이, 볼륨 그대로`],
+      ['체크','① 쉬익 소리 거의 없음 ② 턱 아래가 밀리지 않음 ③ 후두가 튀지 않음 ④ 볼륨 그대로'],
+      ['새기 시작하면','그 높이에서 더 작고 가볍게. 바람으로 밀어 올리지 않기'],
+      ['아침',evening?'저녁에는 3세트 + 라 도전':'아침은 목이 덜 풀려서 라 도전 대신 이 세트를 1번 더 해요'],
     ]});
-  if(ph===1){ R.push(breath(3), siren(3), arp(3,2,'멈')); if(lv>=2) R.push(long(1,true,'우')); R.push(free(2, late?'alt':'mumble')); }
-  else if(ph===2){ R.push(breath(1), siren(2), arp(2,0,'멈'), long(2,false,'우'), free(2,'free')); }
-  else { R.push(siren(1), arp(1,0,'멈'), long(2,false,'아'), free(2,'free')); }
-  return { phase:ph, late, lv, top, arpTop, stages:R };
+  if(evening) R.push({ id:'chal', no:'4-3', kind:'siren', name:`${koMidi(chal)} 도전`, sub:'4-2가 다 됐을 때만 · 최대 3회', sets:1, reps:3, tool:'h2', inh:'nose',
+    lo:midiOf(WARM_LO), hi:chal, steps:[Math.max(solid+1, chal-1), chal, chal],
+    prep:`${koMidi(solid)}에서 4가지 체크가 다 되면 시작. 아니면 "다음 단계"로 넘어가요`,
+    guide:[
+      ['시작 조건',`${koMidi(solid)}에서 ① 바람 거의 없음 ② 턱 아래 안 밀림 ③ 후두 안 튐 ④ 볼륨 그대로`],
+      ['순서','반음씩: 1회차 한 칸 아래 → 2·3회차 목표음'],
+      ['삑사리','바로 멈추고, 솔로 내려가 바람 소리부터 다시 체크'],
+      ['목이 잡힘','볼륨을 줄이고 후두에 손을 대서 다시 확인'],
+      ['횟수','최대 3회. 더 하면 목을 써서 버티는 습관이 생겨요'],
+    ]});
+  const bases=[]; for(let b=midiOf('G3'); b<=solid-7; b++) bases.push(b);
+  if(!bases.length) bases.push(solid-7);
+  R.push({ id:'hup', no:'5', kind:'scale', name:'"헙" 스케일', sub:`복압 유지 · 꼭대기 ${koMidi(bases[0]+7)} → ${koMidi(bases[bases.length-1]+7)}`, sets:2, reps:bases.length, tool:'none', inh:'pant', bases,
+    prep:'기구를 빼요. 개호흡 2초로 윗배를 단단하게 만든 뒤 시작해요',
+    guide:[
+      ['방법','개호흡 2초로 복압 잡기 → 유지한 채 "헙 헙 헙" 도레미파솔파미레도'],
+      ['끊는 곳','소리를 목이 아니라 윗배에서 끊어요. 매 음마다 배가 튀듯 반응'],
+      ['배','스케일 내내 배가 풀리지 않게. 끝나면 놓아주기'],
+      ['이미지','웃을 때, "꺼이꺼이" 울 때처럼 횡격막에서 소리가 나는 느낌'],
+      ['범위','한 회차마다 반음씩 올라가요'],
+    ]});
+  R.push({ id:'apply', no:'6', kind:'free', name:'노래 적용', sub:`기구 1소절 ↔ 맨소리 1소절 · ${songTxt()}`, sets:1, reps:1, min:3, mode:'alt', tool:'alt', inh:'mouth',
+    prep:'기구(구멍 2개)를 손에 들고, 부를 소절을 정해요',
+    guide:[
+      ['방법','들숨 한 번에 복압 → 기구 물고 1소절 (바람 X) → 빼고 같은 소절. 2~3소절 반복'],
+      ['들숨','소절 사이에 입으로 빠르게. 노래할 때 쓰는 들숨 그대로'],
+      ['기준','기구 있을 때와 뺐을 때 볼륨·느낌이 같아야 해요'],
+      ['혀뿌리','맨소리에서 혀뿌리·목 옆에 힘이 들어가면 다시 기구로 1소절'],
+      ['방향','뒤쪽 위로 지르지 않기. "나한테 소리치기"를 그대로 가사에'],
+    ]});
+  return { phase:ph, lv, solid, chal, evening, stages:R };
 }
 
 // 루틴을 시간 구간(segment) 목록으로 펼침 → 진행률·자동 전환에 사용
 function flatten(routine){
   const segs=[]; const restMs=S.rest*1000;
-  const inMs = dev => (dev && S.devInhale!=='quick') ? S.inhale*1000 : 3000;
   routine.stages.forEach((st,si)=>{
-    segs.push({si, type:'prep', dur:5000, cue:'준비', sub:st.prep});
+    segs.push({si, type:'prep', dur:6000, cue:'준비', sub:st.prep});
+    if(st.id==='warm') segs.push({si, type:'bend', dur:20000, cue:'숙여서 확인 2회', sub:'상체를 숙이고 숨이 아랫배·등까지 차는지 느껴 보기'});
     for(let set=1; set<=st.sets; set++){
-      if(st.kind==='arp' && set===st.deviceSets+1 && set>1)
-        segs.push({si, set, type:'prep', dur:5000, cue:'기구 빼기', sub:`이번 세트부터 기구 없이 "${st.vowel}~"`});
       for(let rep=1; rep<=st.reps; rep++){
         if(st.kind==='breath'){
-          segs.push({si,set,rep,type:'inhale',dur:S.inhale*1000,cue:'들숨',sub:'기구를 문 채 입으로 천천히'});
-          segs.push({si,set,rep,type:'exhale',dur:S.exhale*1000,cue:'날숨',sub:'원이 줄어드는 속도로 일정하게',count:true});
+          segs.push({si,set,rep,type:'inhale',dur:S.inhale*1000,cue:'들숨',sub:'기구로 천천히 · 후두가 내려가는지 손으로'});
+          segs.push({si,set,rep,type:'exhale',dur:S.exhale*1000,cue:'버티며 날숨',sub:'넓이를 유지하다가 마지막에 놓기',count:true});
+        } else if(st.kind==='pant'){
+          segs.push({si,set,rep,type:'pant',dur:10000,cue:'하하하하',sub:'입을 열고 빠르게 · 윗배 안쪽 감각',count:true});
+          if(rep<st.reps) segs.push({si,set,rep,type:'recover',dur:10000,cue:'쉬기',sub:'평소대로 천천히 숨 쉬기'});
         } else if(st.kind==='siren'){
-          const d=S.devInhale!=='quick';
-          segs.push({si,set,rep,type:'inhale',dur:inMs(true),cue:'들숨',sub:d?'기구를 문 채 입으로 천천히':'입·코로 가볍게',preview:midiOf(SIREN_LOW)});
-          segs.push({si,set,rep,type:'siren',dur:6000,cue:'"우~" 슬라이딩',sub:'올라갈 때도 내려올 때도 같은 바람',count:true});
-        } else if(st.kind==='arp'){
-          const dev = set<=st.deviceSets;
-          const topM = midiOf(st.arpTop) - 2*(st.sets-set), base = topM-12;
-          segs.push({si,set,rep,type:'inhale',dur:inMs(dev),cue:'들숨',sub:dev?'기구를 문 채 입으로':'입·코로 가볍게', preview:base});
-          segs.push({si,set,rep,type:'arp',dur:14000,cue:dev?'"우~"':`"${st.vowel}~"`,sub:`꼭대기 ${koMidi(topM)}`,count:true,dev,base});
+          const hi = st.steps ? st.steps[rep-1] : st.hi;
+          segs.push({si,set,rep,type:'inhale',dur:3000,cue:'코로 들숨',sub:'기구를 문 채 코로 2~3초',preview:st.lo});
+          segs.push({si,set,rep,type:'siren',dur:7000,cue:st.id==='siren1'?'"우~" 가볍게':'"우~" 바람 없이',sub:`꼭대기 ${koMidi(hi)}`,count:true,lo:st.lo,hi});
         } else if(st.kind==='long'){
-          const base = midiOf(st.arpTop)-12, m = base + [5,7,9,12][rep-1];
-          segs.push({si,set,rep,type:'inhale',dur:Math.max(inMs(st.dev),3000),cue:'들숨 · 음 듣기',sub:koMidi(m),preview:m,hold:true});
-          segs.push({si,set,rep,type:'long',dur:8000,cue:st.dev?'"우~" 직선으로':`"${st.vowel}~" 직선으로`,sub:`${koMidi(m)} · 흔들림 없이`,count:true,midi:m});
+          segs.push({si,set,rep,type:'inhale',dur:3000,cue:'코로 들숨 · 음 듣기',sub:koMidi(st.midi),preview:st.midi,hold:true});
+          segs.push({si,set,rep,type:'long',dur:6000,cue:'"음~" 바람 없이',sub:`${koMidi(st.midi)} · 쉬익 소리 없이`,count:true,midi:st.midi});
+        } else if(st.kind==='scale'){
+          const base=st.bases[rep-1];
+          segs.push({si,set,rep,type:'inhale',dur:2500,cue:'개호흡 2초',sub:'하하 → 윗배 단단하게',preview:base});
+          segs.push({si,set,rep,type:'scale',dur:SCALE5.length*650,cue:'"헙 헙 헙"',sub:`꼭대기 ${koMidi(base+7)}`,count:true,base,steps:SCALE5,step:650});
         } else {
-          segs.push({si,set,rep,type:'free',dur:st.min*60000,cue:st.sub,sub:st.prep});
+          segs.push({si,set,rep,type:'free',dur:st.min*60000,cue:'기구 1소절 ↔ 맨소리 1소절',sub:'들숨은 입으로 빠르게 · 볼륨과 느낌을 같게'});
         }
       }
       if(set<st.sets) segs.push({si,set,type:'rest',dur:restMs,cue:'휴식',sub:'기구를 내려놓고 평소대로 숨 쉬기'});
@@ -472,10 +542,9 @@ function sirenSound(lo, hi, dur){
   g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.2); g.gain.setValueAtTime(0.12,t+dur-0.2); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
   o.start(t); o.stop(t+dur+0.05);
 }
-const ARP = [0,4,7,12,7,4,0];
-function arpSound(base){
+function scaleSound(base, steps, stepMs){
   const a=ac(), d=out(); if(!a||!d) return;
-  const t=a.currentTime; ARP.forEach((st,i)=>piano(base*Math.pow(2,st/12), t+i*2, 1.9, d));
+  const t=a.currentTime, s=stepMs/1000; steps.forEach((st,i)=>piano(base*Math.pow(2,st/12), t+i*s, s*0.8, d));
 }
 function fanfare(){ const a=ac(); if(!a) return; const t=a.currentTime; [523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,t+i*0.14,i===3?0.6:0.18,0.2,'triangle')); }
 function metroToggle(force){
@@ -484,6 +553,105 @@ function metroToggle(force){
   if(on){ const a=ac(); if(!a) return; const ms=60000/(S.bpm||110); let n=0;
     metroIv=setInterval(()=>{ if(P && !P.paused){ tone(n%4===0?1500:1000, a.currentTime, 0.04, 0.12, 'square'); n++; } }, ms); }
   const b=document.getElementById('metroBtn'); if(b) b.textContent = metroIv ? `메트로놈 끄기 (${S.bpm} BPM)` : `메트로놈 켜기 (${S.bpm} BPM)`;
+}
+
+// ---------- 몸 그림: 호흡의 흐름·방향 ----------
+// 옆에서 본 상체. 횡격막(파란 선)·폐·버티는 띠(노랑)·후두(점)·숨 방향(점선 화살표)·몸 안 울림(원)·휴지(바람 새는지)
+function bodyFig(id, o={}){
+  const holes = o.tool==='h3' ? 3 : o.tool==='h2' ? 2 : o.tool==='alt' ? 2 : 0;
+  const dev = holes>0;
+  const ah = `url(#${id}-ah)`;
+  return `<svg class="bf" id="${id}" viewBox="0 0 210 232" ${o.demo?`data-demo="${o.demo}"`:''} role="img" aria-label="${esc(o.label||'호흡 그림')}">
+    <defs><marker id="${id}-ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" class="bf-ahd"/></marker>
+      <linearGradient id="${id}-tg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="bf-g1"/><stop offset="1" class="bf-g2"/></linearGradient></defs>
+    <path class="bf-torso" data-k="torso" d="${torsoPath(0.3)}" fill="url(#${id}-tg)"/>
+    <ellipse class="bf-band" data-k="band" cx="88" cy="162" rx="30" ry="13"/>
+    <ellipse class="bf-lung" data-k="lung" cx="86" cy="108" rx="24" ry="18"/>
+    <path class="bf-pipe" d="M100 60 Q97 82 88 100"/>
+    <path class="bf-dia" data-k="dia" d="${diaPath(0.3)}"/>
+    <rect class="bf-skin" x="74" y="64" width="22" height="30" rx="6"/>
+    <circle class="bf-skin" cx="84" cy="44" r="25"/>
+    <path class="bf-skin" d="M107 36 L115 46 L108 48"/>
+    <circle class="bf-ring" data-k="r1" cx="88" cy="50" r="30"/>
+    <circle class="bf-ring b" data-k="r2" cx="88" cy="50" r="30"/>
+    <circle class="bf-lar" data-k="lar" cx="96" cy="78" r="5"/>
+    ${dev ? `<g class="bf-dev"><rect x="107" y="52" width="28" height="10" rx="3"/>${Array.from({length:holes},(_,i)=>`<circle cx="${130-i*7}" cy="57" r="1.8"/>`).join('')}</g>` : ''}
+    <path class="bf-flow" data-k="fin" d="M176 57 L114 57" marker-end="${ah}"/>
+    <path class="bf-flow" data-k="fnose" d="M170 22 L118 40" marker-end="${ah}"/>
+    <path class="bf-flow" data-k="fout" d="${dev?'M138 57':'M112 57'} L182 57" marker-end="${ah}"/>
+    <g data-k="tissue"><path class="bf-tissue" d="M186 30 h14 v40 h-14z"/><path class="bf-pin" d="M184 30 h18"/></g>
+    <text class="bf-t" x="10" y="${150}">횡격막</text>
+    <text class="bf-t" x="104" y="88">후두</text>
+    <text class="bf-lab" data-k="lab" x="100" y="226" text-anchor="middle"></text>
+  </svg>`;
+}
+const torsoPath = b => `M58 94 Q84 86 110 94 Q117 112 ${116+b*4} 130 Q${122+b*18} 172 114 214 L62 214 Q48 160 58 94Z`;
+function diaPath(d){ const y=124+d*18; return `M58 ${y} Q86 ${y-24+d*10} 116 ${y}`; }
+function setBody(svg, s){
+  const q=k=>svg.querySelector(`[data-k="${k}"]`);
+  const d=Math.max(-0.2,Math.min(1.2,s.dia)), b=Math.max(-0.2,Math.min(1.25,s.belly));
+  q('torso').setAttribute('d', torsoPath(b));
+  q('dia').setAttribute('d', diaPath(d));
+  const y=124+d*18, ry=15+d*9; const lung=q('lung'); lung.setAttribute('ry', ry); lung.setAttribute('cy', y-10-ry*0.75);
+  const band=q('band'); band.setAttribute('rx', 26+b*8); band.style.opacity = (s.band||0)*0.6;
+  q('lar').setAttribute('cy', 78+(s.lar||0)*7);
+  q('lar').classList.toggle('bad', !!s.larBad);
+  ['fin','fnose','fout'].forEach(k=>{ const el=q(k), on=s.flow===k.slice(1); el.classList.toggle('on', on); el.classList.toggle('slow', on && !!s.slow); el.classList.toggle('fast', on && !!s.fast); });
+  q('r1').classList.toggle('on', !!s.ring); q('r2').classList.toggle('on', !!s.ring);
+  const sway = s.leak ? 10 + 8*Math.sin((s.t||0)/110) : 0;
+  q('tissue').setAttribute('transform', `rotate(${-sway} 193 30)`);
+  q('tissue').style.opacity = s.tissue===false ? 0 : 1;
+  q('lab').textContent = s.label||'';
+}
+// 훈련 구간 → 그림 상태
+function bodyState(g, e, st){
+  const p=Math.min(1,e/g.dur), t=performance.now();
+  const s={dia:.3, belly:.3, lar:.3, band:0, flow:null, ring:false, leak:0, t, label:'', tissue:false};
+  const pulse = (Math.sin(t/65)+1)/2;
+  if(['siren','long','free'].includes(g.type) || (g.type==='inhale' && ['siren','long'].includes(st.kind))) s.tissue=true;
+  switch(g.type){
+    case 'inhale':
+      if(st.kind==='scale') Object.assign(s,{dia:.5+.45*pulse, belly:.5+.45*pulse, lar:.6, band:.9, flow:'out', fast:true, label:'개호흡 → 윗배 단단하게'});
+      else Object.assign(s,{dia:p, belly:p, lar:p, flow:st.inh==='dev'?'in':'nose', label:st.inh==='dev'?'기구로 천천히 들숨':'코로 빠르게 들숨'});
+      break;
+    case 'exhale': { const k = p<.7 ? p/.7*.25 : .25+(p-.7)/.3*.75;
+      Object.assign(s,{dia:1-k, belly:1-k, lar:1, band:p<.7?1:.35, flow:'out', slow:true, label:p<.7?'넓이 유지 · 버티기':'천천히 놓아주기'}); break; }
+    case 'pant': Object.assign(s,{dia:.35+.55*pulse, belly:.35+.55*pulse, lar:.5, band:.9, flow:'out', fast:true, label:'윗배 안쪽이 단단하게'}); break;
+    case 'siren': case 'long': {
+      const leak = st.id==='siren1';
+      Object.assign(s,{dia:1-.35*p, belly:1-.3*p, lar:.8, band:.7, ring:true, leak:leak?1:0, flow:leak?'out':null, slow:true, label:leak?'바람 새도 OK · 가볍게':'바람 없이 · 몸 안에서 울림'}); break; }
+    case 'scale': { const ph=(e%g.step)/g.step, kick=ph<.3?1-ph/.3:0;
+      Object.assign(s,{dia:.9-.25*p+.1*kick, belly:.9-.2*p-.12*kick, lar:.7, band:.5+.5*kick, ring:kick>.3, label:'"헙" · 윗배에서 끊기'}); break; }
+    case 'free': Object.assign(s,{dia:.8, belly:.8, lar:.7, band:.6, ring:true, label:'나한테 소리치기'}); break;
+    case 'recover': Object.assign(s,{dia:.3+.2*Math.sin(t/700), belly:.3+.2*Math.sin(t/700), label:'편하게 쉬기'}); break;
+  }
+  return s;
+}
+// 가이드 탭 시연용 반복 애니메이션
+function demoState(kind, t){
+  const s={dia:.3, belly:.3, lar:.3, band:0, flow:null, ring:false, leak:0, t, label:'', tissue:kind==='leak'||kind==='noleak'};
+  const cyc=(ms)=>(t%ms)/ms, pulse=(Math.sin(t/65)+1)/2;
+  if(kind.startsWith('hold')){ // 들숨 5초 → 날숨 10초
+    const c=cyc(15000)*15;
+    if(c<5){ const p=c/5; return Object.assign(s,{dia:p, belly:p, lar:p, flow:'in', label:'들숨'}); }
+    const p=(c-5)/10;
+    if(kind==='hold-good'){ const k=p<.7?p/.7*.25:.25+(p-.7)/.3*.75; return Object.assign(s,{dia:1-k, belly:1-k, lar:1, band:p<.7?1:.35, flow:'out', slow:true, label:p<.7?'✓ 넓이 유지':'✓ 천천히 놓기'}); }
+    if(kind==='hold-drop'){ const k=Math.min(1,p/.15); return Object.assign(s,{dia:1-k, belly:1-k, lar:1-k*.8, flow:p<.2?'out':null, fast:true, label:'✕ 한 번에 쑥 꺼짐'}); }
+    return Object.assign(s,{dia:1, belly:1+.2*Math.min(1,p/.2), lar:-.6, larBad:true, band:.5, label:'✕ 내밀어 굳힘 · 목 잠김'});
+  }
+  if(kind==='inh-dev'){ const c=cyc(9000)*9; return c<5 ? Object.assign(s,{dia:c/5, belly:c/5, lar:c/5, flow:'in', slow:true, label:'A 기구로 천천히 (5초)'}) : Object.assign(s,{dia:1-(c-5)/4*.6, belly:1-(c-5)/4*.6, lar:1, band:.8, flow:'out', slow:true, label:'A 기구로 천천히 (5초)'}); }
+  if(kind==='inh-nose'){ const c=cyc(9000)*9; return c<2.5 ? Object.assign(s,{dia:c/2.5, belly:c/2.5, lar:c/2.5, flow:'nose', label:'B 코로 빠르게 (2~3초)'}) : Object.assign(s,{dia:1-(c-2.5)/6.5*.35, belly:1-(c-2.5)/6.5*.3, lar:.8, band:.7, ring:true, label:'B 코로 빠르게 (2~3초)'}); }
+  if(kind==='inh-pant') return Object.assign(s,{dia:.35+.55*pulse, belly:.35+.55*pulse, lar:.5, band:.9, flow:'out', fast:true, label:'C 기구 없이 입으로'});
+  if(kind==='leak') return Object.assign(s,{dia:.75, belly:.75, lar:.8, band:.3, ring:true, leak:1, flow:'out', label:'바람 샘 · 휴지 흔들림'});
+  if(kind==='noleak') return Object.assign(s,{dia:.85, belly:.85, lar:.8, band:.8, ring:true, label:'바람 없음 · 휴지 그대로'});
+  return s;
+}
+let demoRaf=null;
+function demoLoop(){
+  const els=document.querySelectorAll('svg.bf[data-demo]');
+  if(!els.length){ demoRaf=null; return; }
+  const t=performance.now(); els.forEach(el=>setBody(el, demoState(el.dataset.demo, t)));
+  demoRaf=requestAnimationFrame(demoLoop);
 }
 
 // ---------- 화면 꺼짐 방지 ----------
@@ -557,23 +725,21 @@ const SCI = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const sciName = m => SCI[((Math.round(m)%12)+12)%12] + (Math.floor(Math.round(m)/12)-1 + (S.voice==='high'?1:0));
 // 현재 구간의 가이드 음높이 (midi)
 function guideMidi(g, e){
-  const st=P.routine.stages[g.si];
-  if(g.type==='siren'){ const lo=midiOf(SIREN_LOW), hi=midiOf(st.top), p=e/g.dur; return lo+(hi-lo)*(p<0.5?p*2:2-2*p); }
-  if(g.type==='arp') return g.base + ARP[Math.min(6,Math.floor(e/2000))];
+  if(g.type==='siren'){ const p=e/g.dur; return g.lo+(g.hi-g.lo)*(p<0.5?p*2:2-2*p); }
+  if(g.type==='scale') return g.base + g.steps[Math.min(g.steps.length-1,Math.floor(e/g.step))];
   if(g.type==='long') return g.midi;
   return null;
 }
-const pitchSeg = g => mic.on && (g.type==='siren'||g.type==='arp'||g.type==='long');
+const pitchSeg = g => mic.on && (g.type==='siren'||g.type==='scale'||g.type==='long');
 const soundDuring = () => !mic.on || S.guideSound==='always';
 function drawPitch(g, e){
   const cv=document.getElementById('pcv'); if(!cv) return;
   const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight;
   if(cv.width!==W*dpr){ cv.width=W*dpr; cv.height=H*dpr; }
   const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
-  const st=P.routine.stages[g.si];
   let lo, hi;
-  if(g.type==='siren'){ lo=midiOf(SIREN_LOW)-2; hi=midiOf(st.top)+3; }
-  else if(g.type==='arp'){ lo=g.base-3; hi=g.base+15; }
+  if(g.type==='siren'){ lo=g.lo-2; hi=g.hi+3; }
+  else if(g.type==='scale'){ lo=g.base-3; hi=g.base+10; }
   else { lo=g.midi-6; hi=g.midi+6; }
   const css=getComputedStyle(document.documentElement);
   const cLine=css.getPropertyValue('--line').trim(), cSub=css.getPropertyValue('--sub').trim(), cAcc=css.getPropertyValue('--accent').trim();
@@ -584,7 +750,7 @@ function drawPitch(g, e){
     const nat=[0,2,4,5,7,9,11].includes(((m%12)+12)%12); if(!nat) continue;
     const isC=((m%12)+12)%12===0;
     x.strokeStyle=cLine; x.lineWidth=isC?1.4:0.6; x.beginPath(); x.moveTo(L,Y(m)); x.lineTo(W-6,Y(m)); x.stroke();
-    if(hi-lo<16 || isC || (g.type==='siren' && m===midiOf(st.top))){ x.fillStyle=cSub; x.fillText(sciName(m),2,Y(m)); }
+    if(hi-lo<16 || isC || (g.type==='siren' && m===g.hi)){ x.fillStyle=cSub; x.fillText(sciName(m),2,Y(m)); }
   }
   // 가이드선
   x.strokeStyle=cAcc; x.globalAlpha=0.35; x.lineWidth=10; x.lineCap='round'; x.beginPath();
@@ -592,8 +758,8 @@ function drawPitch(g, e){
   // 가이드 음 이름 (작은 글씨)
   x.font='600 11px system-ui'; x.fillStyle=cAcc; x.textBaseline='bottom'; x.textAlign='center';
   const tag=(t,m)=>{ const px=Math.min(W-30,Math.max(L+28,X(t))); x.fillText(koMidi(Math.round(m)),px,Y(m)-8); };
-  if(g.type==='arp') ARP.forEach((d,i)=>tag((i+0.5)/7, g.base+d));
-  else if(g.type==='siren'){ tag(0.06, midiOf(SIREN_LOW)); tag(0.5, midiOf(st.top)); }
+  if(g.type==='scale'){ tag(0.06, g.base); tag(4.5/g.steps.length, g.base+7); }
+  else if(g.type==='siren'){ tag(0.06, g.lo); tag(0.5, g.hi); }
   else tag(0.5, g.midi);
   x.textAlign='left'; x.textBaseline='middle';
   // 내 소리 (노란 선)
@@ -643,11 +809,10 @@ function enterSeg(idx){
   if(P.i>=P.segs.length){ finishRoutine(); return; }
   const g=curSeg(); P.segStart=Date.now(); P.elapsedBefore=g.at;
   saveProgress();
-  const st=P.routine.stages[g.si];
   // 마이크를 쓸 때는 가이드음이 마이크에 섞이지 않게 들숨 때 미리 들려주고, 소리 낼 땐 화면만
   if(soundDuring()){
-    if(g.type==='siren') sirenSound(hz(midiOf(SIREN_LOW)), hz(midiOf(st.top)), g.dur/1000);
-    if(g.type==='arp') arpSound(hz(g.base));
+    if(g.type==='siren') sirenSound(hz(g.lo), hz(g.hi), g.dur/1000);
+    if(g.type==='scale') scaleSound(hz(g.base), g.steps, g.step);
   }
   if(g.type==='inhale' && g.preview!==undefined){ const a=ac(), d=out(); if(a&&d) piano(hz(g.preview), a.currentTime+0.2, g.hold?2.2:1.2, d); }
   if(g.type==='prep' && g.dur) beep(660,0.12);
@@ -670,7 +835,7 @@ function tick(){
   if(!P || P.paused) return;
   const g=curSeg(); if(!g) return;
   const e=segElapsed();
-  if((g.type==='rest'||g.type==='prep') ){
+  if(g.type==='rest'||g.type==='prep'||g.type==='bend'||g.type==='recover'){
     const left=Math.ceil((g.dur-e)/1000);
     if(left<=3 && left>0 && left!==P.lastBeep){ P.lastBeep=left; beep(660,0.1); }
   }
@@ -682,15 +847,14 @@ function paintTick(g,e){
   const left=Math.max(0,Math.ceil((g.dur-e)/1000));
   const el=id=>document.getElementById(id);
   if(el('tleft')) el('tleft').textContent = g.type==='free' ? mmss(left) : left;
-  if(g.type==='inhale' && el('circle') && P.routine.stages[g.si].kind==='breath') el('circle').style.transform=`scale(${0.55+0.45*(e/g.dur)})`;
-  if(g.type==='exhale' && el('circle')) el('circle').style.transform=`scale(${1-0.45*(e/g.dur)})`;
+  const bf=el('bodyNow'); if(bf) setBody(bf, bodyState(g, e, P.routine.stages[g.si]));
   if(g.type==='siren' && el('dot')){
     const p=e/g.dur, x=20+p*280, y=170-130*Math.sin(Math.PI*p);
     el('dot').setAttribute('cx',x); el('dot').setAttribute('cy',y);
   }
   if(g.type==='long' && el('lfill')) el('lfill').style.width=`${Math.min(100,e/g.dur*100)}%`;
-  if(g.type==='arp'){
-    const k=Math.min(6,Math.floor(e/2000));
+  if(g.type==='scale'){
+    const k=Math.min(g.steps.length-1,Math.floor(e/g.step));
     document.querySelectorAll('.stairs i').forEach((b,i)=>{ b.className = i===k?'on': i<k?'past':''; });
   }
   const done=P.elapsedBefore+e, pct=Math.min(100,done/P.total*100);
@@ -740,6 +904,8 @@ const $app=document.getElementById('app');
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),1800); }
 
 // =================== 루틴 화면 ===================
+// 기구 세팅·들숨 방식 태그
+const tags = st => `<span class="tags"><span class="tag t-${st.tool}">${TOOL[st.tool]}</span><span class="tag i-${st.inh}">${INH[st.inh]}</span></span>`;
 function header(){
   const t=today(), ph=phaseOf(t), dT=diff(t,S.targetDate), dE=diff(t,S.endDate);
   const big = ph===0 ? `D-${diff(t,S.startDate)}` : ph===1 ? (dT===0?'D-DAY':`D-${dT}`) : ph<=3 ? `${Math.ceil((diff(S.startDate,t)+1)/30)}개월 차` : '완주';
@@ -755,11 +921,10 @@ function renderToday(){
   const am=status(sess(t,'am')), pm=status(sess(t,'pm'));
   const lab=x=>x==='f'?'완료':x==='p'?'하다 멈춤':'대기';
   const s=sess(t,slot,false);
-  const stages=routine.stages.map((st,i)=>{
-    const {segs}=flatten({stages:[st]}); const sec=segs.reduce((a,g)=>a+g.dur,0)/1000;
-    return `<li><span class="n ${s?.done?'ok':''}">${i+1}</span><div class="t"><b>${esc(st.name)}</b><span class="muted">${esc(st.sub)} · ${st.kind==='free'?st.min+'분':`${st.reps}회 × ${st.sets}세트`}</span></div><span class="muted">${Math.round(sec/60*10)/10}분</span></li>`;
-  }).join('');
-  const lateNote = routine.late ? `<p class="muted" style="margin:10px 0 0">목표일 3주 전이라 4번이 실전 전환(기구 ↔ 맨소리)으로 바뀌었어요.</p>`:'';
+  const secs=routine.stages.map(st=>flatten({stages:[st]}).total/1000);
+  const stages=routine.stages.map((st,i)=>`<li><span class="n ${s?.done?'ok':''}">${st.no}</span><div class="t"><b>${esc(st.name)}</b><span class="muted">${esc(st.sub)}</span>${tags(st)}</div><span class="muted mins">${Math.round(secs[i]/60*10)/10}분</span></li>`).join('');
+  const timeline=`<div class="tl" aria-hidden="true">${routine.stages.map((st,i)=>`<i class="g${st.no[0]}" style="flex:${secs[i]}"><span>${st.no}</span></i>`).join('')}</div>`;
+  const lateNote = routine.evening ? '' : `<p class="muted" style="margin:10px 0 0">아침은 목이 덜 풀려 있어서 ${koMidi(routine.chal)} 도전(4-3) 대신 4-2를 1세트 더 해요.</p>`;
   return header()+`
     <div class="seg">
       <button data-act="slot" data-v="am" class="${slot==='am'?'on':''}">아침<small>${lab(am)}</small></button>
@@ -778,11 +943,13 @@ function renderToday(){
     </section>` : `
     <section class="card">
       <div class="row"><h3>오늘의 루틴</h3><span class="muted">약 ${Math.round(total/60000)}분</span></div>
+      <p class="goal-line">압력은 유지하고, 새는 공기는 줄이기</p>
+      ${timeline}
       <ol class="plan-list">${stages}</ol>
       ${lateNote}
       <div class="row" style="margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:10px">
-        <span style="font-size:13px"><b>오늘 최고음</b><br><span class="muted">슬라이딩 ${koName(routine.top)} · 계단 ${koName(routine.arpTop)}</span></span>
-        ${autoLevel(t)>0 ? `<button class="chip ${S.lower[t]?'on':''}" data-act="lower" style="flex:none">${S.lower[t]?'낮춤 해제':'오늘은 한 단계 낮게'}</button>`:''}
+        <span style="font-size:13px"><b>오늘 기준음</b><br><span class="muted">바람 없이 ${koMidi(routine.solid)}${routine.evening?` · 도전 ${koMidi(routine.chal)}`:''}</span></span>
+        <button class="chip ${S.lower[t]?'on':''}" data-act="lower" style="flex:none">${S.lower[t]?'낮춤 해제':'오늘은 한 단계 낮게'}</button>
       </div>
       <div class="actions"><button class="btn primary big" data-act="start">START</button></div>
       <p class="muted" style="text-align:center;margin:10px 0 0">누르면 끝날 때까지 자동으로 넘어가요. 소리를 켜 두세요.</p>
@@ -791,27 +958,25 @@ function renderToday(){
 function renderPlayer(){
   const g=curSeg(); const st=P.routine.stages[g.si]; const n=P.routine.stages.length;
   const resting = g.type==='rest';
+  const sec = Math.ceil(g.dur/1000);
+  const fig = bodyFig('bodyNow', {tool:st.tool, label:st.name});
+  const side = right => `<div class="viz2"><div class="figbox sm">${fig}</div><div class="vright">${right}</div></div>`;
   let viz='';
-  if(pitchSeg(g)) viz=`<div style="width:100%"><canvas id="pcv" style="width:100%;height:230px;display:block;background:var(--bg);border-radius:12px"></canvas>
-      <div class="row" style="margin-top:6px;font-size:13px"><span id="pnow" class="muted">소리를 기다리는 중</span><span id="pacc" class="muted"></span></div></div>`;
-  else if(g.type==='prep') viz=`<div class="bigtime" id="tleft">5</div>`;
+  if(g.type==='prep') viz=`<div class="prepbox"><div class="bigtime" id="tleft">${sec}</div><div class="prep-tags">${tags(st)}</div></div>`;
+  else if(g.type==='bend') viz=`<div class="prepbox"><div class="bigtime" id="tleft">${sec}</div><div class="muted">숙인 채 2번 깊게 들이마시기</div></div>`;
   else if(resting) viz=`<div style="text-align:center"><div class="bigtime" id="tleft">${S.rest}</div><div style="margin-top:6px">다음: ${g.set+1}세트</div></div>`;
-  else if(st.kind==='breath') viz=`<div class="circle" id="circle" style="transform:scale(${g.type==='inhale'?0.55:1})"><span id="tleft">${Math.ceil(g.dur/1000)}</span></div>`;
-  else if(st.kind==='siren') viz = g.type==='siren'
-      ? `<svg viewBox="0 0 320 190" width="100%" height="210" aria-hidden="true"><path d="M20 170 Q 160 -90 300 170" fill="none" stroke="var(--tint2)" stroke-width="6" stroke-linecap="round"/><text x="160" y="16" text-anchor="middle" font-size="13" font-weight="600" fill="var(--sub)">${koName(st.top)}</text><circle id="dot" cx="20" cy="170" r="12" fill="var(--accent)"/></svg>`
-      : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
-  else if(st.kind==='arp') viz = g.type==='arp'
-      ? `<div class="stairs" aria-hidden="true">${[1,3,5,8,5,3,1].map(h=>`<i style="height:${30+h*18}px"></i>`).join('')}</div>`
-      : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
-  else if(st.kind==='long') viz = g.type==='long'
-      ? `<div style="width:100%;text-align:center"><div style="font-size:15px;font-weight:600;color:var(--accent);margin-bottom:14px">${koMidi(g.midi)}</div><div class="bar" style="height:14px;border-radius:7px"><i id="lfill" style="transition:none"></i></div><div class="muted" style="margin-top:10px"><span id="tleft">8</span>초</div></div>`
-      : `<div class="bigtime" id="tleft">${Math.ceil(g.dur/1000)}</div>`;
-  else viz=`<div class="bigtime" id="tleft">${mmss(st.min*60)}</div>`;
-  const counts = (g.type==='prep'||st.kind==='free') ? '' :
-    `<div class="count"><span>${g.rep? Math.min(g.rep,st.reps):st.reps}/${st.reps}회</span><span>${g.set}/${st.sets}세트</span></div>`;
+  else if(pitchSeg(g)) viz=side(`<canvas id="pcv" style="width:100%;height:210px;display:block;background:var(--bg);border-radius:12px"></canvas>
+      <div class="row" style="margin-top:6px;font-size:12px"><span id="pnow" class="muted">소리를 기다리는 중</span><span id="pacc" class="muted"></span></div>`);
+  else if(g.type==='siren') viz=side(`<svg viewBox="0 0 320 190" width="100%" height="180" aria-hidden="true"><path d="M20 170 Q 160 -90 300 170" fill="none" stroke="var(--tint2)" stroke-width="6" stroke-linecap="round"/><text x="160" y="16" text-anchor="middle" font-size="15" font-weight="600" fill="var(--sub)">${koMidi(g.hi)}</text><circle id="dot" cx="20" cy="170" r="12" fill="var(--accent)"/></svg>`);
+  else if(g.type==='scale') viz=side(`<div class="stairs" aria-hidden="true">${g.steps.map(v=>`<i style="height:${28+v*17}px"></i>`).join('')}</div>`);
+  else if(g.type==='long') viz=side(`<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--accent);margin-bottom:14px">${koMidi(g.midi)}</div><div class="bar" style="height:14px;border-radius:7px"><i id="lfill" style="transition:none"></i></div><div class="muted" style="margin-top:10px"><span id="tleft">${sec}</span>초</div></div>`);
+  else if(g.type==='free') viz=side(`<div style="text-align:center"><div class="bigtime" id="tleft" style="font-size:52px">${mmss(st.min*60)}</div><div class="muted" style="margin-top:8px">${esc(songTxt())}</div></div>`);
+  else viz=`<div class="figbox lg">${fig}<div class="figtime" id="tleft">${sec}</div></div>`;
+  const counts = (g.type==='prep'||g.type==='bend'||st.kind==='free') ? '' :
+    `<div class="count"><span>${g.rep? Math.min(g.rep,st.reps):st.reps}/${st.reps}회</span>${st.sets>1?`<span>${g.set}/${st.sets}세트</span>`:''}</div>`;
   return `
     <section class="card player ${resting?'resting':''}">
-      <div class="stage-chip">STAGE ${g.si+1}/${n}</div>
+      <div class="row"><div class="stage-chip">STAGE ${st.no} · ${g.si+1}/${n}</div>${g.type==='prep'?'':`<div class="mini-tags">${tags(st)}</div>`}</div>
       <div class="stage-name">${esc(st.name)}</div>
       <div class="viz" style="${pitchSeg(g)?'height:auto':''}">${viz}</div>
       <div class="cue">${esc(g.cue)}</div>
@@ -896,656 +1061,72 @@ function renderSheet(){
 // =================== 효과 ===================
 function renderEffect(){
   const t=today(), cur=phaseOf(t);
-  const ex=(n,title,body)=>`<details class="ex"><summary><span class="exn">${n}</span>${title}</summary><div class="body">${body}</div></details>`;
+  const ex=(n,title,body,open)=>`<details class="ex" ${open?'open':''}><summary><span class="exn">${n}</span>${title}</summary><div class="body">${body}</div></details>`;
+  const demo=(id,kind,tool,cap)=>`<div class="demo">${bodyFig(id,{demo:kind,tool,label:cap||kind})}${cap?`<div class="demo-cap">${cap}</div>`:''}</div>`;
+  const routine=buildRoutine(t);
+  const secs=routine.stages.map(st=>flatten({stages:[st]}).total/1000);
   const road=[1,2,3].map(p=>{ const [a,b]=phaseRange(p); return `<div class="${cur===p?'now':''}"><span><b>${p}단계 · ${PHASES[p].name}</b><br><span class="muted">${PHASES[p].desc}</span></span><span class="muted">${md(a)}~${md(b)}</span></div>`; }).join('');
   return `
-    <header class="top"><div><div class="dday" style="font-size:24px">효과</div><div class="dsub">항목을 눌러 펼쳐 보세요</div></div></header>
+    <header class="top"><div><div class="dday" style="font-size:24px">가이드</div><div class="dsub">그림은 실제 훈련 화면과 똑같이 움직여요</div></div></header>
     <section class="card lead">
-      <b>입 앞을 살짝 막아 바람이 되돌아오게 하면, 성대가 적은 힘으로 떨려요.</b>
-      <p>이 상태를 매일 15분 이내로 반복해서, 6개월 뒤에는 의식하지 않아도 같은 발성이 나오게 만드는 계획이에요.</p>
+      <b>압력은 유지하고, 새는 공기는 줄이기.</b>
+      <p>공기를 많이 내보내는 건 호흡 지지가 아니에요. 배(복압)로 압력을 버티고, 목은 열고 후두는 편하게. 그 압력이 바람 대신 <b style="display:inline;font-size:14px">소리(진동)</b>로 바뀌어야 2옥 라가 열려요.</p>
     </section>
-    ${ex(1,'6개월 로드맵',`<div class="roadmap">${road}</div>
-      <p class="muted" style="margin:10px 0 0">단계가 바뀌면 루틴 구성이 자동으로 달라져요. 1단계는 기구 위주, 2단계부터는 기구가 웜업이 되고 맨소리 비중이 늘어요.</p>`)}
-    ${ex(2,'필요한 기구',`<dl class="guide">
-        <dt>SOVT 기구</dt><dd>입에 무는 반폐쇄 기구. 들이마시기와 내쉬기 모두 기구를 문 채 입으로 해요. 구멍이 적을수록 저항이 커져요</dd>
-        <dt>권장 세팅</dt><dd>구멍 2~3개</dd>
-        <dt>대체 방법</dt><dd>빨대(가늘수록 저항이 큼), 입술 떨기(립트릴), 허밍 "음~"</dd>
-        <dt>보조 도구</dt><dd>이 앱의 가이드음, 거울(어깨·턱·볼 확인)</dd></dl>`)}
-    ${ex(3,'원리',`<dl class="guide">
-        <dt>역압력</dt><dd>좁은 입구에 막힌 바람이 성대 쪽으로 되돌아와 성대 위아래 압력의 균형을 맞춰요. 그래서 세게 부딪히지 않고도 쉽게 떨려요</dd>
-        <dt>긴장 완화</dt><dd>혀뿌리를 누르거나 목을 조이는 습관이 끼어들 틈이 줄고, 후두가 안정된 위치에 머물러요</dd>
-        <dt>공명 감각</dt><dd>입술·코 주변이 간질간질 떨리는 느낌으로 "소리가 앞으로 나간다"를 몸으로 알게 돼요</dd></dl>`)}
-    ${ex(4,'음정 로드맵 (최종 3옥타브 도)',(()=>{ const cl=levelOf(t); return `<p class="muted" style="margin:0 0 10px;line-height:1.6">슬라이딩은 최고음에 살짝 닿기만, 계단은 그 음을 정확히 짚기. 슬라이딩으로 먼저 길을 내고, 몇 주 뒤 계단이 따라가는 구조예요.</p>
-      <div class="roadmap">${levelRanges().map(r=>`<div class="${autoLevel(t)===r.l?'now':''}"><span><b>슬라이딩 ${koName(LEVELS[r.l].siren)}</b><br><span class="muted">계단 ${koName(LEVELS[r.l].arp)}</span></span><span class="muted">${md(r.from)}~${md(r.to)}</span></div>`).join('')}</div>
-      <p class="muted" style="margin:10px 0 0;line-height:1.6">목이 조이거나 소리가 갈라지는 날은 루틴 화면의 "오늘은 한 단계 낮게"를 쓰세요. 3옥타브 도는 높은 목표라 몸 상태에 따라 일정이 늦어질 수 있고, 억지로 맞추지 않는 게 더 빨라요.</p>`; })())}
-    ${ex(5,'루틴 단계가 하는 일',`<dl class="guide">
-        <dt>웜업</dt><dd>소리 없이 일정한 바람 → 호흡 압력을 고르게 세팅</dd>
-        <dt>슬라이딩</dt><dd>저음↔고음을 미끄러지며 소리가 꺾이는 구간(파사지오)을 부드럽게 연결</dd>
-        <dt>계단</dt><dd>1-3-5-8도 도약으로 정확한 음 안착. 기구 없는 세트는 "멈"으로 감각 옮기기</dd>
-        <dt>롱톤</dt><dd>한 음을 8초간 흔들림 없이. 음높이·크기·음색을 한 줄로 유지하는 R&B식 깔끔한 소리의 기초 (라에 도달한 뒤부터 추가)</dd>
-        <dt>전이</dt><dd>기구로 만든 열린 목을 실제 곡에 연결. 목표일 3주 전부터 기구↔맨소리 번갈아</dd>
-        <dt>기구 들숨</dt><dd>기구로 천천히 빨아들이면 들숨에도 저항이 생겨 가벼운 호흡근 훈련 효과를 기대할 수 있어요. 다만 이 기구의 주목적은 발성이고, 어지러우면 "입·코로 빠르게"로 바꾸세요</dd></dl>`)}
-    ${ex(6,'체화되는 이유',`<dl class="guide">
-        <dt>조종 대신 환경</dt><dd>성대 근육은 직접 조종할 수 없어요. 기구가 좋은 환경을 만들면 몸이 알아서 맞춰요</dd>
-        <dt>생각 없이 반복</dt><dd>START 하나로 끝까지 가게 만든 이유. 매번 결정할 필요가 없으면 꾸준히 하기 쉬워요</dd>
-        <dt>짧게, 자주</dt><dd>한 번 길게보다 아침·저녁 짧게가 유리해요</dd>
-        <dt>걸리는 시간</dt><dd>보통 2~3개월부터 차이가 느껴지고, 무의식적으로 굳히는 데는 더 걸려요</dd></dl>`)}
-    ${ex(7,'노래할 때는 그냥 부르기',`<div class="rule"><b>발성은 연습 때만. 노래는 노래만.</b>
-        <p>연습에서 몸에 저장해 두면 실전에서는 저절로 나와요. 노래 중에 발성을 생각하면 오히려 몸이 굳어요.</p></div>
-      <dl class="guide"><dt>집중</dt><dd>리듬, 가사 전달, 감정</dd><dt>숨</dt><dd>입(또는 입+코)으로 "앗!" 놀라듯 빠르게</dd>
-        <dt>볼륨</dt><dd>저음과 고음의 소리 크기를 비슷하게. 고음이라고 지르지 않기</dd><dt>막히면</dt><dd>그 소절만 기구로 1번 불고 다시 맨소리로</dd></dl>`)}
-    <section class="card"><h3>이럴 땐 쉬기</h3><p class="muted" style="margin:6px 0 0;line-height:1.6">목이 아프거나 따끔하면 그날은 쉬어요. 쉰 목소리가 2주 넘게 이어지면 이비인후과 진료를 받아 보세요.</p></section>`;
+    ${ex(1,'그림 보는 법',`<div class="demo-row two">${demo('dmA','hold-good','h3')}${demo('dmB','noleak','h2')}</div>
+      <div class="legend-fig">
+        <span><i style="background:var(--accent)"></i>횡격막 (들숨에 내려감)</span>
+        <span><i style="background:var(--tint2)"></i>폐</span>
+        <span><i style="background:#f2b705"></i>버티는 곳 (윗배·옆구리)</span>
+        <span><i style="background:#e0a400;width:8px;border-radius:50%"></i>후두</span>
+        <span>┄▶ 숨의 방향</span><span>◎ 몸 안 울림</span><span>▯ 휴지 (흔들리면 바람이 샘)</span>
+      </div>`, true)}
+    ${ex(2,'15분 루틴 한눈에',`<div class="tl">${routine.stages.map((st,i)=>`<i class="g${st.no[0]}" style="flex:${secs[i]}"><span>${st.no}</span></i>`).join('')}</div>
+      <table class="cmp"><tr><th>#</th><th>연습</th><th>기구 · 들숨</th><th>시간</th></tr>
+      ${routine.stages.map((st,i)=>`<tr><td><b>${st.no}</b></td><td>${esc(st.name)}<div class="muted" style="font-size:12px">${esc(st.sub)}</div></td><td>${tags(st)}</td><td class="muted">${Math.round(secs[i]/60*10)/10}분</td></tr>`).join('')}</table>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6"><b>원칙</b> · 복압 감각(2·5번)은 기구 없이 찾고, 버티는 날숨(1번)과 소리(3·4번)는 기구로. 아침엔 4-3 대신 4-2를 1세트 더.</p>`)}
+    ${ex(3,'"버티며 날숨"은 어떤 힘?',`<div class="demo-row">${demo('dh1','hold-drop','h3','✕ 쑥 꺼짐')}${demo('dh2','hold-push','h3','✕ 내밀기')}${demo('dh3','hold-good','h3','✓ 버티기')}</div>
+      <table class="cmp"><tr><th></th><th>느낌</th><th>결과</th></tr>
+        <tr><td>✕ 쑥 꺼짐</td><td>날숨과 동시에 배가 한 번에 들어감</td><td>압력이 바로 풀림 (그냥 복식호흡)</td></tr>
+        <tr><td>✕ 내밀기</td><td>배를 앞으로 밀어 단단히 굳힘</td><td>복근이 굳고 목도 같이 잠김</td></tr>
+        <tr><td>✓ 버티기</td><td>넓어진 윗배·옆구리·허리가 천천히 따라 들어옴</td><td>압력은 유지, 공기는 조금씩</td></tr></table>
+      <div class="rule" style="margin-top:10px"><b>아령을 천천히 내리는 힘</b>
+        <p>배를 부풀리거나 조이는 게 아니라, 들숨 때 넓어진 상태를 <b style="font-size:13px">천천히 놓아주는</b> 힘이에요. 세기는 20~30%. 10초 날숨이면 처음 7초는 넓이를 거의 유지, 마지막 3초에 놓기.</p>
+        <p>확인: 양손을 옆구리(아래 갈비뼈)에. 날숨 시작과 동시에 손이 쑥 좁아지면 놓친 거예요.</p>
+        <p>과할 때: 목에서 "읍" 막힘, 얼굴이 붉어짐, 소리가 끊김.</p></div>`)}
+    ${ex(4,'들숨 3가지 구별',`<div class="demo-row">${demo('di1','inh-dev','h3','A 기구로')}${demo('di2','inh-nose','h2','B 코·입')}${demo('di3','inh-pant','none','C 기구 없이')}</div>
+      <table class="cmp"><tr><th></th><th>하는 일</th><th>어디서</th></tr>
+        <tr><td><span class="tag i-dev">A 기구로</span></td><td>천천히 5초 빨아들이기. 흡기근 저항 훈련 + 후두가 내려가는 감각</td><td>1번 호흡 목 풀기만</td></tr>
+        <tr><td><span class="tag i-nose">B 코·입</span></td><td>2~3초 빠르게. 노래할 때와 같은 들숨, 한 번에 복압 세팅</td><td>3·4·6번 소리 낼 때 전부</td></tr>
+        <tr><td><span class="tag i-pant">C 기구 없이</span></td><td>빠르게 오가는 숨. 복압 감각 찾기</td><td>2번 개호흡, 5번 "헙"</td></tr></table>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6">소리 낼 때 기구로 빨아들이지 않는 이유: 노래 중엔 쓸 수 없는 "느린 들숨" 습관이 생기고, 15분 안에 끝나지 않아요.</p>`)}
+    ${ex(5,'바람 안 새는 발성 (휴지 테스트)',`<div class="demo-row two">${demo('dl1','leak','h3','✕ 바람 샘')}${demo('dl2','noleak','h2','✓ 바람 없음')}</div>
+      <dl class="guide" style="margin-top:10px">
+        <dt>테스트</dt><dd>기구를 물고 소리를 낼 때 구멍에서 "쉬익" 소리가 안 나고, 입 앞 휴지가 거의 안 흔들리면 성공. 호흡이 느림 = 호흡 밀도가 높음 = 좋은 발성</dd>
+        <dt>느낌</dt><dd>입을 막고 "나한테" 소리치는 것처럼. 내 몸 안에서 울리는 감각이 공명이에요</dd>
+        <dt>크기</dt><dd>말하는 정도 그대로. 밖으로 지르지 않기</dd>
+        <dt>방향</dt><dd>뒤쪽 위로 보내지 않기 (소리가 멀어져요). 가성처럼 가볍게, 하지만 가성은 아닌 소리. 콧소리가 살짝 섞여도 괜찮아요</dd>
+        <dt>순서</dt><dd>① 바람 새도 되는 가벼운 소리(3번) → ② 압력은 그대로, 새는 바람만 줄이기(4번)</dd></dl>`)}
+    ${ex(6,`${koMidi(routine.chal)}로 넘어가는 조건`,`<p class="muted" style="margin:0 0 4px">${koMidi(routine.solid)}에서 4가지가 모두 될 때만 반음씩 올려요.</p>
+      <ol class="check"><li><b>1</b>기구에서 바람 새는 소리가 거의 없음 (휴지가 거의 안 흔들림)</li><li><b>2</b>턱 아래 엄지가 밀려 내려가지 않음 (혀뿌리에 힘 없음)</li><li><b>3</b>후두에 댄 손에서 후두가 툭 튀어 오르지 않음</li><li><b>4</b>볼륨이 말하는 정도 그대로</li></ol>
+      <dl class="guide" style="margin-top:12px"><dt>삑사리</dt><dd>바로 멈추고 ${koMidi(routine.solid)}로 내려가 바람 소리부터 다시</dd><dt>목이 잡힘</dt><dd>볼륨을 줄이고 후두 위치를 다시 확인</dd><dt>시간대</dt><dd>도전은 저녁에만. 아침엔 목이 덜 풀려 있어요</dd></dl>`)}
+    ${ex(7,'기구 구멍 세팅',`<table class="cmp"><tr><th>구멍</th><th>언제</th><th>왜</th></tr>
+        <tr><td><span class="tag t-h3">3개</span></td><td>1번 호흡, 3번 슬라이딩 ①</td><td>저항이 적당해 편하게 풀기</td></tr>
+        <tr><td><span class="tag t-h2">2개</span></td><td>4번 바람 없는 발성, 6번 노래 적용</td><td>저항이 커져 같은 소리에 공기가 덜 나가고 성대가 붙는 감각이 쉬워져요</td></tr></table>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6">목이 조이거나 숨을 참게 되면 3개로 돌아가세요. 구멍을 줄인다고 복압이 생기진 않아요. 구멍은 성대를 돕고, 복압은 2·5번에서 따로 만들어요. 볼은 부풀리지 않기.</p>`)}
+    ${ex(8,'6개월 로드맵',`<div class="roadmap">${road}</div>
+      <p class="muted" style="margin:10px 0 0;line-height:1.6"><b>기준음은 날짜가 아니라 몸 상태로 올려요.</b> 도전음에서 4가지 체크가 일주일 내내 되면 설정에서 기준음을 한 칸 올리세요. 목이 조이는 날은 루틴 화면의 "오늘은 한 단계 낮게".</p>
+      <div class="roadmap" style="margin-top:10px">${SOLID_NOTES.slice(2,-1).map(n=>`<div class="${S.solid===n?'now':''}"><span><b>기준 ${koName(n)}</b><br><span class="muted">도전 ${koName(SOLID_NOTES[SOLID_NOTES.indexOf(n)+1])}</span></span><span class="muted">${S.solid===n?'지금':''}</span></div>`).join('')}</div>`)}
+    ${ex(9,'원리',`<dl class="guide">
+        <dt>복압</dt><dd>횡격막이 내려가면 내장이 눌려 배 안 압력이 올라가요. 몸이 에어백처럼 단단해져 고음·볼륨이 쉬워져요. 노래 잘하는 사람은 겉으로 흉식처럼 보여도 속에서 횡격막을 크게 써요</dd>
+        <dt>복압호흡</dt><dd>들숨은 복식호흡과 같고, 날숨에서 압력을 한 번에 풀지 않고 버티며 천천히 놓는 게 차이예요</dd>
+        <dt>역압력</dt><dd>입 앞을 좁히면 바람이 성대 쪽으로 되돌아와 적은 힘으로 떨려요 (SOVT)</dd>
+        <dt>두 증상</dt><dd>호흡 압력이 없으면 성대가 못 버텨 삑사리. 그걸 막으려 후두·혀가 대신 일하면 목 조임. 지금 라에서 생기는 일이에요</dd></dl>
+      <p class="src">참고: 보컬 앙리 「(내밀기 vs 배 넣기) 과학으로 검증된 고음 뚫는 법」, 「목잡이 시절로 돌아가면 이렇게만 연습합니다」</p>`)}
+    ${ex(10,'노래할 때는 그냥 부르기',`<div class="rule"><b>발성은 연습 때만. 노래는 노래만.</b>
+        <p>연습에서 몸에 저장해 두면 실전에서 저절로 나와요. 노래 중에 발성을 생각하면 몸이 굳어요.</p></div>
+      <dl class="guide"><dt>숨</dt><dd>입(또는 입+코)으로 빠르게</dd><dt>볼륨</dt><dd>저음과 고음의 크기를 비슷하게. 고음이라고 지르지 않기</dd><dt>막히면</dt><dd>그 소절만 기구로 1번 불고 다시 맨소리로</dd></dl>`)}
+    <section class="card"><h3>이럴 땐 쉬기</h3><p class="muted" style="margin:6px 0 0;line-height:1.6">개호흡 중 어지러우면 바로 멈춰요. 목이 아프거나 쉰 소리가 이틀 넘게 가면 그날은 1~3번만. 2주 넘게 이어지면 이비인후과 진료를 받아 보세요.</p></section>`;
 }
-
-// =================== 배음·크기 트레이너 ===================
-// 가수 무반주 라이브 5개 분석 기준: 2옥 도~솔에서 윗배음 -25 ~ -19dB, 크기는 음이 올라가도 거의 일정
-const SINGER_BAND = [-25, -19];
-const HM_GOALS = { 1:{name:'1차 목표', lo:-29, hi:-18, desc:'노래할 때도 "녜" 스케일 수준의 무게 유지'},
-                   2:{name:'2차 목표', lo:-25, hi:-18, desc:'가수 무반주 범위 안으로'} };
-const HM_NOTES = ['C4','D4','E4','F4','G4','A4','B4','C5'];        // 낮은 목소리 기준 (높은 목소리는 한 옥타브 위)
-const HM_VOWELS = ['녜','네','나','아'];
-const HM_MODES = { long:{name:'롱톤 3초', desc:'한 음을 3초. 범위 안에 70% 이상 머물면 성공'},
-                   stac:{name:'스타카토', desc:'3초 동안 "녜 녜 녜" 짧게 4~5번. 시작부터 꽉 차게'},
-                   free:{name:'자유', desc:'점수 없이 미터만 보며 자유롭게'} };
-let H = null;   // 실행 중 상태
-function hmState(){
-  if(!S.hm) S.hm = { goal:1, vowel:'녜', mode:'long', top:2, unlockedAt:today(), base:null, log:{} };
-  return S.hm;
-}
-function hmNotes(){ const h=hmState(); return HM_NOTES.slice(0, h.top+1); }
-// 배음 측정: 기본음(H1) 대비 3~6번째 배음 평균 (오늘 녹음 분석과 같은 방식)
-function measureRich(f){
-  if(!mic.on || !f) return null;
-  const an=mic.an, n=an.frequencyBinCount; if(!mic.spec || mic.spec.length!==n) mic.spec=new Float32Array(n);
-  an.getFloatFrequencyData(mic.spec);
-  const binHz = actx.sampleRate/an.fftSize, H_=[];
-  for(let k=1;k<=6;k++){
-    const fk=k*f, bw=Math.max(fk*0.03, 8); let mx=-200;
-    for(let b=Math.floor((fk-bw)/binHz); b<=Math.ceil((fk+bw)/binHz); b++){ if(b>0 && b<n && mic.spec[b]>mx) mx=mic.spec[b]; }
-    H_.push(mx);
-  }
-  return (H_[2]+H_[3]+H_[4]+H_[5])/4 - H_[0];
-}
-function measureDb(){ const b=mic.buf; let s=0; const N=Math.min(2048,b.length); for(let i=0;i<N;i++) s+=b[i]*b[i]; return 20*Math.log10(Math.sqrt(s/N)+1e-9); }
-
-async function hmStart(kind){
-  ac(); if(!S.pitch) S.pitch=true;
-  const ok=await startMic(); if(!ok){ toast(mic.err||'마이크를 쓸 수 없어요'); return; }
-  const h=hmState();
-  H = { kind, t0:Date.now(), samples:[], noteIdx:0, dir:1, phase:'listen', phaseAt:Date.now(), results:[], rec:null, chunks:[] };
-  if(kind==='calib'){ H.phase='calib'; }
-  if(S.hmRec && window.MediaRecorder){ try{ H.rec=new MediaRecorder(mic.stream); H.rec.ondataavailable=e=>H.chunks.push(e.data); H.rec.start(); }catch(e){ H.rec=null; } }
-  keepAwake(true);
-  if(kind==='train' && h.mode!=='free') hmCue();
-  clearInterval(H.iv); H.iv=setInterval(hmTick, 50);
-  render();
-}
-function hmTarget(){ const n=hmNotes(); return n[Math.min(H.noteIdx, n.length-1)]; }
-function hmCue(){ // 들려주기 1초 → 부르기 3초 → 결과 1.5초
-  H.phase='listen'; H.phaseAt=Date.now(); H.samples=[];
-  const a=ac(); if(a) piano(hz(midiOf(hmTarget())), a.currentTime+0.05, 1.0);
-}
-function hmTick(){
-  if(!H) return;
-  const f=detectPitch(), m = f>0 ? toMidi(f) : null, r = f>0 ? measureRich(f) : null, d=measureDb();
-  const now=Date.now(), el=id=>document.getElementById(id), h=hmState(), g=HM_GOALS[h.goal];
-  // 미터 표시
-  if(el('hmNote')) el('hmNote').textContent = m!=null ? koMidi(Math.round(m)) : '—';
-  if(r!=null && el('hmRichDot')) el('hmRichDot').style.left = `${Math.max(0,Math.min(100,(r+45)/40*100))}%`;
-  if(r!=null && el('hmRichVal')) el('hmRichVal').textContent = `${r.toFixed(0)}dB`;
-  const rel = h.base!=null ? d-h.base : null;
-  if(m!=null && rel!=null && el('hmDbDot')) el('hmDbDot').style.left = `${Math.max(0,Math.min(100,(rel+12)/24*100))}%`;
-  if(m!=null && rel!=null && el('hmDbVal')) el('hmDbVal').textContent = `${rel>0?'+':''}${rel.toFixed(1)}dB`;
-  // 기준 크기 잡기: 편한 "네~" 3초
-  if(H.kind==='calib'){
-    if(m!=null) H.samples.push(d);
-    const left=3-(now-H.t0)/1000; if(el('hmPhase')) el('hmPhase').textContent = left>0 ? `"네~" 편하게 말하는 크기로 ${Math.ceil(left)}초` : '저장 중';
-    if(left<=0){ const v=H.samples.sort((a,b)=>a-b); h.base = v.length>10 ? v[Math.floor(v.length/2)] : null; save(); hmStop(false); toast(h.base!=null?'기준 크기를 저장했어요':'소리가 안 잡혔어요. 다시 해주세요'); }
-    return;
-  }
-  if(h.mode==='free') return;
-  const e=now-H.phaseAt, tgt=midiOf(hmTarget());
-  if(H.phase==='listen'){ if(el('hmPhase')) el('hmPhase').textContent=`듣기 · ${koName(hmTarget())}`; if(e>1300){ H.phase='sing'; H.phaseAt=now; H.samples=[]; } return; }
-  if(H.phase==='sing'){
-    const left=3-e/1000; if(el('hmPhase')) el('hmPhase').textContent=`"${h.vowel}~" ${h.mode==='stac'?'짧게 여러 번':'3초 유지'} · ${Math.max(0,left).toFixed(1)}`;
-    if(m!=null && r!=null) H.samples.push({m,r,rel});
-    if(el('hmHold')) el('hmHold').style.width=`${Math.min(100,e/30)}%`;
-    if(e>=3000){ hmScore(tgt); H.phase='result'; H.phaseAt=now; }
-    return;
-  }
-  if(H.phase==='result' && e>1600){ hmAdvance(); hmCue(); render(); }
-}
-function hmScore(tgt){
-  const h=hmState(), g=HM_GOALS[h.goal], sm=H.samples;
-  const pitchOk=sm.filter(s=>Math.abs(s.m-tgt)<=0.6);
-  const n=pitchOk.length;
-  const richIn = n ? pitchOk.filter(s=>s.r>=g.lo && s.r<=g.hi).length/n : 0;
-  const dbIn = (h.base==null) ? 1 : (n ? pitchOk.filter(s=>s.rel!=null && Math.abs(s.rel)<=3).length/n : 0);
-  const med = n ? pitchOk.map(s=>s.r).sort((a,b)=>a-b)[Math.floor(n/2)] : null;
-  const dbMed = n && h.base!=null ? pitchOk.map(s=>s.rel).sort((a,b)=>a-b)[Math.floor(n/2)] : null;
-  const ok = n>=20 && richIn>=0.7 && dbIn>=0.7;
-  const note=hmTarget(); H.results.push({note, ok, rich:med, db:dbMed, pitch:n/Math.max(1,sm.length)});
-  // 기록 저장
-  const L=(h.log[today()] = h.log[today()]||{}); const x=(L[note]=L[note]||{tries:0,ok:0,richSum:0,richN:0});
-  x.tries++; if(ok) x.ok++; if(med!=null){ x.richSum+=med; x.richN++; } save();
-  const el=document.getElementById('hmPhase');
-  const sungMed = sm.length ? sm.map(x=>x.m).sort((a,b)=>a-b)[Math.floor(sm.length/2)] : null;
-  if(el) el.textContent = n<20 ? (sm.length>=20 ? `음높이가 달라요 · ${koMidi(Math.round(sungMed))} 냄, 목표 ${koName(note)}` : '소리가 잘 안 잡혔어요 · 폰을 한 뼘 거리로') : ok ? `성공! 배음 ${med.toFixed(0)}dB` :
-    richIn<0.7 ? (med<g.lo ? `배음 ${med.toFixed(0)}dB · 조금 더 밝고 단단하게` : `배음 ${med.toFixed(0)}dB · 너무 누름, 힘 빼기`) : `크기 ${dbMed>0?'+':''}${dbMed.toFixed(1)}dB · 기준 크기로`;
-  try{ navigator.vibrate && navigator.vibrate(ok?[30,40,30]:20); }catch(e){}
-  if(ok) beep(1320,0.1);
-}
-function hmAdvance(){ const n=hmNotes().length; if(n<=1) return; let i=H.noteIdx+H.dir; if(i>=n){ H.dir=-1; i=n-2; } if(i<0){ H.dir=1; i=1; } H.noteIdx=i; }
-function hmStop(showSummary=true){
-  if(!H) return; clearInterval(H.iv);
-  if(H.rec){ try{ H.rec.onstop=()=>{ const blob=new Blob(H.chunksSaved||[], {type:H.rec.mimeType||'audio/webm'}); hmDownload(blob); }; H.chunksSaved=H.chunks; H.rec.stop(); }catch(e){} }
-  const res=H.results; H=null; stopMic(); keepAwake(false);
-  if(showSummary && res.length){ const ok=res.filter(r=>r.ok).length; toast(`${res.length}회 중 ${ok}회 성공`); }
-  hmCheckUnlock(); render();
-}
-function hmDownload(blob){
-  if(!blob.size) return;
-  if(window.self!==window.top){ toast('미리보기에서는 녹음 저장이 안 돼요 (설치한 앱에서 가능)'); return; }
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`배음연습-${today()}-${Date.now()%100000}.webm`;
-  document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},800); toast('녹음 파일을 저장했어요');
-}
-// 다음 음 열기: 지금 가장 높은 음에서 성공 15회 + 마지막으로 연 뒤 7일
-function hmUnlockInfo(){
-  const h=hmState(); const top=HM_NOTES[h.top]; let ok=0;
-  Object.entries(h.log).forEach(([d,L])=>{ if(diff(h.unlockedAt,d)>=0 && L[top]) ok+=L[top].ok; });
-  const days=diff(h.unlockedAt,today());
-  return { top, ok, need:15, days, needDays:7, can: ok>=15 && days>=7 && h.top<HM_NOTES.length-1 };
-}
-function hmCheckUnlock(){ const u=hmUnlockInfo(), h=hmState(); if(u.can){ h.top++; h.unlockedAt=today(); save(); toast(`새 음이 열렸어요: ${koName(HM_NOTES[h.top])}`); } }
-function hmRecent(){ // 최근 7일 음별 평균 배음·성공률
-  const h=hmState(), out={};
-  for(let i=0;i<7;i++){ const L=h.log[addDays(today(),-i)]; if(!L) continue;
-    Object.entries(L).forEach(([n,x])=>{ const o=(out[n]=out[n]||{tries:0,ok:0,rs:0,rn:0}); o.tries+=x.tries; o.ok+=x.ok; o.rs+=x.richSum; o.rn+=x.richN; }); }
-  return out;
-}
-function renderHmTrainer(){
-  const h=hmState(), g=HM_GOALS[h.goal], u=hmUnlockInfo(), notes=hmNotes(), rec=hmRecent();
-  const running = H && H.kind==='train';
-  const pct=v=>Math.max(0,Math.min(100,(v+45)/40*100));
-  const chip=(act,v,label,on)=>`<button class="chip ${on?'on':''}" data-act="${act}" data-v="${v}">${label}</button>`;
-  return `
-    <button class="btn" style="flex:none;margin:4px 0 4px" data-sp="back">← 노래 연습으로</button>
-    <header class="top"><div><div class="dday" style="font-size:24px">배음 설정</div>
-      <div class="dsub">목표 구간을 정하면 노래 연습 화면의 배음 색이 이 기준을 따라요</div></div>
-      <span class="badge">${g.name}</span></header>
-
-    <section class="card">
-      <div class="row"><h3>이번 연습 음</h3><span class="muted">${koName(notes[0])} ~ ${koName(notes[notes.length-1])}</span></div>
-      <p class="muted" style="margin:6px 0 0">다음 음 ${h.top<HM_NOTES.length-1?koName(HM_NOTES[h.top+1]):'(최고음 도달)'} 열기: ${koName(u.top)} 성공 ${Math.min(u.ok,u.need)}/${u.need}회 · ${Math.min(u.days,u.needDays)}/${u.needDays}일</p>
-      <div class="field"><span>목표</span><div class="chips">${chip('hmgoal',1,'1차 (-29 ~ -18dB)',h.goal===1)}${chip('hmgoal',2,'2차 (-25 ~ -18dB)',h.goal===2)}</div></div>
-      <div class="field"><span>연습 방식</span><div class="chips">${Object.entries(HM_MODES).map(([k,v])=>chip('hmmode',k,v.name,h.mode===k)).join('')}</div>
-        <span class="muted" style="font-weight:400">${HM_MODES[h.mode].desc}</span></div>
-      <div class="field"><span>발음</span><div class="chips">${HM_VOWELS.map(v=>chip('hmvowel',v,v,h.vowel===v)).join('')}</div></div>
-    </section>
-
-    <section class="card">
-      <div class="row"><h3>실시간 미터</h3><span class="muted" id="hmNote">—</span></div>
-      <div style="margin-top:14px;font-size:13px"><b>배음</b> <span class="muted" id="hmRichVal"></span></div>
-      <div class="meter">
-        <i class="zone singer" style="left:${pct(SINGER_BAND[0])}%;width:${pct(SINGER_BAND[1])-pct(SINGER_BAND[0])}%"></i>
-        <i class="zone goal" style="left:${pct(g.lo)}%;width:${pct(g.hi)-pct(g.lo)}%"></i>
-        <b class="dot" id="hmRichDot" style="left:0%"></b>
-      </div>
-      <div class="row muted" style="font-size:11px"><span>가벼움 (가성)</span><span>파란 띠 = 가수 범위</span><span>무거움</span></div>
-      <div style="margin-top:14px;font-size:13px"><b>크기</b> <span class="muted" id="hmDbVal">${h.base==null?'기준 크기를 먼저 잡아 주세요':''}</span></div>
-      <div class="meter">
-        <i class="zone goal" style="left:${(9/24)*100}%;width:${(6/24)*100}%"></i>
-        <b class="dot" id="hmDbDot" style="left:50%"></b>
-      </div>
-      <div class="row muted" style="font-size:11px"><span>-12dB</span><span>기준 ±3dB</span><span>+12dB</span></div>
-      ${running ? `<div class="cue" id="hmPhase" style="font-size:18px;margin-top:14px">준비</div>
-        <div class="bar" style="margin-top:8px"><i id="hmHold" style="transition:none"></i></div>` :
-        H && H.kind==='calib' ? `<div class="cue" id="hmPhase" style="font-size:18px;margin-top:14px">"네~"</div>` : ''}
-      <div class="actions">
-        ${running || (H&&H.kind==='calib') ? `<button class="btn primary big" data-act="hmstop">정지</button>` :
-          `<button class="btn" data-act="hmcalib">기준 크기 잡기</button><button class="btn primary" data-act="hmstart">시작</button>`}
-      </div>
-      <label class="auto"><input type="checkbox" data-act="hmrec" ${S.hmRec?'checked':''}> 연습 녹음 파일로 저장 (분석 요청용)</label>
-    </section>
-
-    <section class="card">
-      <h3>최근 7일 음별 기록</h3>
-      ${Object.keys(rec).length ? `<div class="wtable" style="grid-template-columns:1.4fr 1fr 1fr 1fr;text-align:left">
-        <div class="muted">음</div><div class="muted">평균 배음</div><div class="muted">성공</div><div class="muted">상태</div>
-        ${HM_NOTES.filter(n=>rec[n]).map(n=>{ const o=rec[n], av=o.rn?o.rs/o.rn:null, inS=av!=null&&av>=SINGER_BAND[0];
-          return `<div>${koName(n)}</div><div>${av!=null?av.toFixed(0)+'dB':'—'}</div><div>${o.ok}/${o.tries}</div><div>${inS?'가수 범위':av!=null&&av>=-29?'1차 달성':'연습 중'}</div>`; }).join('')}
-      </div>` : `<p class="muted" style="margin:6px 0 0">아직 기록이 없어요.</p>`}
-    </section>
-
-    <details class="ex"><summary><span class="exn">?</span>어떻게 연습하나요</summary><div class="body"><dl class="guide">
-      <dt>순서</dt><dd>① 기구 루틴 → ② 기준 크기 잡기("네~" 3초) → ③ 롱톤 3초로 연습 음 오르내리기 → ④ 가끔 스타카토</dd>
-      <dt>롱톤 3초</dt><dd>무게를 "유지"하는 연습. 주력으로 쓰세요</dd>
-      <dt>스타카토</dt><dd>소리 "시작"부터 꽉 차게 붙이는 연습. 음 첫머리가 가볍게 새는 습관 교정용</dd>
-      <dt>슬라이딩</dt><dd>연결 연습은 루틴 탭에서. 음이 계속 움직여 배음 점수에는 맞지 않아요</dd>
-      <dt>발음 순서</dt><dd>녜(가장 쉬움) → 네 → 나 → 아. 앞 발음이 70% 이상 성공하면 다음으로</dd>
-      <dt>범위 넓히기</dt><dd>가장 높은 음에서 15번 성공 + 7일이 지나면 한 음씩 자동으로 열려요</dd>
-      <dt>크기</dt><dd>배음을 올릴 때 크기가 +3dB 넘게 커지면 목을 쓰는 신호. 크기는 기준 그대로</dd>
-      <dt>측정 한계</dt><dd>폰 마이크와 방 울림에 따라 몇 dB 달라질 수 있어요. 같은 장소, 한 뼘 거리로 하면 비교가 정확해요</dd>
-    </dl></div></details>`;
-}
-
-// =================== 노래 연습 (악보 가이드 + 음정 모니터) ===================
-// 곡 데이터는 이 기기에만 저장 (localStorage 'sovt-songs-v1'), 백업 파일에는 포함되지 않음
-const SONG_KEY = 'sovt-songs-v1';
-const KO_SOL = ['도','도#','레','레#','미','파','파#','솔','솔#','라','라#','시'];
-const SCI_N  = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const NATURAL = new Set([0,2,4,5,7,9,11]);
-const koOct = m => { const n=Math.round(m), pc=((n%12)+12)%12, o=Math.floor(n/12)-1; return { ko:`${o-2}옥타브 ${KO_SOL[pc]}`, sol:KO_SOL[pc], oct:o-2, sci:SCI_N[pc]+o, pc }; };
-let hmView = 'song';      // 'song' | 'trainer'
-let SONGS = [];
-function songsLoad(){ try{ const r=localStorage.getItem(SONG_KEY); SONGS = r ? JSON.parse(r) : []; if(!Array.isArray(SONGS)) SONGS=[]; }catch(e){ SONGS=[]; } }
-function songsSave(){ try{ localStorage.setItem(SONG_KEY, JSON.stringify(SONGS)); return true; }catch(e){ toast('저장 공간이 부족해요'); return false; } }
-function spCfg(){
-  if(!S.sp) S.sp = { song:null, speed:1, key:0, guide:'alt', loop:false, reps:0, countIn:true, metro:false, vol:0.6, mic:true, swing:{} };
-  if(!S.spLog) S.spLog = {};
-  return S.sp;
-}
-
-// ---------- 곡 불러오기 ----------
-async function spImportFile(f){
-  try{
-    const d=JSON.parse(await f.text());
-    const list = Array.isArray(d.songs) ? d.songs : (d.notes ? [d] : null);
-    if(!list || !list.length) throw new Error('bad');
-    let n=0;
-    list.forEach(s=>{
-      if(!s || !s.id || !Array.isArray(s.notes) || !s.notes.length || !s.bpm) return;
-      const i=SONGS.findIndex(x=>x.id===s.id);
-      const clean={ id:String(s.id).slice(0,40), title:String(s.title||s.id).slice(0,60), artist:String(s.artist||'').slice(0,60), bpm:+s.bpm, swing:!!s.swing,
-        notes:s.notes.map(n=>({t:+n.t, d:+n.d, p:+n.p, l:String(n.l||'').slice(0,20)})).filter(n=>isFinite(n.t)&&isFinite(n.d)&&isFinite(n.p)&&n.d>0),
-        phrases:(s.phrases||[]).map(p=>({s:+p.s, e:+p.e, label:String(p.label||'').slice(0,30)})), measures:(s.measures||[]).map(m=>({t:+m.t, len:+m.len})) };
-      if(!clean.phrases.length) clean.phrases=[{s:clean.notes[0].t, e:clean.notes[clean.notes.length-1].t+clean.notes[clean.notes.length-1].d, label:'전체'}];
-      if(i>=0) SONGS[i]=clean; else SONGS.push(clean); n++;
-    });
-    if(!n) throw new Error('bad');
-    if(songsSave()){ const c=spCfg(); if(!c.song || !SONGS.some(s=>s.id===c.song)) c.song=SONGS[0].id; save(); spSelect(c.song, true); toast(`${n}곡을 불러왔어요`); render(); }
-  }catch(e){ toast('곡 파일이 아니에요. 받은 .json 파일을 선택해 주세요'); }
-}
-
-// ---------- 곡 준비 (스윙·키 반영) ----------
-let SP = null;   // 실행 상태
-let spRaf = null;
-function swingWarp(b, on){ if(!on) return b; const fl=Math.floor(b), f=b-fl; return Math.abs(f-0.5)<0.01 ? fl+2/3 : b; }
-function spPrepare(song){
-  const c=spCfg(), sw = song.swing && c.swing[song.id]!==false;
-  const notes = song.notes.map((n,i)=>({ i, s:swingWarp(n.t,sw), e:swingWarp(n.t+n.d,sw), p:n.p, l:n.l }));
-  const phrases = song.phrases.map((p,i)=>({ i, s:swingWarp(p.s,sw), e:swingWarp(p.e,sw), label:p.label }));
-  const end = Math.max(...notes.map(n=>n.e));
-  const bpb = (t)=>{ const ms=song.measures||[]; let len=4; for(const m of ms){ if(m.t<=t+1e-6) len=m.len; else break; } return len; };
-  return { song, notes, phrases, end, swing:sw, bpb };
-}
-function spSelect(id, keepPos){
-  const song=SONGS.find(s=>s.id===id); if(!song) return;
-  spStop(true);
-  const c=spCfg(); c.song=id; save();
-  const prev = SP && SP.song && SP.song.id===id ? SP : null;
-  SP = { ...spPrepare(song), playing:false, pos: prev&&keepPos?prev.pos:(spPrepare(song).notes[0].s-1), t0:0, startBeat:0, A:0, B:0, repN:0, pass:'listen',
-         trace:[], sched:[], schedPos:0, lastPh:-1, lastNote:-1, yMid:null, ySpan:14, live:{m:null,r:null,db:null,t:0}, results:{}, flash:null };
-  SP.A = SP.B = Math.max(0, SP.phrases.findIndex(p=>p.e>SP.pos));
-}
-const spBps = () => SP.song.bpm*spCfg().speed/60;     // 초당 박
-const spNoteAt = b => { for(const n of SP.notes){ if(n.s<=b && b<n.e) return n; if(n.s>b) break; } return null; };
-const spPhraseAt = b => { const ph=SP.phrases; let k=0; for(let i=0;i<ph.length;i++){ if(ph[i].s<=b+1.05) k=i; else break; } return k; };   // 다음 소절이 1박 안이면 미리 표시
-function spScoreDue(upto){   // 끝난 소절 채점 (재생 시작 뒤에 처음부터 부른 소절만)
-  const ph=SP.phrases;
-  while(SP.scoreNext<ph.length && upto>ph[SP.scoreNext].e+0.3){
-    const i=SP.scoreNext++; if(ph[i].s>=SP.startBeat-1.05 && spScoring()){ const r=spScorePhrase(i); if(r) spFlash(i,r); }
-  }
-}
-const spTarget = n => n ? n.p + spCfg().key : null;
-const spHz = m => 440*Math.pow(2,(m-69)/12);
-
-// ---------- 재생 ----------
-function spGuideOn(){ const g=spCfg().guide; if(g==='off') return false; if(g==='on') return true; return !spCfg().loop || SP.pass==='listen'; }
-function spScoring(){ const c=spCfg(); return c.mic && mic.on && !(c.guide==='alt' && c.loop && SP.pass==='listen'); }
-async function spPlay(fromBeat){
-  if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; }
-  if(H) hmStop(false);
-  const a=ac(); if(!a){ toast('소리를 낼 수 없는 환경이에요'); return; }
-  const c=spCfg();
-  if(c.mic && !mic.on){ S.pitch=true; const ok=await startMic(); if(!ok) toast(mic.err||'마이크 없이 가이드만 재생해요'); }
-  spCutAudio();
-  const bps=spBps(), b = fromBeat!=null ? fromBeat : SP.pos;
-  const cnt = c.countIn ? SP.bpb(b) : 0;                       // 한 마디 카운트인
-  SP.trace = SP.trace.filter(s=>s.b < b-0.01);
-  SP.startBeat = b; SP.t0 = a.currentTime + 0.12 + cnt/bps; SP.schedPos = b - cnt; SP.playing=true; SP.countBeats=cnt;
-  // 카운트인 클릭
-  for(let k=0;k<cnt;k++) spClick(SP.t0 - (cnt-k)/bps, k===0);
-  SP.lastPh=-1; SP.scoreNext=Math.max(0,SP.phrases.findIndex(p=>p.e>b+0.01)); if(SP.scoreNext<0) SP.scoreNext=SP.phrases.length; keepAwake(true);
-  clearInterval(SP.iv); SP.iv=setInterval(spSchedule, 25);
-  spPaintControls();
-}
-function spPause(){ if(!SP||!SP.playing) return; SP.pos=spNow(); SP.playing=false; clearInterval(SP.iv); spCutAudio(); keepAwake(false); spPaintControls(); }
-function spStop(silent){
-  if(!SP) return; clearInterval(SP.iv); SP.playing=false; spCutAudio(); keepAwake(false);
-  if(mic.on && !P && !H) stopMic();
-  if(!silent) spPaintControls();
-}
-function spNow(){ if(!SP.playing) return SP.pos; const a=ac(); return SP.startBeat + (a.currentTime - SP.t0)*spBps(); }
-let spOut=null;
-function spDest(){ const a=ac(); if(!spOut){ spOut=a.createGain(); spOut.gain.value=1; spOut.connect(a.destination); } return spOut; }
-function spCutAudio(){ try{ spOut && spOut.disconnect(); }catch(e){} spOut=null; if(SP) SP.sched=[]; }
-function spClick(t, accent){
-  const a=ac(); if(!a || t < a.currentTime-0.01) return;
-  const o=a.createOscillator(), g=a.createGain(); o.type='square'; o.frequency.value=accent?1600:1100;
-  o.connect(g); g.connect(spDest()); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.003); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
-  o.start(t); o.stop(t+0.06);
-}
-function spVoice(freq, t0, dur){
-  const a=ac(), d=spDest(), vol=0.22*spCfg().vol;
-  const g=a.createGain(), f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2600; g.connect(f); f.connect(d);
-  const o1=a.createOscillator(), o2=a.createOscillator(), g2=a.createGain();
-  o1.type='triangle'; o1.frequency.value=freq; o2.type='sine'; o2.frequency.value=freq*2; g2.gain.value=0.25;
-  o1.connect(g); o2.connect(g2); g2.connect(g);
-  const rel=Math.min(0.08, dur*0.3), end=t0+Math.max(0.06,dur);
-  g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(vol,t0+0.02);
-  g.gain.setValueAtTime(vol*0.85,Math.max(t0+0.03,end-rel)); g.gain.exponentialRampToValueAtTime(0.0001,end);
-  o1.start(t0); o2.start(t0); o1.stop(end+0.02); o2.stop(end+0.02);
-}
-function spSchedule(){
-  if(!SP || !SP.playing) return;
-  const a=ac(), bps=spBps(), now=spNow(), ahead=now+0.3*bps, c=spCfg();
-  const tAt = b => SP.t0 + (b-SP.startBeat)/bps;
-  // 가이드음
-  if(spGuideOn()){
-    for(const n of SP.notes){
-      if(n.s<SP.schedPos-1e-6) continue; if(n.s>=ahead) break;
-      const from = c.loop ? Math.max(SP.startBeat, SP.phrases[SP.A].s-0.01) : SP.startBeat;
-      if(n.s>=from-1e-6 && n.s<=spEndBeat()) spVoice(spHz(spTarget(n)), tAt(n.s), (n.e-n.s)/bps*0.97);
-    }
-  }
-  // 메트로놈
-  if(c.metro){ for(let b=Math.ceil(SP.schedPos-1e-6); b<ahead; b++){ if(b>=SP.startBeat) spClick(tAt(b), false); } }
-  SP.schedPos = Math.max(SP.schedPos, ahead);
-  // 구간 끝 처리
-  if(now >= spEndBeat()+0.6) spEndOfRange();
-}
-function spEndBeat(){ return spCfg().loop ? SP.phrases[SP.B].e : SP.end; }
-function spEndOfRange(){
-  const c=spCfg();
-  spScoreDue(spNow()+1);
-  SP.lastPh=-2;
-  if(!c.loop){ spPause(); SP.pos=SP.notes[0].s-1; toast('끝까지 불렀어요'); spPaintControls(); return; }
-  SP.repN++;
-  if(c.reps && SP.repN >= c.reps*(c.guide==='alt'?2:1)){ spPause(); SP.pos=SP.phrases[SP.A].s-0.5; SP.repN=0; SP.pass='listen'; toast('구간 반복을 마쳤어요'); spPaintControls(); return; }
-  if(c.guide==='alt') SP.pass = SP.pass==='listen' ? 'sing' : 'listen';
-  spPause(); setTimeout(()=>{ if(SP && !SP.playing && spCfg().loop) spPlay(spLoopStart()); }, 700);
-}
-function spLoopStart(){ return Math.max(SP.notes[0].s-1, SP.phrases[SP.A].s - 1); }
-
-// ---------- 측정 & 채점 ----------
-let spLastAn=0;
-function spMeasure(){
-  const t=performance.now();
-  if(!mic.on || t-spLastAn<30) return; spLastAn=t;
-  const f=detectPitch();
-  let db=null; if(mic.buf){ const b=mic.buf, N=2048; let s=0; for(let i=b.length-N;i<b.length;i++) s+=b[i]*b[i]; db=20*Math.log10(Math.sqrt(s/N)+1e-9); }
-  const m = f>0 ? 69+12*Math.log2(f/440) : null, r = f>0 ? measureRich(f) : null;
-  SP.live = { m, r: r!=null ? (SP.live.r==null ? r : SP.live.r*0.7+r*0.3) : (t-SP.live.t>500?null:SP.live.r), db, t: m!=null?t:SP.live.t };
-  if(SP.playing){
-    const b=spNow() - 0.12*spBps();     // 마이크·분석 지연(약 0.12초) 보정
-    if(b>=SP.startBeat-0.1){ SP.trace.push({b, m, r, sc:spScoring()}); if(SP.trace.length>6000) SP.trace.splice(0,1000); }
-  }
-}
-function spScorePhrase(i){
-  const ph=SP.phrases[i]; if(!ph) return null;
-  const bps=spBps(), grace=0.08*bps;
-  let tot=0, hit=0, voiced=0, rs=0, rn=0;
-  for(const s of SP.trace){
-    if(!s.sc || s.b<ph.s || s.b>ph.e) continue;
-    const n=spNoteAt(s.b); if(!n || s.b-n.s<grace) continue;
-    // 타이밍 여유: ±0.12초 안의 앞뒤 음과 맞아도 정답
-    const tol=0.12*bps, alt=[spNoteAt(s.b-tol), spNoteAt(s.b+tol)];
-    tot++; if(s.m!=null){ voiced++; const ok=[n,...alt].some(x=>x && Math.abs(s.m-spTarget(x))<=0.5); if(ok){ hit++; if(s.r!=null){ rs+=s.r; rn++; } } }
-  }
-  if(tot<8 || voiced<tot*0.25) return null;
-  const res={ acc:Math.round(hit/tot*100), rich: rn? rs/rn : null };
-  const L=(S.spLog[SP.song.id]=S.spLog[SP.song.id]||{}), x=(L[i]=L[i]||{best:0,last:0,n:0});
-  x.last=res.acc; x.best=Math.max(x.best,res.acc); x.n++; save();
-  SP.results[i]=res; return res;
-}
-
-// ---------- 그리기 ----------
-function spDraw(){
-  const cv=document.getElementById('spCanvas'); if(!cv || !SP) return;
-  const box=cv.parentElement.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
-  const W=box.width, Hh=box.height; if(W<10) return;
-  if(cv.width!==Math.round(W*dpr) || cv.height!==Math.round(Hh*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(Hh*dpr); }
-  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,Hh);
-  const cs=getComputedStyle(document.documentElement), col=k=>cs.getPropertyValue(k).trim();
-  const C={ink:col('--ink'), sub:col('--sub'), line:col('--line'), acc:col('--accent'), tint:col('--tint'), tint2:col('--tint2'), ok:col('--ok'), card:col('--card')};
-  const now=spNow(), bps=spBps(), key=spCfg().key;
-  const winSec=W<420?5.5:7, winB=winSec*bps, PH=0.3, LM=60;
-  const b0=now-winB*PH, b1=now+winB*(1-PH);
-  const X=b=>LM+(b-b0)/(b1-b0)*(W-LM-4);
-  // 세로 범위: 보이는 음표 기준 부드럽게
-  const vis=SP.notes.filter(n=>n.e>b0-winB*0.3 && n.s<b1+winB*0.5);
-  let lo=Infinity, hi=-Infinity; vis.forEach(n=>{ lo=Math.min(lo,n.p+key); hi=Math.max(hi,n.p+key); });
-  if(SP.live.m!=null){ lo=Math.min(lo,SP.live.m); hi=Math.max(hi,SP.live.m); }
-  if(!isFinite(lo)){ lo=SP.yMid!=null?SP.yMid-6:57; hi=lo+12; }
-  const span=Math.max(13, hi-lo+5), mid=(lo+hi)/2;
-  if(SP.yMid==null){ SP.yMid=mid; SP.ySpan=span; }
-  SP.yMid += (mid-SP.yMid)*0.08; SP.ySpan += (span-SP.ySpan)*0.08;
-  const ylo=SP.yMid-SP.ySpan/2, yhi=SP.yMid+SP.ySpan/2, top=10, bot=Hh-26;
-  const Y=m=>bot-(m-ylo)/(yhi-ylo)*(bot-top), rowH=(bot-top)/(yhi-ylo);
-  // 격자 + 음 이름 (도는 옥타브까지 크게)
-  g.font='11px "IBM Plex Sans KR",system-ui,sans-serif'; g.textBaseline='middle';
-  for(let m=Math.ceil(ylo); m<=Math.floor(yhi); m++){
-    const k=koOct(m), y=Y(m);
-    if(k.pc===0){ g.fillStyle=C.tint; g.fillRect(LM,y-rowH/2,W-LM,rowH); }
-    g.strokeStyle=C.line; g.lineWidth=k.pc===0?1.2:0.6; g.beginPath(); g.moveTo(LM,y); g.lineTo(W,y); g.stroke();
-    if(k.pc===0){ g.fillStyle=C.ink; g.font='600 11px "IBM Plex Sans KR",system-ui,sans-serif'; g.fillText(`${k.oct}옥타브 도`,4,y); g.font='11px "IBM Plex Sans KR",system-ui,sans-serif'; }
-    else if(NATURAL.has(k.pc) && rowH>=7){ g.fillStyle=C.sub; g.fillText(k.sol,30,y); }
-  }
-  // 소절 반복 구간 표시
-  if(spCfg().loop){ const a=SP.phrases[SP.A], z=SP.phrases[SP.B]; g.fillStyle=C.tint; g.globalAlpha=0.55;
-    const xa=Math.max(LM,X(a.s)), xz=Math.min(W,X(z.e)); if(xz>xa) g.fillRect(xa,0,xz-xa,6); g.globalAlpha=1; }
-  // 가이드 막대 + 가사
-  const curN=spNoteAt(now);
-  for(const n of vis){
-    const x0=X(n.s), x1=X(n.e)-1.5, m=n.p+key, y=Y(m), h=Math.max(8,Math.min(22,rowH*0.82));
-    if(x1<LM || x0>W) continue;
-    const past=n.e<now, cur=n===curN;
-    g.globalAlpha = past ? 0.35 : 1;
-    g.fillStyle = cur ? C.acc : C.tint2; g.strokeStyle=C.acc; g.lineWidth=cur?0:1;
-    const xx=Math.max(LM,x0), ww=Math.max(3,x1-xx);
-    g.beginPath(); g.roundRect ? g.roundRect(xx,y-h/2,ww,h,Math.min(5,h/2)) : g.rect(xx,y-h/2,ww,h); g.fill(); if(!cur) g.stroke();
-    if(ww>16 && h>=10){ g.fillStyle = cur ? col('--accent-ink') : C.ink; g.font='600 10px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='left'; g.fillText(koOct(m).sol, xx+3, y+0.5); }
-    if(n.l){ g.fillStyle = cur ? C.acc : C.ink; g.font=(cur?'700 ':'500 ')+'12px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='left'; g.fillText(n.l, Math.max(LM,x0), y+h/2+9); }
-    g.globalAlpha=1; g.textAlign='left';
-  }
-  // 내 음정 선
-  g.lineWidth=3; g.lineCap='round'; let prev=null;
-  for(const s of SP.trace){
-    if(s.b<b0-0.5 || s.b>now+0.05){ prev=null; continue; }
-    if(s.m==null){ prev=null; continue; }
-    const n=spNoteAt(s.b), tg=spTarget(n), okc = tg==null ? C.sub : Math.abs(s.m-tg)<=0.5 ? C.ok : '#d9534f';
-    if(prev && s.b-prev.b < 0.25*bps){ g.strokeStyle=okc; g.beginPath(); g.moveTo(X(prev.b),Y(prev.m)); g.lineTo(X(s.b),Y(s.m)); g.stroke(); }
-    prev=s;
-  }
-  // 지금 위치
-  const xp=X(now); g.strokeStyle=C.ink; g.globalAlpha=0.5; g.lineWidth=1.5; g.beginPath(); g.moveTo(xp,0); g.lineTo(xp,Hh-20); g.stroke(); g.globalAlpha=1;
-  if(SP.live.m!=null && performance.now()-SP.live.t<250){ g.fillStyle='#e0a400'; g.beginPath(); g.arc(xp,Y(SP.live.m),6,0,7); g.fill(); }
-  // 카운트인
-  if(SP.playing && now<SP.startBeat){ const left=Math.ceil(SP.startBeat-now); g.fillStyle=C.acc; g.font='700 48px "IBM Plex Sans KR",system-ui,sans-serif'; g.textAlign='center'; g.fillText(String(left), (LM+W)/2, Hh/2); g.textAlign='left'; }
-  // 진행 바
-  const p0=SP.notes[0].s, pr=Math.max(0,Math.min(1,(now-p0)/(SP.end-p0)));
-  g.fillStyle=C.line; g.fillRect(LM,Hh-8,W-LM-4,4); g.fillStyle=C.acc; g.fillRect(LM,Hh-8,(W-LM-4)*pr,4);
-}
-function spLoop(){
-  if(!document.getElementById('spCanvas')){ spRaf=null; return; }
-  if(SP){
-    spMeasure(); spDraw(); spPaintLive();
-    // 소절 바뀜 → 채점·가사 갱신
-    const now=spNow(), pi=spPhraseAt(now);
-    if(SP.playing) spScoreDue(now);
-    if(pi!==SP.lastPh){ SP.lastPh=pi; spPaintLyrics(); spPaintChips(); }
-    const n=spNoteAt(now), ni=n?n.i:-1; if(ni!==SP.lastNote){ SP.lastNote=ni; spPaintLyricHi(); }
-  }
-  spRaf=requestAnimationFrame(spLoop);
-}
-function spFlash(i,r){ SP.flash={i, r, t:performance.now()}; const el=document.getElementById('spResult'); if(el){ el.innerHTML=`<b>${i+1}소절 음정 ${r.acc}%</b>${r.rich!=null?` · 배음 ${r.rich.toFixed(0)}dB`:''}`; el.className='sp-result '+(r.acc>=80?'good':r.acc>=55?'mid':'low'); } }
-
-// ---------- 화면 조각 갱신 ----------
-function spPaintLive(){
-  const el=id=>document.getElementById(id); if(!el('spNow')) return;
-  const L=SP.live, fresh=L.m!=null && performance.now()-L.t<300, n=spNoteAt(spNow()), tg=spTarget(n);
-  if(fresh){ const k=koOct(L.m); el('spNow').textContent=k.ko; el('spNowSci').textContent=k.sci; }
-  else if(performance.now()-L.t>600){ el('spNow').textContent='—'; el('spNowSci').textContent=mic.on?'소리를 내 주세요':'마이크 꺼짐'; }
-  el('spTgt').textContent = tg!=null ? koOct(tg).ko : '—';
-  const cents = fresh && tg!=null ? Math.round((L.m-tg)*100) : null;
-  el('spCents').textContent = cents==null ? '' : Math.abs(cents)<=50 ? `맞음 ${cents>0?'+':''}${cents}¢` : Math.abs(cents)<100 ? `${cents>0?'높음':'낮음'} ${cents>0?'+':''}${cents}¢` : `반음 ${Math.round(Math.abs(cents)/100)}개 ${cents>0?'높음':'낮음'}`;
-  el('spCents').className = 'sp-cents '+(cents==null?'':Math.abs(cents)<=50?'ok':'bad');
-  const g=HM_GOALS[hmState().goal];
-  if(L.r!=null && fresh){ el('spRich').textContent=`${L.r.toFixed(0)}dB`; el('spRich').className='sp-rich '+(L.r>=g.lo&&L.r<=g.hi?'ok':L.r<g.lo?'low':'high'); }
-  else if(!fresh){ el('spRich').textContent='—'; el('spRich').className='sp-rich'; }
-}
-function spPaintLyrics(){
-  const box=document.getElementById('spLyrics'); if(!box||!SP) return;
-  const now=spNow(), i=spPhraseAt(now), ph=SP.phrases[i], nx=SP.phrases[i+1];
-  const words=ns=>ns.map(n=>{ const h=/^[가-힣]$/.test(n.l); return `<span data-n="${n.i}" class="${h?'h':'w'}">${esc(n.l)}</span>`; }).join('');
-  const inPh=p=>SP.notes.filter(n=>n.l && n.s>=p.s-0.01 && n.s<p.e);
-  box.innerHTML = `<div class="sp-ln"><em>${i+1}</em>${words(inPh(ph))}</div>${nx?`<div class="sp-ln next"><em>${i+2}</em>${words(inPh(nx))}</div>`:''}`;
-  spPaintLyricHi();
-}
-function spPaintLyricHi(){ const box=document.getElementById('spLyrics'); if(!box) return; box.querySelectorAll('span.on').forEach(s=>s.classList.remove('on'));
-  if(SP.lastNote>=0){ const s=box.querySelector(`span[data-n="${SP.lastNote}"]`); if(s) s.classList.add('on'); } }
-function spPaintChips(){
-  const box=document.getElementById('spPhrases'); if(!box||!SP) return;
-  const c=spCfg(), cur=spPhraseAt(spNow()), L=S.spLog[SP.song.id]||{};
-  box.querySelectorAll('button[data-sp="ph"]').forEach(b=>{ const i=+b.dataset.i;
-    b.classList.toggle('on', c.loop ? (i>=SP.A && i<=SP.B) : i===cur); b.classList.toggle('cur', i===cur && SP.playing); });
-  const cb=box.querySelector('button.cur'); if(cb && SP.playing){ const r=cb.getBoundingClientRect(), br=box.getBoundingClientRect(); if(r.left<br.left || r.right>br.right) box.scrollTo({left:cb.offsetLeft-16, behavior:'smooth'}); }
-}
-function spPaintControls(){
-  const el=id=>document.getElementById(id); if(!el('spPlay')||!SP) return;
-  const c=spCfg();
-  el('spPlay').innerHTML = SP.playing ? '❚❚ 일시정지' : '▶ 재생';
-  el('spPlay').classList.toggle('primary', !SP.playing);
-  el('spLoopInfo').textContent = c.loop ? `${SP.A+1}${SP.B>SP.A?'~'+(SP.B+1):''}소절 반복${c.reps?` · ${c.reps}회`:''}${c.guide==='alt'?` · 지금 ${SP.pass==='listen'?'듣기':'부르기'}`:''}` : '처음부터 끝까지';
-  el('spMode').textContent = !SP.playing ? '' : (c.guide==='alt' && c.loop) ? (SP.pass==='listen'?'듣기 차례 · 가이드음을 들어요':'부르기 차례 · 가이드음 없이 불러요') : (c.guide!=='off' && c.mic && mic.on ? '이어폰을 끼면 더 정확해요' : '');
-  spPaintChips();
-}
-
-// ---------- 화면 ----------
-function renderSong(){
-  songsLoad(); const c=spCfg();
-  if(!SONGS.length){
-    return `<header class="top"><div><div class="dday" style="font-size:24px">노래 연습</div><div class="dsub">악보 멜로디를 따라 부르며 음정 맞추기</div></div>
-        <button class="btn" style="flex:none" data-sp="trainer">배음 설정</button></header>
-      <section class="card"><h3>곡 파일을 먼저 불러와 주세요</h3>
-        <p class="muted" style="margin:8px 0 0;line-height:1.6">받은 곡 파일(.json)을 한 번 불러오면 이 폰에만 저장돼요. 사이트에는 올라가지 않아요.</p>
-        <div class="actions"><button class="btn primary" data-sp="import">곡 파일 불러오기</button></div></section>`;
-  }
-  if(!SP || !SONGS.some(s=>s.id===SP.song.id) || (c.song && SP.song.id!==c.song)) spSelect(SONGS.some(s=>s.id===c.song)?c.song:SONGS[0].id);
-  const song=SP.song, L=S.spLog[song.id]||{}, g=HM_GOALS[hmState().goal];
-  const chip=(k,v,label)=>`<button class="chip ${String(c[k])===String(v)?'on':''}" data-sp="cfg" data-k="${k}" data-v="${v}">${label}</button>`;
-  const rng=[Math.min(...song.notes.map(n=>n.p)), Math.max(...song.notes.map(n=>n.p))].map(m=>koOct(m+c.key).ko);
-  return `
-    <header class="top sp-top"><div style="min-width:0;flex:1">
-        <select class="sp-select" data-sp="song" aria-label="곡 선택">${SONGS.map(s=>`<option value="${esc(s.id)}" ${s.id===song.id?'selected':''}>${esc(s.title)}</option>`).join('')}</select>
-        <div class="dsub">${esc(song.artist)} · ♩=${song.bpm}${song.swing?' · 스윙':''} · 음역 ${rng[0]} ~ ${rng[1]}</div></div>
-      <button class="btn" style="flex:none" data-sp="trainer">배음 설정</button></header>
-
-    <section class="card sp-card">
-      <div class="sp-read">
-        <div><span class="muted">내 소리</span><b id="spNow">—</b><small id="spNowSci"></small></div>
-        <div><span class="muted">가이드</span><b id="spTgt">—</b><small id="spCents" class="sp-cents"></small></div>
-        <div><span class="muted">배음 <i class="sp-goal">${g.lo}~${g.hi}</i></span><b id="spRich" class="sp-rich">—</b></div>
-      </div>
-      <div class="sp-canvas"><canvas id="spCanvas"></canvas></div>
-      <div id="spLyrics" class="sp-lyrics"></div>
-      <div class="sp-result" id="spResult">${spCfg().mic?'소절이 끝나면 음정 점수가 나와요':'마이크가 꺼져 있어요'}</div>
-      <div class="sp-transport">
-        <button class="btn" data-sp="prev" aria-label="이전 소절">⏮</button>
-        <button class="btn primary" id="spPlay" data-sp="play">▶ 재생</button>
-        <button class="btn" data-sp="next" aria-label="다음 소절">⏭</button>
-        <button class="btn ${c.loop?'primary':''}" data-sp="loop">구간 반복</button>
-      </div>
-      <div class="row" style="margin-top:8px"><span class="muted" id="spLoopInfo"></span><span class="muted" id="spMode"></span></div>
-      ${c.loop?`<div class="sp-range"><span class="muted" style="white-space:nowrap">반복 끝 소절</span><button class="btn" data-sp="bminus" aria-label="끝 소절 줄이기">−</button><button class="btn" data-sp="bplus" aria-label="끝 소절 늘리기">+</button><span class="muted">아래 소절을 누르면 시작이 바뀌어요</span></div>`:''}
-      <div class="sp-phrases" id="spPhrases">${SP.phrases.map((p,i)=>{ const x=L[i]; return `<button class="chip" data-sp="ph" data-i="${i}"><em>${i+1}</em>${esc(p.label)}${x?`<i class="${x.best>=80?'good':x.best>=55?'mid':'low'}">${x.best}%</i>`:''}</button>`; }).join('')}</div>
-    </section>
-
-    <section class="card">
-      <div class="field" style="margin-top:0"><span>가이드음</span><div class="chips">${chip('guide','on','켜기')}${chip('guide','alt','듣고 부르기 (번갈아)')}${chip('guide','off','끄기')}</div>
-        <span class="muted" style="font-weight:400">${c.guide==='alt'?'구간 반복 때 한 번 듣고, 다음 번엔 가이드 없이 불러요. 점수는 부르는 차례에만 매겨요':c.guide==='on'?'스피커 가이드음이 마이크에 잡힐 수 있어요. 이어폰을 권해요':'가이드 없이 막대만 보고 불러요'}</span></div>
-      <div class="field"><span>가이드 볼륨</span><input type="range" min="0.1" max="1" step="0.05" value="${c.vol}" data-sp="vol" class="sp-range-input"></div>
-      <div class="field"><span>속도</span><div class="chips">${[0.6,0.75,0.9,1].map(v=>chip('speed',v,Math.round(v*100)+'%')).join('')}</div></div>
-      <div class="field"><span>키 (반음)</span><div class="chips"><button class="chip" data-sp="key" data-v="-1">− 낮게</button><span class="badge" style="min-width:56px;justify-content:center">${c.key>0?'+':''}${c.key}</span><button class="chip" data-sp="key" data-v="1">+ 높게</button>${c.key?'<button class="chip" data-sp="key" data-v="0">원래 키</button>':''}</div></div>
-      <div class="field"><span>구간 반복 횟수</span><div class="chips">${chip('reps',0,'계속')}${chip('reps',3,'3회')}${chip('reps',5,'5회')}${chip('reps',10,'10회')}</div></div>
-      <div class="field"><span>보조</span><div class="chips">
-        <button class="chip ${c.countIn?'on':''}" data-sp="tog" data-k="countIn">카운트인 (한 마디)</button>
-        <button class="chip ${c.metro?'on':''}" data-sp="tog" data-k="metro">메트로놈</button>
-        <button class="chip ${c.mic?'on':''}" data-sp="tog" data-k="mic">음정 측정 (마이크)</button>
-        ${song.swing?`<button class="chip ${c.swing[song.id]!==false?'on':''}" data-sp="swing">스윙 리듬</button>`:''}</div></div>
-    </section>
-
-    <details class="ex"><summary><span class="exn">?</span>이렇게 연습해요</summary><div class="body"><dl class="guide">
-      <dt>막대</dt><dd>악보의 음 하나 = 막대 하나. 막대 안 글자는 계이름, 아래는 가사. 왼쪽 눈금의 "2옥타브 도" 줄을 기준으로 높이를 읽어요</dd>
-      <dt>내 선</dt><dd>내 목소리가 선으로 그려져요. 막대 위에 겹치면 초록(±50센트 이내), 벗어나면 빨강</dd>
-      <dt>추천 순서</dt><dd>① 속도 75%·듣고 부르기로 한 소절 반복 → ② 80% 넘으면 속도 100% → ③ 소절 2~3개 묶어서 → ④ 가이드 끄고 처음부터</dd>
-      <dt>배음</dt><dd>위쪽 배음 수치는 "배음 설정"의 목표 구간(${g.lo}~${g.hi}dB) 기준으로 색이 바뀌어요</dd>
-      <dt>이어폰</dt><dd>스피커로 가이드를 크게 틀면 마이크가 가이드음을 내 소리로 착각할 수 있어요</dd>
-      <dt>악보 오류</dt><dd>악보를 자동으로 옮긴 거라 일부 박자가 조금 다를 수 있어요. 이상한 소절은 알려 주세요</dd>
-    </dl></div></details>
-
-    <section class="card"><h3>곡 관리</h3>
-      <p class="muted" style="margin:6px 0 0;line-height:1.6">곡 데이터는 이 폰에만 저장돼요. 새 곡 파일을 받으면 다시 불러오면 돼요.</p>
-      <div class="actions"><button class="btn" data-sp="import">곡 파일 불러오기</button><button class="btn danger" data-sp="del">이 곡 지우기</button></div></section>`;
-}
-function spMount(){
-  if(!SP) return;
-  if(!spRaf) spRaf=requestAnimationFrame(spLoop);
-  SP.lastPh=-2; spPaintLyrics(); spPaintControls();
-  const cv=document.getElementById('spCanvas');
-  if(cv){ cv.onclick = e=>{ const r=cv.getBoundingClientRect(); if(e.clientY>r.bottom-22){ const f=Math.max(0,Math.min(1,(e.clientX-r.left-60)/(r.width-64))); const b=SP.notes[0].s+(SP.end-SP.notes[0].s)*f; spSeek(b); } }; }
-}
-function spLeave(){ if(SP && SP.playing) spPause(); if(SP && mic.on && !P && !H) stopMic(); }
-function spSeek(b){ const was=SP.playing; if(was) spPause(); SP.pos=b; SP.trace=[]; SP.lastPh=-2; if(spCfg().loop){ SP.A=SP.B=spPhraseAt(b+1); } if(was) spPlay(b); else { spPaintLyrics(); spPaintControls(); } }
-function spGoPhrase(i){
-  i=Math.max(0,Math.min(SP.phrases.length-1,i)); const c=spCfg();
-  if(c.loop){ SP.A=i; if(SP.B<i) SP.B=i; SP.repN=0; SP.pass='listen'; }
-  const was=SP.playing; if(was) spPause(); SP.pos=Math.max(SP.notes[0].s-1, SP.phrases[i].s-1); SP.lastPh=-2;
-  if(was) spPlay(SP.pos); else { spPaintLyrics(); spPaintControls(); }
-}
-
-// ---------- 이벤트 ----------
-document.addEventListener('click', e=>{
-  const b=e.target.closest('[data-sp]'); if(!b || b.tagName==='SELECT' || b.type==='range') return;
-  const a=b.dataset.sp, c=spCfg();
-  switch(a){
-    case 'trainer': if(SP) spLeave(); hmView='trainer'; render(); window.scrollTo(0,0); return;
-    case 'back': hmView='song'; if(H) hmStop(false); render(); window.scrollTo(0,0); return;
-    case 'import': document.getElementById('songFile').click(); return;
-    case 'del': if(!SP) return; if(confirm(`"${SP.song.title}"을(를) 이 폰에서 지울까요?`)){ spStop(true); SONGS=SONGS.filter(s=>s.id!==SP.song.id); songsSave(); SP=null; c.song=SONGS[0]?.id||null; save(); render(); } return;
-    case 'play': if(!SP) return; if(SP.playing) spPause(); else spPlay(c.loop && (SP.pos<SP.phrases[SP.A].s-1.01 || SP.pos>SP.phrases[SP.B].e) ? spLoopStart() : SP.pos); return;
-    case 'prev': spGoPhrase(spPhraseAt(spNow()) - (spNow()-SP.phrases[spPhraseAt(spNow())].s > 1.5 ? 0 : 1)); return;
-    case 'next': spGoPhrase(spPhraseAt(spNow())+1); return;
-    case 'ph': spGoPhrase(+b.dataset.i); return;
-    case 'loop': c.loop=!c.loop; save(); if(c.loop){ SP.A=SP.B=spPhraseAt(spNow()); SP.repN=0; SP.pass='listen'; } render(); return;
-    case 'bplus': SP.B=Math.min(SP.phrases.length-1,SP.B+1); spPaintControls(); return;
-    case 'bminus': SP.B=Math.max(SP.A,SP.B-1); spPaintControls(); return;
-    case 'cfg': { const k=b.dataset.k, v=b.dataset.v; c[k] = (k==='guide') ? v : +v; save();
-      if(k==='speed' && SP.playing){ const p=spNow(); spPause(); spPlay(p); }
-      if(k==='guide'){ SP.pass='listen'; SP.repN=0; }
-      render(); return; }
-    case 'key': { const v=+b.dataset.v; c.key = v===0 ? 0 : Math.max(-12,Math.min(12,c.key+v)); save(); if(SP.playing){ const p=spNow(); spPause(); spPlay(p); } render(); return; }
-    case 'tog': { const k=b.dataset.k; c[k]=!c[k]; save(); if(k==='mic' && !c.mic && mic.on && !P && !H) stopMic(); render(); return; }
-    case 'swing': { c.swing[SP.song.id] = c.swing[SP.song.id]===false; save(); const id=SP.song.id; spSelect(id,true); render(); return; }
-  }
-});
-document.addEventListener('change', e=>{
-  const t=e.target; if(t.dataset.sp==='song'){ spSelect(t.value); render(); }
-});
-document.addEventListener('input', e=>{ const t=e.target; if(t.dataset.sp==='vol'){ spCfg().vol=+t.value; save(); } });
-
-function renderHm(){ return hmView==='trainer' ? renderHmTrainer() : renderSong(); }
 
 // =================== 설정 ===================
 function renderSettings(){
@@ -1559,16 +1140,19 @@ function renderSettings(){
       <label class="field"><span>목표일 (곡을 부를 날 = 1단계 끝)</span><input type="date" data-set="targetDate" value="${S.targetDate}"></label>
       <label class="field"><span>완성일 (6개월 플랜 끝)</span><input type="date" data-set="endDate" value="${S.endDate}"></label>
     </section>
+    <section class="card"><h3>기준음</h3>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">바람 없이, 턱·후두·볼륨까지 4가지를 지키며 내는 최고음이에요. 도전음은 자동으로 한 칸 위. 일주일 내내 도전음까지 4가지가 되면 한 칸 올리세요.</p>
+      <div class="field"><div class="chips">${SOLID_NOTES.slice(0,-1).map(n=>chip('setv','solid',n,koName(n).replace('옥타브 ','옥 '),S.solid===n)).join('')}</div></div>
+    </section>
     <section class="card"><h3>루틴</h3>
       <div class="field"><span>세트 사이 휴식</span><div class="chips">${[15,30,60].map(n=>chip('setn','rest',n,n+'초',S.rest===n)).join('')}</div></div>
-      <div class="field"><span>들숨 시간 (기구로 빨아들일 때)</span><div class="chips">${[4,5,6,7,8].map(n=>chip('setn','inhale',n,n+'초',S.inhale===n)).join('')}</div></div>
-      <div class="field"><span>웜업 날숨 시간</span><div class="chips">${[6,8,10,12,15,20].map(n=>chip('setn','exhale',n,n+'초',S.exhale===n)).join('')}</div></div>
-      <div class="field"><span>슬라이딩·계단 사이 들숨</span><div class="chips">${chip('setv','devInhale','device',`기구로 천천히 (${S.inhale}초)`,S.devInhale!=='quick')}${chip('setv','devInhale','quick','입·코로 빠르게 (3초)',S.devInhale==='quick')}</div></div>
+      <div class="field"><span>1번 호흡 목 풀기 · 기구 들숨</span><div class="chips">${[4,5,6,7,8].map(n=>chip('setn','inhale',n,n+'초',S.inhale===n)).join('')}</div></div>
+      <div class="field"><span>1번 호흡 목 풀기 · 버티며 날숨</span><div class="chips">${[8,10,12,15].map(n=>chip('setn','exhale',n,n+'초',S.exhale===n)).join('')}</div></div>
       <div class="field"><span>메트로놈 BPM (곡 템포에 맞추기)</span><div class="chips">${[70,80,90,100,110,120].map(n=>chip('setn','bpm',n,n,S.bpm===n)).join('')}</div></div>
       <div class="field"><span>알림음·가이드음</span><div class="chips">${chip('setv','beep',S.beep?'0':'1',S.beep?'켜짐':'꺼짐',S.beep)}</div></div>
     </section>
     <section class="card"><h3>음정 측정 (마이크)</h3>
-      <p class="muted" style="margin:6px 0 0;line-height:1.6">슬라이딩·계단·롱톤에서 내 소리를 노란 선으로, 가이드를 파란 띠로 보여줘요. 설치한 앱(HTTPS 주소)에서 마이크를 허용하면 작동해요.</p>
+      <p class="muted" style="margin:6px 0 0;line-height:1.6">슬라이딩·"음"·"헙" 스케일에서 내 소리를 노란 선으로, 가이드를 파란 띠로 보여줘요. 설치한 앱(HTTPS 주소)에서 마이크를 허용하면 작동해요.</p>
       <div class="field"><span>음정 측정</span><div class="chips">${chip('setv','pitch',S.pitch?'0':'1',S.pitch?'켜짐':'꺼짐',S.pitch)}</div></div>
       <div class="field"><span>소리 낼 때 가이드음</span><div class="chips">${chip('setv','guideSound','auto','자동 (마이크 켜면 들숨 때만)',S.guideSound!=='always')}${chip('setv','guideSound','always','항상 (이어폰 사용 시)',S.guideSound==='always')}</div></div>
       <p class="muted" style="margin:10px 0 0;line-height:1.6">스피커 가이드음이 마이크에 같이 잡히면 측정이 틀어져요. 이어폰을 끼면 "항상"으로 바꿔도 돼요.</p>
@@ -1617,9 +1201,8 @@ function finishSetup(){
 function render(){
   const setup=!S.setupDone;
   document.querySelector('nav.tabs').classList.toggle('hidden', setup);
-  $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='hm' ? renderHm() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
+  $app.innerHTML = setup ? renderSetup() : tab==='today' ? renderToday() : tab==='record' ? renderRecord() : tab==='effect' ? renderEffect() : renderSettings();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
-  if(!setup && tab==='hm' && hmView==='song') spMount(); else spLeave();
   // 하단 진행률: 루틴 탭에서 실행 중일 때 또는 실행 전 0%
   const dock=document.getElementById('dock');
   const showDock = !setup && (P || (tab==='today' && phaseOf(today())!==4));
@@ -1629,10 +1212,11 @@ function render(){
     document.getElementById('dockLabel').textContent=`${slot==='am'?'아침':'저녁'} 루틴 진행률`;
     document.getElementById('dockBar').style.width=pct+'%'; document.getElementById('dockTime').textContent=`${pct}%`; }
   renderSheet();
+  if(!demoRaf && document.querySelector('svg.bf[data-demo]')) demoRaf=requestAnimationFrame(demoLoop);
 }
 
 document.querySelector('nav.tabs').addEventListener('click', e=>{
-  const b=e.target.closest('button[data-tab]'); if(!b) return; if(H && b.dataset.tab!=='hm') hmStop(false); tab=b.dataset.tab; sheetDate=null; render(); window.scrollTo(0,0);
+  const b=e.target.closest('button[data-tab]'); if(!b) return; tab=b.dataset.tab; sheetDate=null; render(); window.scrollTo(0,0);
 });
 document.addEventListener('click', e=>{
   if(e.target.id==='sheet'){ sheetDate=null; renderSheet(); return; }
@@ -1640,14 +1224,7 @@ document.addEventListener('click', e=>{
   const act=b.dataset.act, t=today();
   switch(act){
     case 'slot': if(P){ toast('루틴 진행 중에는 바꿀 수 없어요'); return; } slot=b.dataset.v; break;
-    case 'start': if(H) hmStop(false); startRoutine(); return;
-    case 'hmstart': if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; } hmStart('train'); return;
-    case 'hmcalib': if(P){ toast('루틴이 끝난 뒤에 해주세요'); return; } hmStart('calib'); return;
-    case 'hmstop': hmStop(); return;
-    case 'hmrec': S.hmRec=b.checked; save(); return;
-    case 'hmgoal': hmState().goal=+b.dataset.v; save(); break;
-    case 'hmmode': hmState().mode=b.dataset.v; save(); if(H){ hmStop(false); } break;
-    case 'hmvowel': hmState().vowel=b.dataset.v; save(); break;
+    case 'start': startRoutine(); return;
     case 'lower': if(S.lower[t]) delete S.lower[t]; else S.lower[t]=true; save(); break;
     case 'pause': togglePause(); return;
     case 'skip': skipStage(); return;
@@ -1707,8 +1284,6 @@ document.getElementById('importFile').addEventListener('change', async e=>{
   try{ const d=JSON.parse(await f.text()); if(!d||typeof d.logs!=='object') throw 0; S={...DEFAULTS,...d}; save(); render(); toast('기록을 불러왔어요'); }
   catch(err){ toast('불러오기 실패: 올바른 기록 파일이 아니에요'); }
 });
-
-document.getElementById('songFile').addEventListener('change', e=>{ const f=e.target.files[0]; e.target.value=''; if(f) spImportFile(f); });
 
 let lastDay=today();
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden && !P && today()!==lastDay){ lastDay=today(); render(); } });
